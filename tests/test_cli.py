@@ -1,3 +1,4 @@
+import pytest
 from typer.testing import CliRunner
 
 from forge import __version__
@@ -23,3 +24,15 @@ def test_registry_stats(tmp_path, monkeypatch) -> None:  # type: ignore[no-untyp
     result = runner.invoke(app, ["registry", "stats"])
     assert result.exit_code == 0, result.output
     assert "total: 0" in result.output
+
+
+@pytest.mark.typst
+def test_layout_demo(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    result = runner.invoke(app, ["layout", "demo", "--trim", "6x9", "--out", str(tmp_path)])
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "interior.pdf").is_file()
+
+
+def test_layout_demo_bad_trim(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    result = runner.invoke(app, ["layout", "demo", "--trim", "5x5", "--out", str(tmp_path)])
+    assert result.exit_code == 1

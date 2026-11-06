@@ -107,13 +107,16 @@ uv run ruff check . && uv run ruff format --check .
 uv run forge --help
 uv run forge registry stats                # puzzles registered per type (duplicate guard)
 uv run forge registry list <book_id>
+uv run forge layout demo --trim 6x9 --out output/layout_demo   # sample interior.pdf (Typst check)
 uv run forge puzzle wordsearch --theme animals --level easy --seed 1 --out output/tmp
 uv run forge book build configs/books/example_wordsearch.yaml
 uv run forge book verify output/<book_id>
 ```
 
-Typst must be installed on the machine (`typst --version`). If it is missing in the cloud session, tests that
-need it are marked `@pytest.mark.typst` and skipped; pure-Python logic must still be fully tested.
+Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is
+missing, `forge/layout/typst_runner.py` falls back to the `typst` Python package (Apache-2.0, same compiler).
+Tests that need a Typst backend are marked `@pytest.mark.typst` and skipped when neither exists; pure-Python
+logic must still be fully tested. Typst always runs with `--ignore-system-fonts` + `assets/fonts/`.
 
 ## 7. How to work in this repo (autonomous step-by-step workflow)
 

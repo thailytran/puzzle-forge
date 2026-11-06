@@ -1,0 +1,24 @@
+# KDP paperback interior rules (no bleed).
+# Source: KDP Help "Set trim size, bleed, and margins".
+# !! Re-check these numbers against the current KDP help page before every release. !!
+checked_on: "2026-11-06"
+min_pages: 24
+max_pages: 828          # B&W on white paper; color limits are lower
+outside_min_in: 0.25    # outside / top / bottom minimum (no bleed)
+gutter:                 # inside margin minimum by page count
+  - { max_pages: 150, inside_in: 0.375 }
+  - { max_pages: 300, inside_in: 0.5 }
+  - { max_pages: 500, inside_in: 0.625 }
+  - { max_pages: 700, inside_in: 0.75 }
+  - { max_pages: 828, inside_in: 0.875 }
+# Our comfort margins (added on top of the minimums above)
+comfort:
+  outside_in: 0.5
+  top_in: 0.5
+  bottom_in: 0.5
+  gutter_extra_in: 0.125
+trims:
+  "8.5x11":  { width_in: 8.5, height_in: 11.0 }
+  "8x10":    { width_in: 8.0, height_in: 10.0 }
+  "6x9":     { width_in: 6.0, height_in: 9.0 }
+  "8.5x8.5": { width_in: 8.5, height_in: 8.5 }

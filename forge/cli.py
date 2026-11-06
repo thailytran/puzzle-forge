@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
 
 from forge import __version__
@@ -61,6 +63,30 @@ def registry_list(book_id: str = typer.Argument(..., help="Book id")) -> None:
     with Registry(get_settings().db_path) as reg:
         for e in reg.list_by_book(book_id):
             typer.echo(f"{e.puzzle_id}\t{e.level}\tseed={e.seed}")
+
+
+layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
+app.add_typer(layout_app, name="layout")
+
+
+@layout_app.command("demo")
+def layout_demo(
+    trim: str = typer.Option("8.5x11", help="8.5x11 | 8x10 | 6x9 | 8.5x8.5"),
+    large_print: bool = typer.Option(False, "--large-print", help="Bigger fonts and cells."),
+    out: Path = typer.Option(Path("output/layout_demo"), help="Output directory."),
+) -> None:
+    """Render a sample interior PDF to check the Typst pipeline."""
+    from forge.layout.demo import demo_layout
+    from forge.layout.document import render_pdf
+    from forge.layout.typst_runner import TypstError, backend
+
+    doc = demo_layout(trim, large_print=large_print)
+    try:
+        pdf = render_pdf(doc, out / "interior.pdf")
+    except (TypstError, ValueError) as exc:
+        typer.secho(f"layout demo failed: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"wrote {pdf} ({len(doc.pages)} pages, trim {trim}, backend {backend()})")
 
 
 if __name__ == "__main__":
