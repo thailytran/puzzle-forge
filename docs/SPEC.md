@@ -17,7 +17,7 @@ class PuzzleSpec(BaseModel):
     constraints: list[Constraint] = []   # mystery: force a token (see §5)
 
 class Puzzle(BaseModel):
-    id: str                        # ulid
+    id: str                        # deterministic: "<type>-<content_hash[:16]>" (not a ULID, see golden rule 3)
     type: str
     spec: PuzzleSpec
     seed: int
