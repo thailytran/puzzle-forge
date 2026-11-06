@@ -12,6 +12,7 @@ dependencies = [
     "rich>=13.7",
     "typst>=0.14,<0.15",
     "pypdf>=4.0",
+    "rustoku>=0.16,<0.17",
 ]
 
 [project.scripts]
@@ -54,3 +55,7 @@ addopts = "-ra"
 markers = [
     "typst: needs the typst CLI binary (skipped when missing)",
 ]
+
+[[tool.mypy.overrides]]
+module = ["rustoku", "rustoku.*", "typst"]
+ignore_missing_imports = true

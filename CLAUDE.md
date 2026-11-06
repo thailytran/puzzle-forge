@@ -111,6 +111,7 @@ uv run forge registry list <book_id>
 uv run forge layout demo --trim 6x9 --out output/layout_demo   # sample interior.pdf (Typst check)
 uv run forge puzzle wordsearch --theme animals --level easy --seed 1 --out output/tmp
 uv run forge puzzle wordsearch --theme space --level easy --audience kids_6_8 --hidden-message "LOOK UP" --shape circle
+uv run forge puzzle sudoku --level hard --seed 3            # -o size=4|6|9 ; 9x9 graded by rustoku techniques
 uv run forge book build configs/books/example_wordsearch.yaml
 uv run forge book verify output/<book_id>
 ```

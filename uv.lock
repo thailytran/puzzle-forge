@@ -282,6 +282,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "rich" },
+    { name = "rustoku" },
     { name = "typer" },
     { name = "typst" },
 ]
@@ -302,6 +303,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "rich", specifier = ">=13.7" },
+    { name = "rustoku", specifier = ">=0.16,<0.17" },
     { name = "typer", specifier = ">=0.12" },
     { name = "typst", specifier = ">=0.14,<0.15" },
 ]
@@ -485,6 +487,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b9/ab/d8e407669ffe5014429baf780c2df47e001968a6e4c17f615e2e7b13a9ba/ruff-0.17.4-py3-none-win32.whl", hash = "sha256:3971a78cba76298b284c8321e6d40d93045ed348bec5c369d85099efc97fb7cf", size = 9931993, upload-time = "2026-11-05T18:52:11.169Z" },
     { url = "https://files.pythonhosted.org/packages/bd/15/42af8a72d8946e3c9efd2bbf6641e462b6832783b0d043d63ef5b280ba7f/ruff-0.17.4-py3-none-win_amd64.whl", hash = "sha256:67c5a894fc054cf41f75f7afa24815de5a74329d97634126c2a1015740ff4e8c", size = 10292922, upload-time = "2026-11-05T18:52:13.436Z" },
     { url = "https://files.pythonhosted.org/packages/68/9e/f1dbffcfb8ff25dadbc21f87a8b73c3848abe4abada9d4b08ccef8bec40c/ruff-0.17.4-py3-none-win_arm64.whl", hash = "sha256:181ae38a9a8fb94925bf7d0794327b48d7fd7f4b50cfd84c0e999cc09ef8d131", size = 9889396, upload-time = "2026-11-05T18:52:15.549Z" },
+]
+
+[[package]]
+name = "rustoku"
+version = "0.16.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/35/735424cf5e9192e5b6a19da705683281a0fd9826136aaf8470019fe5a254/rustoku-0.16.0.tar.gz", hash = "sha256:376396d422e0d05344ae183ec179f7957795c2644366eb6ebeb93a3196f701ba", size = 77542, upload-time = "2026-10-11T03:04:50.101Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/06/3c0d284d539c0fd1f3bd28bd85e96085da69b538fb66f6537c52d9a5cca6/rustoku-0.16.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:5bf3b13778bafb093adcc34a26f4373a12938f55467bb267e464350a8be8a806", size = 296936, upload-time = "2026-10-11T03:04:35.71Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/ed/3ba93b0e1588efcb766f0f2b6dd7e703a41870e07ecf8d2bc9a664f331b8/rustoku-0.16.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:7b445af7e5f176b38dd502acfb1595eb1d56b4f16962a7cd3aff3216964b0641", size = 298414, upload-time = "2026-10-11T03:04:37.165Z" },
+    { url = "https://files.pythonhosted.org/packages/01/ef/fee0cc8a7de305455d2db28238e506379cd1e5bd76497c652a2e1f30f2c3/rustoku-0.16.0-cp312-cp312-manylinux_2_34_x86_64.whl", hash = "sha256:0d41072e29e6d04e65aa3895c99f8949e1fea75bb921fe1c131becfbf0b135db", size = 346268, upload-time = "2026-10-11T03:04:38.571Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/2d/f856250ae961b6eb74c41d196db9f767ea5afc0ff8ccf694dac9aa7eb839/rustoku-0.16.0-cp312-cp312-win_amd64.whl", hash = "sha256:1b7a83c2c98a8600063d7c38e5a95481cf2577cbc8ac2089c322a46f1cdba307", size = 183580, upload-time = "2026-10-11T03:04:39.863Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/8d/e711f36ad15b31d2e5df06aeb48227d3f30723c178b971b769482d52a182/rustoku-0.16.0-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:679673dea5b16f3d2b7467004e60b54f7ad99095578dcf49984435117aa7339e", size = 297304, upload-time = "2026-10-11T03:04:41.148Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/1c/2959a89e84857e832cc52fac62368d66d2914f3d846366d0d9e621dea842/rustoku-0.16.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:d1f526370a24718740f8736eba6a4c734ba0ae058d22c025c62c54c336499b21", size = 298668, upload-time = "2026-10-11T03:04:42.664Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/b0/fe9e081349800823e0143736448285b2065a07ad5ac9cdefbd3f090bee26/rustoku-0.16.0-cp313-cp313-win_amd64.whl", hash = "sha256:b6fd4f20f513f26bf368da5c0fb610613a2a9a716399fb980ce93bea160a7306", size = 183577, upload-time = "2026-10-11T03:04:44.214Z" },
 ]
 
 [[package]]

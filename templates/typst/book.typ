@@ -62,6 +62,36 @@
   }))
 }
 
+#let sudoku-grid(b) = {
+  let n = b.size
+  let cell = b.cell_in * inch
+  let fpt = b.font_pt * 1pt
+  let shaded = b.at("shaded", default: ())
+  align(center, box(width: n * cell, height: n * cell, {
+    for s in shaded {
+      let (r, c) = s
+      place(top + left, dx: c * cell, dy: r * cell, rect(width: cell, height: cell, fill: luma(215), stroke: none))
+    }
+    for i in range(n + 1) {
+      let tv = if calc.rem(i, b.box_cols) == 0 { 2pt } else { 0.5pt }
+      let th = if calc.rem(i, b.box_rows) == 0 { 2pt } else { 0.5pt }
+      place(top + left, line(start: (i * cell, 0pt), end: (i * cell, n * cell), stroke: tv))
+      place(top + left, line(start: (0pt, i * cell), end: (n * cell, i * cell), stroke: th))
+    }
+    for (r, row) in b.cells.enumerate() {
+      for (c, v) in row.enumerate() {
+        if v != none {
+          let given = b.given_mask.at(r).at(c)
+          place(top + left, dx: c * cell, dy: r * cell, box(width: cell, height: cell,
+            align(center + horizon, text(font: L.fonts.sans, size: fpt,
+              weight: if given { "bold" } else { "regular" },
+              fill: if given { black } else { luma(90) }, str(v)))))
+        }
+      }
+    }
+  }))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -97,6 +127,8 @@
     align(center, image(b.path, width: b.width_in * inch))
   } else if k == "letter_grid" {
     letter-grid(b)
+  } else if k == "sudoku_grid" {
+    sudoku-grid(b)
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {

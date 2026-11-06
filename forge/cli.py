@@ -96,6 +96,9 @@ def puzzle(
     seed: int = typer.Option(1, help="Seed (same seed => same puzzle)"),
     hidden_message: str | None = typer.Option(None, help="Word search: leftover letters"),
     shape: str | None = typer.Option(None, help="Word search mask: rect | circle | diamond"),
+    option: list[str] = typer.Option(
+        [], "--option", "-o", help="Type option key=value (e.g. size=6), repeatable"
+    ),
     trim: str = typer.Option("8.5x11", help="Trim for the preview PDF"),
     out: Path = typer.Option(Path("output/tmp"), help="Output directory"),
 ) -> None:
@@ -111,7 +114,10 @@ def puzzle(
     constraints = []
     if hidden_message:
         constraints.append({"kind": "hidden_message", "text": hidden_message})
-    options = {"shape": shape} if shape else {}
+    options: dict[str, object] = {"shape": shape} if shape else {}
+    for kv in option:
+        key, _, val = kv.partition("=")
+        options[key.strip()] = int(val) if val.strip().lstrip("-").isdigit() else val.strip()
     try:
         spec = PuzzleSpec.model_validate(
             {

@@ -49,3 +49,10 @@ def test_puzzle_wordsearch(tmp_path) -> None:  # type: ignore[no-untyped-def]
 def test_puzzle_unknown_type(tmp_path) -> None:  # type: ignore[no-untyped-def]
     result = runner.invoke(app, ["puzzle", "nope", "--out", str(tmp_path)])
     assert result.exit_code == 1
+
+
+def test_puzzle_sudoku_option(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    args = ["puzzle", "sudoku", "-o", "size=6", "--seed", "2", "--out", str(tmp_path)]
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    assert '"size": 6' in (tmp_path / "puzzle.json").read_text()
