@@ -92,6 +92,23 @@
   }))
 }
 
+#let maze(b) = {
+  let w = b.width_in * inch
+  let unit = w / (b.cols + 2 * b.pad)
+  align(center, box(width: w, height: unit * (b.rows + 2 * b.pad), {
+    place(top + left, image(b.path, width: w))
+    place(top + left, dx: unit * 1.1, dy: 0pt,
+      text(font: L.fonts.sans, size: 8pt, weight: "bold", "START"))
+    place(bottom + right, dx: -unit * 1.1, dy: 0pt,
+      text(font: L.fonts.sans, size: 8pt, weight: "bold", "FINISH"))
+    for l in b.at("letters", default: ()) {
+      place(top + left, dx: (l.c + b.pad) * unit, dy: (l.r + b.pad) * unit,
+        box(width: unit, height: unit, align(center + horizon,
+          text(font: L.fonts.sans, weight: "bold", size: b.font_pt * 1pt, l.ch))))
+    }
+  }))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -129,6 +146,8 @@
     letter-grid(b)
   } else if k == "sudoku_grid" {
     sudoku-grid(b)
+  } else if k == "maze" {
+    maze(b)
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {

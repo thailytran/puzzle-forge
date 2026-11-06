@@ -9,3 +9,4 @@
 - P0.5: VM install: idempotent scripts/setup_vm.sh (apt, uv, Python 3.12, typst 0.14.2, fonts, uv sync, .env, doctor), scripts/update.sh, docs/INSTALL_VM.md (Vietnamese)
 - P1.1: word search: generator (directions by level/audience, masks, decoys, filler repair for blocked words + accidental duplicates), independent solver/verify, difficulty score, Typst render + solution highlights, hidden_message constraint, 21 built-in theme lists, `forge puzzle`
 - P1.2: sudoku 4x4/6x6/9x9: seeded generator (rot-180 symmetry), technique-guided clue removal, independent python solver + rustoku cross-check, technique-based grading (rustoku solve_steps), render, shaded_cells constraint; `forge puzzle -o key=value`
+- P1.3: maze: growing-tree generator (river factor by level), perfect-maze verification (tree check + BFS route), difficulty, SVG render + solution route, path_letters constraint with decoys

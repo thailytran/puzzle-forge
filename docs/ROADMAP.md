@@ -14,7 +14,7 @@ Tick `[x]` when a task is merged. Each task ≈ one Claude Code session = one PR
 ## P1 — Puzzle Engine MVP (≈2–3 weeks) → first classic KDP book
 - [x] P1.1 Word search: generator (directions by level, masks), solver, difficulty, SVG/Typst render, solution render; constraint `hidden_message`.
 - [x] P1.2 Sudoku (rustoku): 4x4/6x6/9x9, levels, uniqueness, difficulty from technique trace, render; constraint `shaded_cells`.
-- [ ] P1.3 Maze: generator + solver, sizes by level, SVG render, solution path; constraint `path_letters`.
+- [x] P1.3 Maze: generator + solver, sizes by level, SVG render, solution path; constraint `path_letters`.
 - [ ] P1.4 Word scramble + Cryptogram: unique answers, quote source = own/public domain only.
 - [ ] P1.5 Crossword (own filler, no GPL): grid templates by size, fill from word list, numbering, clue list render.
 - [ ] P1.6 Book builder: progressive / mixed / by_section modes, front matter, TOC, solutions section, `forge book build` + `forge book verify`.

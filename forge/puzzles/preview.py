@@ -32,11 +32,12 @@ def preview_pdf(puzzle: Puzzle, out: Path, trim: str = "8.5x11") -> Path:
     pt = get_puzzle_type(puzzle.type)
     large = puzzle.spec.audience == "senior_large_print"
     ctx = content_ctx(trim, large)
+    front, back = pt.render(puzzle, ctx), pt.render_solution(puzzle, ctx)
     pages = [
-        Page(kind="puzzle", title=puzzle_title(puzzle), blocks=pt.render(puzzle, ctx).blocks),
-        Page(kind="solutions", title="Solution", blocks=pt.render_solution(puzzle, ctx).blocks),
+        Page(kind="puzzle", title=puzzle_title(puzzle), blocks=front.blocks),
+        Page(kind="solutions", title="Solution", blocks=back.blocks),
     ]
     doc = make_layout(
         title=f"{puzzle.type} preview", trim=trim, pages=pages, large_print=large, min_pages=0
     )
-    return render_pdf(doc, out)
+    return render_pdf(doc, out, files={**front.files, **back.files})
