@@ -1,7 +1,7 @@
 # STATUS
 
-- Current phase: P0
-- Current task: P0.5
-- What works: scaffold, core models, registry, Typst pipeline, `forge doctor`
+- Current phase: P1
+- Current task: P1.1
+- What works: Phase P0 complete: scaffold, core models, registry, Typst pipeline + `forge layout demo`, `forge doctor`, VM setup/update scripts
 - Known issues: none
-- Next: P0.5 VM setup script + INSTALL_VM.md
+- Next: P1.1 word search generator/solver/render + hidden_message
