@@ -1,7 +1,7 @@
 # STATUS
 
 - Current phase: P0
-- Current task: P0.3
-- What works: scaffold; core models + BookSpec loader (`configs/books/example_wordsearch.yaml`), seeds, hashing
+- Current task: P0.4
+- What works: scaffold, core models, SQLite registry (`forge registry stats`)
 - Known issues: none
-- Next: P0.3 SQLite registry
+- Next: P0.4 Typst pipeline

@@ -105,6 +105,8 @@ uv sync                                  # install
 uv run pytest -q                         # tests
 uv run ruff check . && uv run ruff format --check .
 uv run forge --help
+uv run forge registry stats                # puzzles registered per type (duplicate guard)
+uv run forge registry list <book_id>
 uv run forge puzzle wordsearch --theme animals --level easy --seed 1 --out output/tmp
 uv run forge book build configs/books/example_wordsearch.yaml
 uv run forge book verify output/<book_id>
