@@ -157,14 +157,10 @@ class Crossword:
         blocks: list[dict[str, Any]] = [self._grid(puzzle, ctx, False, 0.6)]
         size = 16.0 if ctx.large_print else 11.0
         if puzzle.data["mode"] == "fill_in":
-            blocks.insert(
-                0,
-                {
-                    "kind": "paragraph",
-                    "text": "Fit every word into the grid. "
-                    "Some letters are given to get you started.",
-                },
-            )
+            intro = "Fit every word into the grid."
+            if puzzle.data["givens"]:
+                intro += " Some letters are given to get you started."
+            blocks.insert(0, {"kind": "paragraph", "text": intro})
             by_len: dict[int, list[str]] = {}
             for wd in puzzle.data["words"]:
                 by_len.setdefault(len(wd), []).append(wd)
