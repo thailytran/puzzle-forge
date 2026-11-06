@@ -4,7 +4,7 @@ Tick `[x]` when a task is merged. Each task ≈ one Claude Code session = one PR
 **Done means**: tests pass, ruff clean, docs/commands updated, owner can run it on the VM.
 
 ## P0 — Foundation (≈1 week)
-- [ ] P0.1 Scaffold: uv project, `forge` package, typer CLI, ruff/mypy/pytest, `.env.example`, `.gitignore`, GitHub Actions CI (lint + tests).
+- [x] P0.1 Scaffold: uv project, `forge` package, typer CLI, ruff/mypy/pytest, `.env.example`, `.gitignore`, GitHub Actions CI (lint + tests).
 - [ ] P0.2 Core models (`forge/core`): PuzzleSpec, Puzzle, DifficultyScore, VerifyReport, BookSpec (YAML loader), seed utils, canonical hashing.
 - [ ] P0.3 SQLite registry: store puzzles by content_hash, reject duplicates, list by book.
 - [ ] P0.4 Typst pipeline: `templates/typst/book.typ`, trim/margin table (8.5x11, 6x9, 8x10, 8.5x8.5), even page count, fonts (OFL) in `assets/fonts/`, `forge layout demo` → sample PDF.
