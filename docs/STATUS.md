@@ -1,7 +1,7 @@
 # STATUS
 
 - Current phase: P1
-- Current task: P1.1
-- What works: Phase P0 complete: scaffold, core models, registry, Typst pipeline + `forge layout demo`, `forge doctor`, VM setup/update scripts
-- Known issues: none
-- Next: P1.1 word search generator/solver/render + hidden_message
+- Current task: P1.2
+- What works: P0 complete; word search end to end (`forge puzzle wordsearch ...` → puzzle.json + preview.pdf)
+- Known issues: hidden-message word searches may add generic short words (short_words list) when the theme list runs out; difficulty weights are a first calibration
+- Next: P1.2 sudoku

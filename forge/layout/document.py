@@ -2,7 +2,9 @@
 
 Block kinds understood by the template:
   heading {text, level}        paragraph {text}        list {items}
-  spacer {height_in}           image {path, width_in}  letter_grid {rows, cell_in, font_pt}
+  spacer {height_in}           image {path, width_in}
+  letter_grid {rows: [[str|null]], cell_in, font_pt, borders?, highlights?: [[r1,c1,r2,c2]]}
+  word_list {words, columns, font_pt}
   toc {entries: [{title, page}]}
 """
 

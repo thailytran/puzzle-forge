@@ -36,3 +36,16 @@ def test_layout_demo(tmp_path) -> None:  # type: ignore[no-untyped-def]
 def test_layout_demo_bad_trim(tmp_path) -> None:  # type: ignore[no-untyped-def]
     result = runner.invoke(app, ["layout", "demo", "--trim", "5x5", "--out", str(tmp_path)])
     assert result.exit_code == 1
+
+
+def test_puzzle_wordsearch(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    args = ["puzzle", "wordsearch", "--theme", "animals", "--seed", "3", "--out", str(tmp_path)]
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    assert "verify=OK" in result.output
+    assert (tmp_path / "puzzle.json").is_file()
+
+
+def test_puzzle_unknown_type(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    result = runner.invoke(app, ["puzzle", "nope", "--out", str(tmp_path)])
+    assert result.exit_code == 1

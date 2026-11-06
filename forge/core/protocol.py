@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from forge.core.models import DifficultyScore, Puzzle, PuzzleSpec, SolveResult, VerifyReport
 
@@ -21,9 +21,9 @@ class RenderCtx:
 
 @dataclass
 class RenderedBlock:
-    """A piece of page content: Typst markup plus any side files (e.g. SVG) it references."""
+    """Page content as layout blocks (see forge/layout/document.py) + side files they use."""
 
-    typst: str
+    blocks: list[dict[str, Any]]
     files: dict[str, bytes] = field(default_factory=dict)
 
 

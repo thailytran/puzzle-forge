@@ -31,16 +31,45 @@
 // ---------------------------------------------------------------- blocks
 #let letter-grid(b) = {
   let rows = b.rows
-  let n = rows.at(0).len()
+  let nr = rows.len()
+  let nc = rows.at(0).len()
   let cell = b.at("cell_in", default: 0.35) * inch
   let fpt = b.at("font_pt", default: 14) * 1pt
-  align(center, table(
-    columns: (cell,) * n,
-    rows: (cell,) * rows.len(),
-    align: center + horizon,
-    stroke: 0.5pt + luma(120),
-    inset: 0pt,
-    ..rows.flatten().map(c => text(font: L.fonts.sans, size: fpt, c)),
+  let borders = b.at("borders", default: false)
+  let hl = b.at("highlights", default: ())
+  align(center, box(width: nc * cell, height: nr * cell, {
+    // solution highlights: thick round-capped grey strokes under the letters
+    for h in hl {
+      let (r1, c1, r2, c2) = h
+      place(top + left, line(
+        start: ((c1 + 0.5) * cell, (r1 + 0.5) * cell),
+        end: ((c2 + 0.5) * cell, (r2 + 0.5) * cell),
+        stroke: (paint: luma(200), thickness: 0.7 * cell, cap: "round"),
+      ))
+    }
+    for (r, row) in rows.enumerate() {
+      for (c, ch) in row.enumerate() {
+        if ch != none {
+          if borders {
+            place(top + left, dx: c * cell, dy: r * cell,
+              rect(width: cell, height: cell, stroke: 0.5pt + luma(120)))
+          }
+          place(top + left, dx: c * cell, dy: r * cell, box(width: cell, height: cell,
+            align(center + horizon, text(font: L.fonts.sans, size: fpt, ch))))
+        }
+      }
+    }
+  }))
+}
+
+#let word-list(b) = {
+  let cols = b.at("columns", default: 3)
+  set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
+  align(center, grid(
+    columns: (auto,) * cols,
+    column-gutter: 2.2em,
+    row-gutter: 0.55em,
+    ..b.words,
   ))
 }
 
@@ -68,6 +97,8 @@
     align(center, image(b.path, width: b.width_in * inch))
   } else if k == "letter_grid" {
     letter-grid(b)
+  } else if k == "word_list" {
+    word-list(b)
   } else if k == "toc" {
     toc(b)
   } else {

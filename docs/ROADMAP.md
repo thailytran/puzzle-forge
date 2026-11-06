@@ -12,7 +12,7 @@ Tick `[x]` when a task is merged. Each task ≈ one Claude Code session = one PR
 - [x] P0.6 `forge doctor`: checks Python, typst, fonts, write access to `output/`, DB, optional API keys; prints a green/red table.
 
 ## P1 — Puzzle Engine MVP (≈2–3 weeks) → first classic KDP book
-- [ ] P1.1 Word search: generator (directions by level, masks), solver, difficulty, SVG/Typst render, solution render; constraint `hidden_message`.
+- [x] P1.1 Word search: generator (directions by level, masks), solver, difficulty, SVG/Typst render, solution render; constraint `hidden_message`.
 - [ ] P1.2 Sudoku (rustoku): 4x4/6x6/9x9, levels, uniqueness, difficulty from technique trace, render; constraint `shaded_cells`.
 - [ ] P1.3 Maze: generator + solver, sizes by level, SVG render, solution path; constraint `path_letters`.
 - [ ] P1.4 Word scramble + Cryptogram: unique answers, quote source = own/public domain only.

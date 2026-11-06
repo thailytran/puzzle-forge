@@ -86,6 +86,64 @@ def registry_list(book_id: str = typer.Argument(..., help="Book id")) -> None:
             typer.echo(f"{e.puzzle_id}\t{e.level}\tseed={e.seed}")
 
 
+@app.command()
+def puzzle(
+    type_: str = typer.Argument(..., metavar="TYPE", help="Puzzle type, e.g. wordsearch"),
+    level: str = typer.Option("easy", help="very_easy | easy | medium | hard | expert"),
+    audience: str = typer.Option("adult", help="kids_6_8 | kids_9_12 | teen | adult | ..."),
+    theme: str | None = typer.Option(None, help="Built-in theme (see forge/wordlists/data)"),
+    words: str | None = typer.Option(None, help="Comma-separated explicit word list"),
+    seed: int = typer.Option(1, help="Seed (same seed => same puzzle)"),
+    hidden_message: str | None = typer.Option(None, help="Word search: leftover letters"),
+    shape: str | None = typer.Option(None, help="Word search mask: rect | circle | diamond"),
+    trim: str = typer.Option("8.5x11", help="Trim for the preview PDF"),
+    out: Path = typer.Option(Path("output/tmp"), help="Output directory"),
+) -> None:
+    """Generate one puzzle -> puzzle.json + preview.pdf (puzzle + solution page)."""
+    from pydantic import ValidationError
+
+    from forge.core.models import PuzzleSpec
+    from forge.layout.typst_runner import TypstError
+    from forge.puzzles.base import GenerationError
+    from forge.puzzles.preview import preview_pdf
+    from forge.puzzles.registry import get_puzzle_type
+
+    constraints = []
+    if hidden_message:
+        constraints.append({"kind": "hidden_message", "text": hidden_message})
+    options = {"shape": shape} if shape else {}
+    try:
+        spec = PuzzleSpec.model_validate(
+            {
+                "type": type_,
+                "level": level,
+                "audience": audience,
+                "theme": theme,
+                "words": [w.strip() for w in words.split(",")] if words else None,
+                "options": options,
+                "constraints": constraints,
+            }
+        )
+        pz = get_puzzle_type(type_).generate(spec, seed)
+    except (ValidationError, KeyError, ValueError, GenerationError) as exc:
+        typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "puzzle.json").write_text(pz.model_dump_json(indent=1), encoding="utf-8")
+    d = pz.difficulty
+    typer.echo(
+        f"{pz.id}  verify={'OK' if pz.verify and pz.verify.ok else 'FAIL'}  "
+        f"difficulty={d.score if d else '?'} ({d.label if d else '?'})"
+    )
+    if pz.token:
+        typer.echo(f"token: {pz.token}")
+    try:
+        pdf = preview_pdf(pz, out / "preview.pdf", trim=trim)
+        typer.echo(f"wrote {out / 'puzzle.json'} and {pdf}")
+    except TypstError as exc:
+        typer.secho(f"preview skipped: {exc}", fg=typer.colors.YELLOW, err=True)
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 
