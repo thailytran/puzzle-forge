@@ -39,6 +39,27 @@ def version() -> None:
     typer.echo(f"puzzle-forge {__version__}")
 
 
+@app.command()
+def doctor() -> None:
+    """Check this machine: Python, Typst, fonts, output dir, DB, API keys."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from forge.doctor import run_all
+
+    styles = {"ok": "[green]OK[/green]", "warn": "[yellow]WARN[/yellow]", "fail": "[red]FAIL[/red]"}
+    results = run_all(get_settings())
+    table = Table(title="forge doctor")
+    table.add_column("Check")
+    table.add_column("Status")
+    table.add_column("Detail")
+    for r in results:
+        table.add_row(r.name, styles[r.status], r.detail)
+    Console().print(table)
+    if any(r.status == "fail" for r in results):
+        raise typer.Exit(1)
+
+
 registry_app = typer.Typer(help="Inspect the puzzle registry (duplicate guard).")
 app.add_typer(registry_app, name="registry")
 

@@ -105,6 +105,7 @@ uv sync                                  # install
 uv run pytest -q                         # tests
 uv run ruff check . && uv run ruff format --check .
 uv run forge --help
+uv run forge doctor                       # machine self-check (green/yellow/red table, exit 1 on FAIL)
 uv run forge registry stats                # puzzles registered per type (duplicate guard)
 uv run forge registry list <book_id>
 uv run forge layout demo --trim 6x9 --out output/layout_demo   # sample interior.pdf (Typst check)
