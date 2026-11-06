@@ -1,7 +1,7 @@
 # STATUS
 
 - Current phase: P1
-- Current task: P1.4
-- What works: P0; word search; sudoku; maze (`forge puzzle maze`)
-- Known issues: none
-- Next: P1.4 word scramble + cryptogram
+- Current task: P1.5
+- What works: P0; word search, sudoku, maze, scramble, cryptogram (`forge puzzle <type>`)
+- Known issues: cryptograms need ~5 hints on average to be provably unique against common English (SCOWL-35); word search may add generic short words for hidden messages; difficulty weights are first calibrations; CI shows no runs on the PR yet (check Actions is enabled)
+- Next: P1.5 crossword (own filler)

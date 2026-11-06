@@ -109,6 +109,34 @@
   }))
 }
 
+#let answer-lines(b) = {
+  set text(font: L.fonts.sans, size: b.at("font_pt", default: 12) * 1pt)
+  grid(
+    columns: (1fr, 1fr),
+    row-gutter: 1.1em,
+    column-gutter: 1em,
+    ..b.rows.map(r => (
+      r.left,
+      if r.right == "" { box(width: 100%, height: 1em, stroke: (bottom: 0.6pt)) } else { strong(r.right) },
+    )).flatten(),
+  )
+}
+
+#let cryptogram(b) = {
+  let fpt = b.at("font_pt", default: 12) * 1pt
+  set text(font: L.fonts.sans, size: fpt)
+  let cell(x) = box(width: 1.25 * fpt, stack(dir: ttb, spacing: 0.25em,
+    box(width: 100%, height: 1.3 * fpt, stroke: if x.c != "" { (bottom: 0.6pt) } else { none },
+      align(center + bottom, strong(x.p))),
+    box(width: 100%, height: 1em, align(center, text(size: 0.75 * fpt, fill: luma(60), x.c))),
+  ))
+  par(leading: 1.6em, justify: false, b.words.map(w => box(w.map(cell).join())).join(h(1.1em)))
+  if b.at("source", default: "") != "" {
+    v(0.8em)
+    align(right, text(style: "italic", size: 0.85 * fpt, "— " + b.source))
+  }
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -148,6 +176,10 @@
     sudoku-grid(b)
   } else if k == "maze" {
     maze(b)
+  } else if k == "answer_lines" {
+    answer-lines(b)
+  } else if k == "cryptogram" {
+    cryptogram(b)
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {

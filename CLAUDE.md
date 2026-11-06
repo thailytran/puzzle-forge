@@ -113,6 +113,8 @@ uv run forge puzzle wordsearch --theme animals --level easy --seed 1 --out outpu
 uv run forge puzzle wordsearch --theme space --level easy --audience kids_6_8 --hidden-message "LOOK UP" --shape circle
 uv run forge puzzle sudoku --level hard --seed 3            # -o size=4|6|9 ; 9x9 graded by rustoku techniques
 uv run forge puzzle maze --level medium --seed 4             # SVG maze; solution page shows the route
+uv run forge puzzle scramble --theme ocean --level medium      # unique anagrams (ENABLE dictionary)
+uv run forge puzzle cryptogram --level hard                     # PD quotes; hints added until unique
 uv run forge book build configs/books/example_wordsearch.yaml
 uv run forge book verify output/<book_id>
 ```
