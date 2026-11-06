@@ -11,3 +11,4 @@
 - P1.2: sudoku 4x4/6x6/9x9: seeded generator (rot-180 symmetry), technique-guided clue removal, independent python solver + rustoku cross-check, technique-based grading (rustoku solve_steps), render, shaded_cells constraint; `forge puzzle -o key=value`
 - P1.3: maze: growing-tree generator (river factor by level), perfect-maze verification (tree check + BFS route), difficulty, SVG render + solution route, path_letters constraint with decoys
 - P1.4: word scramble (unique anagrams vs ENABLE + word bank, answer_is bonus word) and cryptogram (PD quotes, derangement cipher, dictionary-pattern solver over SCOWL-35, greedy hints until unique, answer_is); bundled ENABLE (PD) + SCOWL-35 (permissive) word lists
+- P1.5: crossword (own code, no GPL): criss-cross builder from theme words, slots/numbering, fill-in solver with starter letters until unique, clue mode (numbered Across/Down from options.clues), render

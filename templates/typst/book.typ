@@ -137,6 +137,25 @@
   }
 }
 
+#let crossword-grid(b) = {
+  let rows = b.cells
+  let cell = b.cell_in * inch
+  let fpt = b.font_pt * 1pt
+  align(center, box(width: rows.at(0).len() * cell, height: rows.len() * cell, {
+    for (r, row) in rows.enumerate() {
+      for (c, x) in row.enumerate() {
+        if x != none {
+          place(top + left, dx: c * cell, dy: r * cell, rect(width: cell, height: cell,
+            stroke: 0.8pt, inset: 0pt, {
+              if x.n > 0 { place(top + left, dx: 1.5pt, dy: 1pt, text(size: 0.38 * fpt, str(x.n))) }
+              align(center + horizon, text(font: L.fonts.sans, size: fpt, x.ch))
+            }))
+        }
+      }
+    }
+  }))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -180,6 +199,8 @@
     answer-lines(b)
   } else if k == "cryptogram" {
     cryptogram(b)
+  } else if k == "crossword_grid" {
+    crossword-grid(b)
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {
