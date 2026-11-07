@@ -134,6 +134,7 @@ uv run forge qa waive output/<book_id> <check> --reason "..."   # MINOR checks o
 uv run forge book status output/<book_id>         # state, history, report valid/stale
 uv run forge review output/<book_id> --approve | --reject --note "..."   # MANUAL_REVIEW only
 uv run forge sku assign output/<book_id>          # QA_PASSED -> SKU from Product Hub (FORGE_SKU_PROVIDER=hub|dev)
+uv run forge review-pack P1.8 output/<id1> output/<id2> ...   # milestone checklist review/P1.8.md + PNGs
 ```
 
 Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is
@@ -169,6 +170,17 @@ phase is complete). The owner merges.
 
 **Report format:** what was done (task codes), how to test on the VM (exact commands), what's next,
 anything the owner must decide.
+
+**Asking the owner (rules from 2026-11-07):**
+- Never send the owner to look for a file or a prompt template. Everything the owner must confirm or
+  comment on is **pasted directly in the reply**: numbered questions, the recommended option for each,
+  and a **pre-filled answer template** the owner only edits and sends back.
+- Milestones: run `uv run forge review-pack <code> output/<book_id> ...` to create `review/<code>.md`
+  (per-book checklist: pages to look at, criteria, `[ ]` boxes) plus `review/<code>/<book_id>/`
+  (key-page PNGs, interior.pdf, qa_report.json); commit them so the owner can open them on GitHub or in
+  Claude Code, and also paste the checklist text in the reply.
+- Work lives on the session branch until the owner merges the PR: always give direct GitHub links that
+  include the branch name (`/tree/<branch>/...`, `/blob/<branch>/...`).
 
 **Where it runs:** you code in the cloud session; the owner runs the tool on a **personal Ubuntu 24.04 VM**.
 You cannot reach the VM. Everything must install with `scripts/setup_vm.sh` and run with `uv run forge ...`.

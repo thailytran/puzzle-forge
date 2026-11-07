@@ -20,3 +20,4 @@
 - PQ.5: qa_report.html (summary, every check with evidence + page links, flagged thumbnails), `forge qa run` with auto-fix (failing puzzles regenerated via seed offsets, never hand-edited), `forge qa waive`, `forge book status` (stale detection), `forge review --approve/--reject`
 - Difficulty caps: kids 6-8 and large-print crossword up to medium (Intermediate); reader labels Beginner/Easy/Intermediate/Hard/Expert; kids sample very_easy->medium
 - P4.4 + integration: ports & adapters (forge/ports, forge/adapters), SkuPort with HubSkuProvider (Product Hub API) + DevSkuProvider (DEV- prefix), age codes KID1/KID4/KID9/TEEN/ADULT/SENIOR, `forge sku assign`, docs/INTEGRATION_HALOSPARK.md, ROADMAP P7
+- Review workflow: `forge review-pack` (review/<code>.md checklist + key-page PNGs + PDF), CLAUDE.md §7 rules for asking the owner; P1.8 package committed; maze labels at base size (kids min 11 pt)

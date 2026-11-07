@@ -10,7 +10,8 @@ workflow mục 7 của CLAUDE.md (branch theo phase, test trước, commit + pus
 Làm liên tục đến khi gặp điều kiện STOP. Báo cáo bằng tiếng Việt.
 ```
 
-## 3. Sau milestone (P1.8, P3.9), khi tôi đã duyệt PDF
+## 3. Sau milestone (P1.8, P3.11), khi tôi đã duyệt PDF
+(Claude Code dán sẵn checklist + mẫu trả lời trong tin nhắn; file `review/<mã>.md` và ảnh trang nằm trong repo.)
 ```
 Đọc CLAUDE.md và docs/STATUS.md. Tôi đã duyệt milestone <mã>. Nhận xét của tôi:
 - <nhận xét 1>

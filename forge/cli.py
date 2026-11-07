@@ -272,6 +272,19 @@ def book_status(out_dir: Path = typer.Argument(..., help="output/<book_id>")) ->
         typer.echo(f"  {ev.at}  {ev.from_state or '-'} -> {ev.to_state}  [{ev.actor}] {ev.note}")
 
 
+@app.command("review-pack")
+def review_pack(
+    code: str = typer.Argument(..., help="Milestone code, e.g. P1.8"),
+    out_dirs: list[Path] = typer.Argument(..., help="output/<book_id> folders"),
+    root: Path = typer.Option(Path("review"), help="Where review/<code>.md is written"),
+) -> None:
+    """Write review/<code>.md checklist + key-page PNGs, PDF and QA report per book."""
+    from forge.qa.review_pack import make_review
+
+    md = make_review(code, out_dirs, root)
+    typer.echo(f"wrote {md}")
+
+
 @app.command()
 def review(
     out_dir: Path = typer.Argument(..., help="output/<book_id>"),

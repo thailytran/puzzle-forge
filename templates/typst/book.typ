@@ -98,9 +98,9 @@
   align(center, box(width: w, height: unit * (b.rows + 2 * b.pad), {
     place(top + left, image(b.path, width: w))
     place(top + left, dx: unit * 1.1, dy: 0pt,
-      text(font: L.fonts.sans, size: if L.base_size_pt >= 16 { base } else { 8pt }, weight: "bold", "START"))
+      text(font: L.fonts.sans, size: base, weight: "bold", "START"))
     place(bottom + right, dx: -unit * 1.1, dy: 0pt,
-      text(font: L.fonts.sans, size: if L.base_size_pt >= 16 { base } else { 8pt }, weight: "bold", "FINISH"))
+      text(font: L.fonts.sans, size: base, weight: "bold", "FINISH"))
     for l in b.at("letters", default: ()) {
       place(top + left, dx: (l.c + b.pad) * unit, dy: (l.r + b.pad) * unit,
         box(width: unit, height: unit, align(center + horizon,

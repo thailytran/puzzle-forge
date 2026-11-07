@@ -27,7 +27,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [x] PQ.4 L3 book checks (counts, distribution, TOC, matter, placeholders) + proofread (dictionary now, AI after P2).
 - [x] PQ.5 qa_report.json + qa_report.html, `forge qa run`, `forge book status`, `forge review --approve|--reject`.
 
-- [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku); done only when all 3 reach **QA_PASSED**; owner reviews PDFs + QA reports.
+- [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku); done only when all 3 reach **QA_PASSED**; owner reviews PDFs + QA reports via `review/P1.8.md` (`forge review-pack`).
 
 ## P2 — AI content layer (≈2 weeks)
 - [ ] P2.1 LLM client (Anthropic default, OpenAI optional), prompt files, JSON-schema validation + retry, SQLite cache, cost tracking.
