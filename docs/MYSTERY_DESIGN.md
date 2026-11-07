@@ -156,3 +156,28 @@ answer directly), turns the token into a page number with the encoder and jumps 
 right page; every dead-end page points back correctly; no orphan page (every page reachable);
 reveal rules respected; the meta-puzzle's verified answer equals `final_answer`. Output goes into
 `qa_report.json`.
+
+## 12. Export schema & play-test build (schema shape from csurfer/escaperoom, MIT)
+
+`output/<book_id>/mystery_book.json`:
+
+```json
+{
+  "story": {"title": "...", "text": "...", "images": []},
+  "chapters": [{"n": 1, "title": "...", "pages": [12, 20], "text": "...", "unlocks": ["ch2"]}],
+  "puzzles": [{"id": "pz-...", "chapter": 1, "title": "...", "text": "...", "images": [],
+               "hints": ["..."], "answer": "HARBOR", "unlocks": ["ev-tide", "ch2"]}],
+  "final": {"question": "Who took the lens?", "answer": "...", "explanation": "..."}
+}
+```
+
+`forge mystery export-play <book_id>`:
+- `--format html` (default): one self-contained static HTML page (our own code, no server): chapter
+  text and puzzle images; typing the right answer unlocks the next chapter (answers stored as
+  sha256 hashes so the page source does not spoil them).
+- `--format escaperoom`: `{story, puzzles[{title, text, images, hints, answer}]}` compatible with
+  csurfer/escaperoom's `config.schema`.
+
+The AI play-test (QA L4.playtest) runs on this export: two agents of different models (Claude +
+GPT), without answers; they must solve the case and must not name the culprit before the last
+chapter. Stuck points are recorded in the QA report.
