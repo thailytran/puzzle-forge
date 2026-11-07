@@ -99,3 +99,30 @@ Kids (7–11): 8 chapters × 8 pages, bigger puzzles, illustrated, friendly culp
 
 `series.yaml`: recurring detective(s), world rules, tone, running mystery arc, volume list, used names/puzzle
 hashes (avoid repeats), cliffhanger ledger. `forge series next` creates the next volume's brief from it.
+
+## 9. Clue graph = causal graph (idea from AymanJabr graph.json, re-implemented)
+
+Nodes (`forge/mystery/causal_graph.py`):
+
+| kind | meaning |
+|---|---|
+| `fact` | a true (or lied) statement from the truth timeline |
+| `evidence` | a fact the reader *earns* (from a puzzle token or a document) |
+| `knot` | a question the reader must answer to advance |
+| `puzzle` | a puzzle whose verified answer yields a token |
+| `chapter` | a chapter; unlocked when its entry knot is answered |
+| `final` | the accusation / meta-puzzle |
+
+Every node has `requires: [node_id]` (all must be unlocked first) and `unlocks: [node_id]`
+(derived edges). Code (never the AI) owns the state:
+
+- `available(state)` → nodes whose requirements are met and that are not yet done (state filtering,
+  no spoilers of later content);
+- `closure(start)` → everything unlockable from a start set (fixpoint);
+- `validate()` → DAG (no cycles), every node reachable from the start, `final` reachable, each knot
+  has ≥ 2 evidence requirements, at least one knot needs evidence from two different chapters, no
+  single evidence node points straight at the culprit.
+
+**Reveal rules** for characters (interrogation pages): `{character, info: fact_id, when: [evidence_id]}`
+— a character only states `info` on a page placed after the reader holds every `when` evidence.
+S8 must respect them and QA L4.reader_sim checks them.
