@@ -3,6 +3,11 @@
 #let L = json(sys.inputs.at("layout", default: "layout.json"))
 #let inch = 1in
 #let base = L.base_size_pt * 1pt
+#let E = L.at("edition", default: none)            // forge/editions/settings.py
+#let bleed = if E == none { 0pt } else { E.bleed_in * inch }
+#let wm-on = E != none and E.watermark
+// outer side of the current page: recto (odd) = right; simplex spiral books bind on the left
+#let outer-right() = E != none and E.simplex or calc.odd(here().page())
 
 #set document(title: L.title, author: if L.author == "" { () } else { L.author }, date: none)
 #set text(font: L.fonts.body, size: base, lang: "en")
@@ -14,18 +19,55 @@
 }
 #let page-footer = context {
   set text(font: L.fonts.sans, size: 0.8 * base)
+  if E != none {  // layer 2: small logo in the outer footer corner
+    place((if outer-right() { right } else { left }) + top, image("brand/logo.svg", width: 0.14in))
+  }
   align(center, counter(page).display())
+  if E != none and E.microtext != "" {
+    v(-0.35em)
+    align(center, text(size: E.microtext_pt * 1pt, fill: rgb(E.accent), E.microtext))
+    v(9pt)  // reserved band for `forge edition stamp`
+  }
+}
+
+#let crop-marks() = {
+  let len = bleed - 0.025in
+  let s = (paint: black, thickness: 0.25pt)
+  for (x, y) in ((bleed, bleed), (bleed + L.width_in * inch, bleed),
+                 (bleed, bleed + L.height_in * inch),
+                 (bleed + L.width_in * inch, bleed + L.height_in * inch)) {
+    let dx = if x == bleed { -1 } else { 1 }
+    let dy = if y == bleed { -1 } else { 1 }
+    place(top + left, line(start: (x + dx * 0.025in, y), end: (x + dx * bleed, y), stroke: s))
+    place(top + left, line(start: (x, y + dy * 0.025in), end: (x, y + dy * bleed), stroke: s))
+  }
+}
+#let page-background = context {
+  if wm-on {
+    let size = E.wm_size_in * inch
+    let dx = bleed + L.margins.outside * inch
+    let dy = -(bleed + L.margins.bottom * inch + 0.1in)
+    if outer-right() {
+      place(bottom + right, dx: -dx, dy: dy, image("brand/emblem.svg", width: size))
+    } else {
+      place(bottom + left, dx: dx, dy: dy, image("brand/emblem.svg", width: size))
+    }
+  }
+  if E != none and E.crop_marks { crop-marks() }
 }
 
 #set page(
-  width: L.width_in * inch,
-  height: L.height_in * inch,
-  margin: (
-    inside: L.margins.inside * inch,
-    outside: L.margins.outside * inch,
-    top: L.margins.top * inch,
-    bottom: L.margins.bottom * inch,
-  ),
+  width: L.width_in * inch + 2 * bleed,
+  height: L.height_in * inch + 2 * bleed,
+  margin: if E != none and E.simplex {
+    (left: L.margins.inside * inch + bleed, right: L.margins.outside * inch + bleed,
+     top: L.margins.top * inch + bleed, bottom: L.margins.bottom * inch + bleed)
+  } else {
+    (inside: L.margins.inside * inch + bleed, outside: L.margins.outside * inch + bleed,
+     top: L.margins.top * inch + bleed, bottom: L.margins.bottom * inch + bleed)
+  },
+  footer-descent: if E != none { 15% } else { 30% },
+  background: page-background,
 )
 
 // ---------------------------------------------------------------- blocks
@@ -182,7 +224,13 @@
   }
 }
 
-#let render-block(b) = {
+// knock-out: functional blocks sit on a white panel so the watermark never shows through them
+// (same geometry with or without watermark, so the no-watermark QA reference lays out identically)
+#let panel(body) = if E != none {
+  block(width: 100%, fill: if wm-on { white } else { none }, outset: 6pt, body)
+} else { body }
+
+#let render-block(b) = panel({
   let k = b.kind
   if k == "heading" {
     let lvl = b.at("level", default: 1)
@@ -193,7 +241,9 @@
     if fp != none { text(size: fp * 1pt, par(justify: true, b.text)) } else { par(justify: true, b.text) }
     v(0.4em)
   } else if k == "list" {
-    list(..b.items)
+    let fp = b.at("font_pt", default: none)
+    let body = if b.at("numbered", default: false) { enum(tight: true, spacing: 0.35em, ..b.items) } else { list(..b.items) }
+    if fp != none { text(size: fp * 1pt, body) } else { body }
   } else if k == "spacer" {
     v(b.height_in * inch)
   } else if k == "image" {
@@ -228,7 +278,7 @@
   } else {
     panic("unknown block kind: " + k)
   }
-}
+})
 
 // ---------------------------------------------------------------- pages
 #let title-page(p) = {
@@ -260,7 +310,7 @@
     #if p.kind == "title" {
       title-page(p)
     } else if p.kind == "notes" {
-      notes-page(p)
+      panel(notes-page(p))  // writing area: knocks the watermark out
     } else if p.kind == "blank" {
       []
     } else {

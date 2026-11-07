@@ -136,6 +136,9 @@ uv run forge book status output/<book_id>         # state, history, report valid
 uv run forge review output/<book_id> --approve | --reject --note "..."   # MANUAL_REVIEW only
 uv run forge sku assign output/<book_id>          # QA_PASSED -> SKU from Product Hub (FORGE_SKU_PROVIDER=hub|dev)
 uv run forge review-pack P1.8 output/<id1> output/<id2> ...   # milestone checklist review/P1.8.md + PNGs
+uv run forge edition build output/<book_id> --edition digital --trim A4        # also 8.5x11
+uv run forge edition build output/<book_id> --edition spiral [--grayscale] [--simplex] [--bleed] [--binding wire-o]
+uv run forge qa run output/<book_id>/editions/<label>      # edition QA (watermark knock-out, binding, bleed)
 ```
 
 Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is

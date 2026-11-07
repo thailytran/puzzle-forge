@@ -371,6 +371,41 @@ def sku_assign(out_dir: Path = typer.Argument(..., help="output/<book_id>")) -> 
     typer.echo(f"{book_id}: {data['sku']} ({data['provider']})")
 
 
+edition_app = typer.Typer(help="Digital / spiral editions, per-order stamping and tracing.")
+app.add_typer(edition_app, name="edition")
+
+
+@edition_app.command("build")
+def edition_build(
+    out_dir: Path = typer.Argument(..., help="output/<book_id> (built + QA'd book)"),
+    edition: str = typer.Option("digital", help="digital | spiral"),
+    trim: str = typer.Option("8.5x11", help="8.5x11 | A4 (digital)"),
+    grayscale: bool = typer.Option(False, "--grayscale", help="Spiral: grayscale print file"),
+    simplex: bool = typer.Option(False, "--simplex", help="Spiral: one-sided printing"),
+    bleed: bool = typer.Option(False, "--bleed", help='Spiral: 0.125" bleed + crop marks'),
+    binding: str = typer.Option("coil", help='coil (0.75") | wire-o (0.625")'),
+    no_watermark: bool = typer.Option(False, "--no-watermark"),
+) -> None:
+    """Render an edition into output/<book_id>/editions/<label>/interior.pdf."""
+    from forge.editions.build import build_edition
+    from forge.editions.settings import EditionSettings
+
+    ed = EditionSettings.model_validate(
+        {
+            "name": edition,
+            "trim": trim,
+            "color": not grayscale,
+            "duplex": not simplex,
+            "bleed": bleed,
+            "crop_marks": bleed,
+            "binding": binding,
+            "watermark": not no_watermark,
+        }
+    )
+    pdf = build_edition(out_dir, ed)
+    typer.echo(f"wrote {pdf}  (QA: uv run forge qa run {pdf.parent})")
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 

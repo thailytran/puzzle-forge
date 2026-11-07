@@ -27,6 +27,7 @@ from forge.core.models import LEVEL_LABELS, LEVELS, Puzzle, PuzzleSpec
 from forge.core.protocol import RenderCtx
 from forge.core.registry import Registry
 from forge.core.seeds import derive_seed
+from forge.editions.settings import EditionSettings
 from forge.layout.document import LayoutDoc, Page, make_layout
 from forge.layout.trim import TRIMS, margins_for
 from forge.puzzles.base import GenerationError
@@ -138,13 +139,27 @@ class Built:
     solution_pages: dict[str, int] = field(default_factory=dict)
 
 
+def _geometry(
+    spec: BookSpec, page_count: int, edition: EditionSettings | None
+) -> tuple[str, dict[str, float]]:
+    """(trim, margins) for the KDP interior or an edition."""
+    trim = (edition.trim if edition else None) or spec.book.trim
+    k = margins_for(page_count)
+    kdp = {"inside": k.inside, "outside": k.outside, "top": k.top, "bottom": k.bottom}
+    return trim, edition.margins(kdp) if edition else kdp
+
+
 def _ctx(
-    spec: BookSpec, page_count: int, w_share: float = 1.0, h: float | None = None
+    spec: BookSpec,
+    page_count: int,
+    w_share: float = 1.0,
+    h: float | None = None,
+    edition: EditionSettings | None = None,
 ) -> RenderCtx:
-    t = TRIMS[spec.book.trim]
-    m = margins_for(page_count)
-    width = (t.width_in - m.inside - m.outside) * w_share
-    height = h if h is not None else t.height_in - m.top - m.bottom - TITLE_SPACE_IN
+    trim, m = _geometry(spec, page_count, edition)
+    t = TRIMS[trim]
+    width = (t.width_in - m["inside"] - m["outside"]) * w_share
+    height = h if h is not None else t.height_in - m["top"] - m["bottom"] - TITLE_SPACE_IN
     return RenderCtx(width_in=width, height_in=height, large_print=spec.book.large_print)
 
 
@@ -155,7 +170,12 @@ def _title(n: int, pz: Puzzle) -> str:
     return f"#{n} {name}{theme} ({label})"
 
 
-def layout_book(spec: BookSpec, puzzles: list[Puzzle], est_pages: int = 150) -> Built:
+def layout_book(
+    spec: BookSpec,
+    puzzles: list[Puzzle],
+    est_pages: int = 150,
+    edition: EditionSettings | None = None,
+) -> Built:
     b = spec.book
     built = Built(doc=make_layout(title=b.title, trim=b.trim, pages=[], min_pages=0))
     types_used = list(dict.fromkeys(p.type for p in puzzles))
@@ -189,7 +209,7 @@ def layout_book(spec: BookSpec, puzzles: list[Puzzle], est_pages: int = 150) -> 
             toc_index = len(front)
             front.append(Page(kind="text", title="Contents", blocks=[]))
     pages = list(front)
-    ctx = _ctx(spec, est_pages)
+    ctx = _ctx(spec, est_pages, edition=edition)
     for n, pz in enumerate(puzzles, 1):
         rb = get_puzzle_type(pz.type).render(pz, ctx)
         built.files.update(rb.files)
@@ -201,10 +221,12 @@ def layout_book(spec: BookSpec, puzzles: list[Puzzle], est_pages: int = 150) -> 
         per = spec.solutions.per_page
         cols = 2 if per > 1 else 1
         rows = -(-per // cols)
-        t = TRIMS[b.trim]
-        m = margins_for(est_pages)
-        cell_h = (t.height_in - m.top - m.bottom - TITLE_SPACE_IN) / rows - SOLUTION_TITLE_IN
-        sctx = _ctx(spec, est_pages, w_share=1 / cols * 0.94, h=cell_h)
+        trim_s, mm = _geometry(spec, est_pages, edition)
+        t = TRIMS[trim_s]
+        cell_h = (
+            t.height_in - mm["top"] - mm["bottom"] - TITLE_SPACE_IN
+        ) / rows - SOLUTION_TITLE_IN
+        sctx = _ctx(spec, est_pages, w_share=1 / cols * 0.94, h=cell_h, edition=edition)
         for k in range(0, len(puzzles), per):
             items = []
             for n, pz in enumerate(puzzles[k : k + per], k + 1):
@@ -245,13 +267,16 @@ def layout_book(spec: BookSpec, puzzles: list[Puzzle], est_pages: int = 150) -> 
         pages[toc_index] = Page(
             kind="text", title="Contents", blocks=[{"kind": "toc", "entries": entries}]
         )
+    trim, margins = _geometry(spec, est_pages, edition)
     built.doc = make_layout(
         title=b.title,
         subtitle=b.subtitle,
         author=b.author,
-        trim=b.trim,
+        trim=trim,
         pages=pages,
         large_print=b.large_print,
+        margins=margins if edition and edition.name != "kdp" else None,
+        edition=edition.layout_extra() if edition and edition.name != "kdp" else None,
     )
     return built
 

@@ -15,7 +15,7 @@ from forge.qa import report as rpt
 from forge.qa.checks import run_checks
 from forge.qa.state import StateStore
 
-CHECK_MODULES = ("forge.qa.l1", "forge.qa.l2", "forge.qa.l3")
+CHECK_MODULES = ("forge.qa.l1", "forge.qa.l2", "forge.qa.l3", "forge.qa.l2_editions")
 REVIEWABLE = "MANUAL_REVIEW"
 DEFAULT_MAX_FIX_ROUNDS = 3
 

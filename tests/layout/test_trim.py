@@ -14,7 +14,7 @@ from forge.layout.trim import (
 
 
 def test_trims_present() -> None:
-    assert set(TRIMS) == {"8.5x11", "8x10", "6x9", "8.5x8.5"}
+    assert set(TRIMS) == {"8.5x11", "8x10", "6x9", "8.5x8.5", "A4"}
     assert TRIMS["6x9"].width_in == 6.0
     assert TRIMS["6x9"].height_in == 9.0
 

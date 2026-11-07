@@ -27,9 +27,10 @@ class PageFacts:
 
 
 class PdfFacts:
-    def __init__(self, path: Path, header_zone_pt: float = 36.0) -> None:
+    def __init__(self, path: Path, header_zone_pt: float = 36.0, bleed_pt: float = 0.0) -> None:
         self.path = path
         self.header_zone_pt = header_zone_pt
+        self.bleed_pt = bleed_pt
 
     @cached_property
     def pages(self) -> list[PageFacts]:
@@ -54,6 +55,13 @@ class PdfFacts:
                     chars.append((ch, size, left, h - top))
                 img = page.render(scale=DPI / 72, grayscale=True).to_pil()
                 mask = img.point(lambda v: 255 if v < INK else 0)
+                b = int(self.bleed_pt)
+                if b:  # measure inside the trim box only (crop marks sit in the bleed)
+                    from PIL import Image
+
+                    trimmed = Image.new("L", mask.size, 0)
+                    trimmed.paste(mask.crop((b, b, mask.width - b, mask.height - b)), (b, b))
+                    mask = trimmed
                 box = mask.getbbox()
                 zone = int(self.header_zone_pt)
                 body = mask.crop((0, zone, mask.width, mask.height - zone)).getbbox()

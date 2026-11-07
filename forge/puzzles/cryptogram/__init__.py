@@ -77,7 +77,7 @@ _BY_LEVEL: dict[Level, CgParams] = {
     "expert": CgParams(7, 12.0, 0),
 }
 # page budget in "lines" of cipher cells (≈ 36 letters/line at 12 pt, 27 at 16 pt large print)
-PAGE_LINES = {"normal": 18, "large": 13}
+PAGE_LINES = {"normal": 17, "large": 12}  # fits KDP and edition text blocks
 LINE_CHARS = {"normal": 36, "large": 27}
 FONT_PT = {"normal": 12.0, "large": 16.0}
 
@@ -390,17 +390,12 @@ class Cryptogram:
     def _block(self, puzzle: Puzzle, ctx: RenderCtx, solution: bool) -> list[dict[str, Any]]:
         large = bool(puzzle.data.get("large")) or ctx.large_print
         fpt = FONT_PT["large" if large else "normal"]
-        if ctx.width_in < 5:  # solution cell: plain text list
-            return [
-                {
-                    "kind": "paragraph",
-                    "text": f"{i}. {s['plain']}" + (f" — {q['source']}" if q["source"] else ""),
-                    "font_pt": 8.0,
-                }
-                for i, (q, s) in enumerate(
-                    zip(puzzle.data["quotes"], puzzle.solution["quotes"], strict=True), 1
-                )
+        if ctx.width_in < 5:  # solution cell: one compact numbered list
+            items = [
+                s["plain"] + (f" — {q['source']}" if show_source(q["source"]) else "")
+                for q, s in zip(puzzle.data["quotes"], puzzle.solution["quotes"], strict=True)
             ]
+            return [{"kind": "list", "items": items, "numbered": True, "font_pt": 7.5}]
         blocks: list[dict[str, Any]] = []
         for i, (q, sol) in enumerate(
             zip(puzzle.data["quotes"], puzzle.solution["quotes"], strict=True), 1

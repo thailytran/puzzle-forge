@@ -48,6 +48,7 @@ class LayoutDoc(BaseModel):
     fonts: Fonts = Field(default_factory=Fonts)
     base_size_pt: float = 11.0
     pages: list[Page]
+    edition: dict[str, Any] | None = None  # see forge/editions/settings.py
 
     def to_json(self) -> str:
         return json.dumps(self.model_dump(mode="json"), indent=1, ensure_ascii=False)
@@ -68,6 +69,8 @@ def make_layout(
     author: str = "",
     large_print: bool = False,
     min_pages: int | None = None,
+    margins: dict[str, float] | None = None,
+    edition: dict[str, Any] | None = None,
 ) -> LayoutDoc:
     """Build a LayoutDoc with KDP-safe margins and an even page count."""
     if trim not in TRIMS:
@@ -82,9 +85,11 @@ def make_layout(
         trim=trim,
         width_in=t.width_in,
         height_in=t.height_in,
-        margins={"inside": m.inside, "outside": m.outside, "top": m.top, "bottom": m.bottom},
+        margins=margins
+        or {"inside": m.inside, "outside": m.outside, "top": m.top, "bottom": m.bottom},
         base_size_pt=16.0 if large_print else 11.0,
         pages=padded,
+        edition=edition,
     )
 
 

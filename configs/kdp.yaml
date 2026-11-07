@@ -22,3 +22,4 @@ trims:
   "8x10":    { width_in: 8.0, height_in: 10.0 }
   "6x9":     { width_in: 6.0, height_in: 9.0 }
   "8.5x8.5": { width_in: 8.5, height_in: 8.5 }
+  "A4":      { width_in: 8.27, height_in: 11.69 }   # digital edition only (not a KDP trim)

@@ -147,7 +147,8 @@ def catalog_unique(ctx: Any) -> list[Finding]:
                 )
             seen[p.content_hash] = n
             owner = reg.owner(p.content_hash)
-            if owner not in (None, ctx.book_id):
+            base_id = str(ctx.manifest.get("base_book_id", ctx.book_id))  # editions share puzzles
+            if owner not in (None, base_id):
                 out.append(
                     Finding(
                         message=f"#{n} already used in book {owner}",

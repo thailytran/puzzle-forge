@@ -23,7 +23,7 @@ def pdf(ctx: Any) -> PdfFacts:
     if "pdf" not in ctx.extra:
         if not ctx.pdf_path.is_file():
             raise FileNotFoundError("interior.pdf missing — build with rendering")
-        ctx.extra["pdf"] = PdfFacts(ctx.pdf_path)
+        ctx.extra["pdf"] = PdfFacts(ctx.pdf_path, bleed_pt=bleed_in(ctx) * 72)
     return ctx.extra["pdf"]  # type: ignore[no-any-return]
 
 
@@ -33,6 +33,16 @@ def layout(ctx: Any) -> dict[str, Any]:
     return ctx.extra["layout"]  # type: ignore[no-any-return]
 
 
+def edition(ctx: Any) -> dict[str, Any] | None:
+    e = ctx.manifest.get("edition")
+    return dict(e) if e else None
+
+
+def bleed_in(ctx: Any) -> float:
+    e = edition(ctx)
+    return 0.125 if e and e.get("bleed") else 0.0
+
+
 def _audience(ctx: Any) -> str:
     return str(ctx.manifest["spec"]["book"]["audience"])
 
@@ -40,9 +50,11 @@ def _audience(ctx: Any) -> str:
 @check("L2.trim", "BLOCKER", "Every page has the trim size of the spec")
 def trim(ctx: Any) -> list[Finding]:
     t = TRIMS[ctx.manifest["trim"]]
+    extra = 2 * bleed_in(ctx) * 72
     out = []
     for p in pdf(ctx).pages:
-        if abs(p.width_pt - t.width_in * 72) > 0.5 or abs(p.height_pt - t.height_in * 72) > 0.5:
+        w, h = t.width_in * 72 + extra, t.height_in * 72 + extra
+        if abs(p.width_pt - w) > 0.5 or abs(p.height_pt - h) > 0.5:
             out.append(
                 Finding(
                     message=f"page {p.number}: {p.width_pt}x{p.height_pt} pt",
@@ -62,6 +74,7 @@ def safe_area(ctx: Any) -> list[Finding]:
     rules = load_kdp_rules()
     inside = gutter_for(len(pages)) * 72
     edge = rules.outside_min_in * 72
+    b = bleed_in(ctx) * 72
     out = []
     for p in pages:
         if p.ink_box is None:
@@ -69,6 +82,7 @@ def safe_area(ctx: Any) -> list[Finding]:
         left_min = inside if p.number % 2 == 1 else edge  # recto: gutter on the left
         right_min = edge if p.number % 2 == 1 else inside
         x0, y0, x1, y1 = p.ink_box
+        x0, x1, y0, y1 = x0 - b, x1 + b, y0 - b, y1 + b  # measure from the trim edge
         bad = []
         if x0 < left_min - TOL_PT:
             bad.append(f"left {x0:.0f} < {left_min:.0f}")
@@ -152,15 +166,18 @@ def image_dpi(ctx: Any) -> list[Finding]:
 
 
 def _footer_number(p: Any, zone: float) -> str:
-    digits = [c for c in p.chars if c[3] > p.height_pt - zone and c[0].isdigit()]
+    digits = [  # page number only: the brand microtext (< 8 pt) also contains digits
+        c for c in p.chars if c[3] > p.height_pt - zone and c[0].isdigit() and c[1] >= 8.0
+    ]
     return "".join(c[0] for c in sorted(digits, key=lambda c: c[2]))
 
 
 @check("L2.page_numbers", "MAJOR", "Printed page numbers are continuous")
 def page_numbers(ctx: Any) -> list[Finding]:
     out = []
-    zone = pdf(ctx).header_zone_pt
-    for p, lp in zip(pdf(ctx).pages, layout(ctx)["pages"], strict=False):
+    lay = layout(ctx)
+    zone = max(pdf(ctx).header_zone_pt, lay["margins"]["bottom"] * 72 + bleed_in(ctx) * 72)
+    for p, lp in zip(pdf(ctx).pages, lay["pages"], strict=False):
         if not lp.get("number", True) or lp["kind"] == "title":
             continue
         got = _footer_number(p, zone)

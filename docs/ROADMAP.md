@@ -37,8 +37,8 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 
 ## PE — Editions, brand watermark, personalisation (owner rules 2026-11-07)
 - [ ] PE.1 `configs/brand.yaml` + placeholder logo/emblem; copyright & licence page from brand (personal use; classroom copies for printed escape rooms).
-- [ ] PE.2 Watermark layer in Typst (pre-tinted emblem, knock-out panels under functional blocks) + corner logo + footer microtext.
-- [ ] PE.3 Editions: `editions: [digital, spiral]`; digital Letter + A4; spiral binding margin (coil/wire-o), simplex/duplex, colour + grayscale, bleed + crop marks, single-sided cut-out pages; `forge edition build`.
+- [x] PE.2 Watermark layer in Typst (pre-tinted emblem, knock-out panels under functional blocks) + corner logo + footer microtext.
+- [x] PE.3 Editions: `editions: [digital, spiral]`; digital Letter + A4; spiral binding margin (coil/wire-o), simplex/duplex, colour + grayscale, bleed + crop marks, single-sided cut-out pages; `forge edition build`.
 - [ ] PE.4 `forge edition stamp` (buyer footer, metadata, micro-pattern, print-only permissions) + `forge edition trace`.
 - [ ] PE.5 QA: watermark knock-out/contrast, binding margin, bleed/crop marks, stamp-vs-master diff.
 - [ ] PE.6 Escape-room sample book in both editions (after P3) + review pack.
