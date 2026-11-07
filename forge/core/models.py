@@ -11,6 +11,14 @@ from forge.core.hashing import content_hash as _content_hash
 Level = Literal["very_easy", "easy", "medium", "hard", "expert"]
 LEVELS: tuple[Level, ...] = ("very_easy", "easy", "medium", "hard", "expert")
 Audience = Literal["kids_6_8", "kids_9_12", "teen", "adult", "senior_large_print"]
+# Reader-facing names shown in books and listings
+LEVEL_LABELS: dict[str, str] = {
+    "very_easy": "Beginner",
+    "easy": "Easy",
+    "medium": "Intermediate",
+    "hard": "Hard",
+    "expert": "Expert",
+}
 AUDIENCES: tuple[Audience, ...] = ("kids_6_8", "kids_9_12", "teen", "adult", "senior_large_print")
 
 

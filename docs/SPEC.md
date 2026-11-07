@@ -80,8 +80,13 @@ Mixed books: list several `types` with weights; `mode: mixed` interleaves types 
 | Logic grid | 3x3 | 4x4 | 5x5–6x6 | #constraints, required strategies, search depth |
 | Scramble | 4–5 letters | 6–7 | 8+ | length, anagram ambiguity (must be unique!) |
 
-Kids (6–8): use `very_easy`/`easy` bands, bigger cells (≥ 0.45"), uppercase, no backwards words.
-Senior large print: font ≥ 16pt in grid, cell ≥ 0.4", fewer puzzles per page.
+Kids (6–8): levels `very_easy` → `medium` at most (owner decision 2026-11-07), bigger cells (≥ 0.45"),
+uppercase, no backwards words. Senior large print: font ≥ 16pt, cell ≥ 0.4", fewer puzzles per page;
+large-print crosswords at most `medium` (grid ≤ 13×13). Scramble and cryptogram at most `hard`.
+Levels above a cap are lowered by the planner and recorded as `requested_level` in the manifest.
+
+Reader-facing labels (books, listings): very_easy = **Beginner**, easy = **Easy**, medium =
+**Intermediate**, hard = **Hard**, expert = **Expert** (`forge.core.models.LEVEL_LABELS`).
 
 ## 4. Layout
 

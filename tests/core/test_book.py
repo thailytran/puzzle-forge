@@ -17,7 +17,11 @@ def test_load_example() -> None:
     assert spec.puzzles.mode == "progressive"
     assert spec.puzzles.types[0].type == "wordsearch"
     assert spec.solutions.per_page == 6
-    assert spec.puzzles.level_counts(spec.book.content_pages) == {"very_easy": 40, "easy": 60}
+    assert spec.puzzles.level_counts(spec.book.content_pages) == {
+        "very_easy": 30,
+        "easy": 40,
+        "medium": 30,
+    }
 
 
 def _minimal(**puzzles: object) -> dict[str, object]:

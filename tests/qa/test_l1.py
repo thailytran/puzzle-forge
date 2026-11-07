@@ -39,10 +39,11 @@ def test_band_rules() -> None:
 
 def test_caps() -> None:
     assert cap_level("expert", "scramble", "adult") == "hard"
-    assert cap_level("hard", "sudoku", "kids_6_8") == "easy"
+    assert cap_level("hard", "sudoku", "kids_6_8") == "medium"
+    assert cap_level("hard", "crossword", "senior_large_print") == "medium"
     assert cap_level("medium", "maze", "adult") == "medium"
     slots = plan_book(spec("kids_6_8"))
-    assert all(s.level in ("very_easy", "easy") for s in slots)
+    assert all(s.level in ("very_easy", "easy", "medium") for s in slots)
     assert any(s.requested_level for s in slots)
 
 

@@ -12,12 +12,12 @@ from forge.wordlists import available_themes
 
 THEMED_TYPES = frozenset({"wordsearch", "scramble", "crossword"})
 # Highest level a type can honestly reach (measured difficulty) and per-audience ceilings
-# (SPEC §3: kids 6-8 use the very_easy/easy bands). Requests above are capped and recorded.
+# (SPEC §3: kids 6-8 go up to medium = Intermediate). Requests above are capped and recorded.
 TYPE_MAX_LEVEL: dict[str, Level] = {"scramble": "hard", "cryptogram": "hard"}
-AUDIENCE_MAX_LEVEL: dict[str, Level] = {"kids_6_8": "easy"}
-# large-print crosswords use an 11x11 grid (cells >= 0.4"), which measures as easy at most
+AUDIENCE_MAX_LEVEL: dict[str, Level] = {"kids_6_8": "medium"}  # owner decision: Intermediate max
+# large-print crosswords: grid <= 13x13 so cells stay >= 0.4" (owner decision: Intermediate max)
 TYPE_AUDIENCE_MAX_LEVEL: dict[tuple[str, str], Level] = {
-    ("crossword", "senior_large_print"): "easy"
+    ("crossword", "senior_large_print"): "medium"
 }
 
 

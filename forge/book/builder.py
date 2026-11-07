@@ -14,7 +14,7 @@ from forge import __version__
 from forge.book.plan import Slot, plan_book
 from forge.book.texts import ABOUT, COPYRIGHT, HOW_TO_PLAY, THANK_YOU
 from forge.core.book import BookSpec
-from forge.core.models import LEVELS, Puzzle, PuzzleSpec
+from forge.core.models import LEVEL_LABELS, LEVELS, Puzzle, PuzzleSpec
 from forge.core.protocol import RenderCtx
 from forge.core.registry import Registry
 from forge.core.seeds import derive_seed
@@ -107,7 +107,7 @@ def _ctx(
 
 
 def _title(n: int, pz: Puzzle) -> str:
-    label = pz.spec.level.replace("_", " ").title()
+    label = LEVEL_LABELS[pz.spec.level]
     theme = f": {pz.spec.theme.replace('_', ' ').title()}" if pz.spec.theme else ""
     name = {"wordsearch": "Word Search", "scramble": "Word Scramble"}.get(pz.type, pz.type.title())
     return f"#{n} {name}{theme} ({label})"
