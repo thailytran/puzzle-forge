@@ -33,6 +33,7 @@ from forge.layout.trim import TRIMS, margins_for
 from forge.puzzles.base import GenerationError
 from forge.puzzles.registry import get_puzzle_type
 from forge.qa.l1 import band_ok
+from forge.vault.page import case_vault_page
 
 MAX_SEED_TRIES = 30
 MAX_ALT_THEMES = 4
@@ -282,6 +283,10 @@ def layout_book(
         pages.append(
             Page(kind="text", title="Thank You", blocks=[{"kind": "paragraph", "text": THANK_YOU}])
         )
+    if "case_vault" in spec.back_matter:  # last page of escape/mystery lines (MYSTERY_DESIGN §15)
+        page, files = case_vault_page(book_id_for(spec))
+        built.files.update(files)
+        pages.append(page)
     if toc_index is not None:
         entries = [
             {

@@ -12,7 +12,7 @@ from forge.core.models import LEVELS, Audience, Level
 
 Trim = Literal["8.5x11", "8x10", "6x9", "8.5x8.5"]
 FrontMatter = Literal["title", "copyright", "how_to_play", "table_of_contents"]
-BackMatter = Literal["solutions", "about", "thank_you"]
+BackMatter = Literal["solutions", "about", "thank_you", "case_vault"]
 
 
 def _default_distribution() -> dict[Level, float]:

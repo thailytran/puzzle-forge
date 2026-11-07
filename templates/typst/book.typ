@@ -275,6 +275,9 @@
     if fp != none { text(size: fp * 1pt, body) } else { body }
   } else if k == "spacer" {
     v(b.height_in * inch)
+  } else if k == "url" {
+    align(center, text(font: L.fonts.mono, weight: "bold", size: 1.1 * base, b.text))
+    v(0.3em)
   } else if k == "image" {
     align(center, image(b.path, width: b.width_in * inch))
   } else if k == "letter_grid" {

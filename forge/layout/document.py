@@ -54,10 +54,16 @@ class LayoutDoc(BaseModel):
         return json.dumps(self.model_dump(mode="json"), indent=1, ensure_ascii=False)
 
 
+LAST_PAGE_TITLE = "Unlock Your Rewards"  # forge/vault/page.py TITLE
+
+
 def pad_pages(pages: list[Page], min_pages: int | None = None) -> list[Page]:
     """Append "Notes" pages until the count is even (and ≥ KDP minimum by default)."""
     target = pad_page_count(len(pages), min_pages)
-    return pages + [Page(kind="notes", title="Notes") for _ in range(target - len(pages))]
+    notes = [Page(kind="notes", title="Notes") for _ in range(target - len(pages))]
+    if pages and pages[-1].title == LAST_PAGE_TITLE:  # the Case Vault page stays the last page
+        return pages[:-1] + notes + pages[-1:]
+    return pages + notes
 
 
 def make_layout(
