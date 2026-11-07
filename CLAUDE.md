@@ -36,6 +36,9 @@ phase exposes an HTTP API so HALOSPARK Studio can queue book jobs.
 7. **No copied IP**: don't reuse names, characters, layouts or text from existing books (e.g. Murdle).
    Legends must be public domain.
 8. **Secrets** only in `.env` (never committed). Provide `.env.example`.
+9. **QA gate**: no book is handed to a human reviewer unless QA passes 100 % of mandatory checks
+   (0 BLOCKER + 0 MAJOR fails; see `docs/QA_SPEC.md`). QA reports are locked to the sha256 of the
+   files they checked; any change invalidates them.
 
 ## 3. Tech stack
 
@@ -67,8 +70,8 @@ forge/
   ai/            # llm client, prompts/*.md, schemas, cost tracking, cache
   mystery/       # case bible, clue graph, encoders (answer -> token), chapter planner, writer, playtest
   layout/        # typst templates, page planner, trim sizes, answer key, front matter
-  qa/            # verifiers, preflight (margins, fonts, page count), report
-  publish/       # cover, listing.json, export package
+  qa/            # QA gate: check registry, L1–L5, state machine, reader_sim, report (docs/QA_SPEC.md)
+  publish/       # cover, SKU, book_card, listing.json, marketing brief, export package
   api/           # FastAPI (later phase)
   cli.py
 templates/typst/ # .typ templates
@@ -76,7 +79,8 @@ configs/books/   # example book YAML specs
 data/            # sqlite db, caches (gitignored except seeds/fixtures)
 output/          # generated books (gitignored)
 tests/
-docs/            # SPEC.md, MYSTERY_DESIGN.md, ROADMAP.md, PROMPTS.md
+docs/            # SPEC.md, MYSTERY_DESIGN.md, QA_SPEC.md, REFERENCES.md, ROADMAP.md, PROMPTS.md
+licenses/        # third-party license texts (see THIRD_PARTY_NOTICES.md)
 ```
 
 ## 5. Core interfaces (summary — full spec in `docs/SPEC.md`)
