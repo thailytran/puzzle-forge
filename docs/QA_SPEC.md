@@ -76,6 +76,12 @@ givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-
 | L3.matter | MAJOR | Required front/back matter present, including copyright page. |
 | L3.proofread | MAJOR | Spelling (dictionary) + grammar (AI proofread from P2) over all text. |
 | L3.placeholders | BLOCKER | No "TODO", "TBD", "Lorem", `{...}` templates, "XXX". |
+| L3.richness_counts | MAJOR | Words / quotes / grids per page ≥ the level minimum (`configs/content_rules.yaml`); cryptogram cipher letters per page ≥ minimum. |
+| L3.ws_coverage | MAJOR | Word search: cells belonging to real words / all cells ≥ level threshold (kids ≥ 45–50 %, adult ≥ 40 %, expert ≥ 35 %). |
+| L3.page_fill | MAJOR | Body ink bounding box ≥ 65 % of the printable area on puzzle pages (no half-empty pages), with font minimums still met (L2.min_sizes). |
+| L3.diversity | MAJOR | No word used more than 2× in the book; every puzzle page has its own sub-theme (content plan). |
+| L3.theme_relevance | MAJOR | AI scores each word / quote / illustration description against the page sub-theme (≥ 0.7); off-topic items are replaced. Needs the AI layer: without it the check fails (a mandatory check that cannot run is a fail). |
+| L3.age_fit | MAJOR | Kids: common words (SCOWL ≤ 20), length within the level range; Expert: average word length ≥ 7 and not all common words. |
 
 ### L4 — mystery / secret-discovery logic
 | ID | Level | Check |

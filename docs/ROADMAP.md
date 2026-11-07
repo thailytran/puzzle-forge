@@ -27,10 +27,18 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [x] PQ.4 L3 book checks (counts, distribution, TOC, matter, placeholders) + proofread (dictionary now, AI after P2).
 - [x] PQ.5 qa_report.json + qa_report.html, `forge qa run`, `forge book status`, `forge review --approve|--reject`.
 
+## PC — Content plan & richness (owner rules 2026-11-07; P1.8-v2 is built with these)
+- [ ] PC.1 `configs/content_rules.yaml` + loader; generators take targets from it (word search counts/grids/coverage, cryptogram letters/page, scramble lengths, sudoku grids/page, maze title + illustration slot).
+- [ ] PC.2 Multi-puzzle pages: sudoku 2–6 grids per page (kids 4×4/6×6, adult 9×9 2 or 4 Easy), large print 1.
+- [ ] PC.3 Content plan: `content_plan.yaml` schema + validator (unique sub-themes, words in dictionary/glossary, age fit, ≤ 2 uses per word), builder reads it, `--from-stage puzzles`, `illustration_requests.json`.
+- [ ] PC.4 AI content planner (needs P2.1): theme → sub-themes → per-page words / quotes / illustration descriptions; AI relevance scores.
+- [ ] PC.5 QA richness: L3.richness_counts, ws_coverage, page_fill, diversity, theme_relevance, age_fit.
+- [ ] PC.6 Rebuild the 3 sample books as **P1.8-v2** (content plans + rules) → QA_PASSED → review pack.
+
 - [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku); done only when all 3 reach **QA_PASSED**; owner reviews PDFs + QA reports via `review/P1.8.md` (`forge review-pack`).
 
 ## P2 — AI content layer (≈2 weeks)
-- [ ] P2.1 LLM client (Anthropic default, OpenAI optional), prompt files, JSON-schema validation + retry, SQLite cache, cost tracking.
+- [ ] P2.1 (needed by PC.4) LLM client (Anthropic default, OpenAI optional), prompt files, JSON-schema validation + retry, SQLite cache, cost tracking.
 - [ ] P2.2 Word lists: theme → sub-themes → words by audience; dictionary check, length rules, kid-safety filter.
 - [ ] P2.3 Crossword clues by level (definition / fill-in / wordplay), clue-answer check.
 - [ ] P2.4 Book ideation: niche + title/subtitle + 100 puzzle themes from one prompt; `listing.json` copy.

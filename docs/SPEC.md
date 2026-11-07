@@ -92,6 +92,43 @@ Levels above a cap are lowered by the planner and recorded as `requested_level` 
 Reader-facing labels (books, listings): very_easy = **Beginner**, easy = **Easy**, medium =
 **Intermediate**, hard = **Hard**, expert = **Expert** (`forge.core.models.LEVEL_LABELS`).
 
+## 3b. Content plan & content rules (owner rules 2026-11-07, all book types)
+
+**Content plan first.** From the book's main theme the AI writes `output/<book_id>/content_plan.yaml`
+*before* any puzzle is generated; the owner can edit it and rebuild with
+`forge book build <spec> --from-stage puzzles`:
+
+```yaml
+book_theme: Ocean
+pages:
+  - n: 1
+    type: wordsearch
+    level: very_easy
+    subtheme: Coral Reef          # unique per page, the sequence tells a story through the book
+    words: [CORAL, REEF, FISH, ...]   # wordsearch / scramble / crossword vocabulary for this page
+    quotes: []                    # cryptogram: PD quotes or AI-written sayings on the sub-theme
+    illustration: "A cheerful coral reef with a clownfish, a sea turtle and starfish"
+```
+
+- Vocabulary fits the audience: kids use common, familiar words (SCOWL ≤ 20 frequency list + length by
+  level); adults get richer, topic-specific, compound and (at high levels) rare words. Every word must be
+  in ENABLE/SCOWL or in a topic glossary confirmed by AI + dictionary.
+- Illustrations: the AI writes one description per slot from the page's own words
+  (`illustration_requests.json`, consumed by P6).
+- Quotes: public domain or AI-written on the sub-theme (labelled "Original").
+- Without an LLM key the plan can be written by hand (same YAML) — never by random theme rotation.
+
+**Content rules** (`configs/content_rules.yaml`, generator targets + QA minimums):
+
+| Type | Rule |
+|---|---|
+| Word search | Beginner 10–12 words / 10×10 · Easy 12–16 / 12×12 · Intermediate (kids) 20–24 / 15×15 (6–8), 20–30 / 15–18 (9–12) · Medium adult 22–28 / 15–18 · Brain Teaser 28–35 / 20×20–22 · Expert 35–45 / 25–28 · Large print 15–20 / ≤ 15×15; word-cell coverage ≥ 45–50 % kids, 40 % adult, 35 % expert |
+| Cryptogram | 5–10 quotes/page; ≥ 120 cipher letters (kids), 250 (adult; Beginner 180), 150 (large print) |
+| Word scramble | 20 words/page; kids 3–6 letters, adult 6–12 |
+| Sudoku | kids 4×4: 4–6 grids/page, 6×6: 4; adult 9×9: 2/page (Easy: 4 smaller); large print: 1 |
+| Maze | 1 per page, title + theme illustration slot |
+| Page | body ink ≥ 65 % of the printable area; every word ≤ 2 uses per book; unique sub-theme per page |
+
 ## 4. Layout
 
 - Typst templates in `templates/typst/`: `book.typ` (page setup, running header, page numbers),
