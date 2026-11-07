@@ -1,3 +1,5 @@
 """Puzzle Forge: print-ready puzzle books for Amazon KDP."""
 
-__version__ = "0.1.0"
+from forge.version import package_version
+
+__version__ = package_version()

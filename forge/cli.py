@@ -21,7 +21,9 @@ app = typer.Typer(
 
 def _version_callback(value: bool) -> None:
     if value:
-        typer.echo(f"puzzle-forge {__version__}")
+        from forge.version import version_line
+
+        typer.echo(version_line())
         raise typer.Exit()
 
 

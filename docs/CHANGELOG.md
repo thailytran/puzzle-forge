@@ -1,5 +1,15 @@
 # Changelog
 
+Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver: Puzzle Forge = git tag
+`vX.Y.Z` (version in `pyproject.toml`), Case Vault website = tag `casevault-vX.Y.Z` (version in
+`apps/casevault/pyproject.toml`). New lines go under **Unreleased**; a release moves them under its version.
+
+## [Unreleased]
+
+- P10.1: versioning: single semver source (pyproject), forge --version with git sha + env, CHANGELOG Unreleased/version sections, release workflow (tag v* -> tests -> wheel + source tarball + SHA256SUMS -> GitHub Release), Case Vault image workflow (tag casevault-v* -> GHCR)
+
+## [0.1.0] - 2026-11-07 — development history (P0–P9)
+
 - docs: initial project plan (CLAUDE.md, SPEC, MYSTERY_DESIGN, ROADMAP, PROMPTS)
 - P0.1: scaffold (uv project, typer CLI `forge`, ruff/mypy/pytest, .env.example, .gitignore, GitHub Actions CI)
 - P0.2: core models (PuzzleSpec, Puzzle, constraints, DifficultyScore, VerifyReport, PuzzleType protocol), BookSpec YAML loader, seed utils, canonical hashing
