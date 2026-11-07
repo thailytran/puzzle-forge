@@ -40,8 +40,8 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] P3.1 Logic grid: seeded generator (easy → extreme), propagation solver 1, brute-force / CP-SAT solver 2, unique solution, English clue templates + AI rephrase round-trip check, constraint `grid_solution`; property test 200 seeds.
 - [ ] P3.2 Causal graph (`forge/mystery/causal_graph.py`): nodes fact/evidence/knot/puzzle/chapter/final, requires/unlocks, state filtering, closure, DAG + reachability + ≥2 evidence checks, reveal rules.
 - [ ] P3.3 Stage framework: S1–S10 runner, YAML between stages, `--from-stage`, validation + retry, recorded-fixture AI client for tests.
-- [ ] P3.4 Stages S1–S4: brief, characters, relationships, truth timeline + validators (QA L4.timeline, L4.relations).
-- [ ] P3.5 Stages S5–S7: story arc, clue graph, evidence ↔ constrained puzzles (tokens for every evidence).
+- [ ] P3.4 Stages S1–S4: brief (+ setting relationship ontology), characters (tiered secrets, hidden agendas), relationships (directed graph: inverses, conflict pairs, no isolated character), truth timeline (≥ 12 checkpoints) + validators (QA L4.timeline, L4.relations).
+- [ ] P3.5 Stages S5–S7: 4-act story arc with reader objectives, clue graph, clues (real/red herring, tier, location, discovery) ↔ case artifacts ↔ constrained puzzles (tokens for every evidence); review dashboard `case.html`.
 - [ ] P3.6 Encoders (token → page number) + chapter/page planner with dead-end pages; Typst mystery templates (case file, evidence board).
 - [ ] P3.7 Stage S8: grounded prose + case documents with spoiler guard and reveal rules.
 - [ ] P3.8 `forge/qa/reader_sim.py` + L4 checks (graph, reader sim, case uniqueness via logic engine, spoilers, solution text); 3-chapter hand-written fixture case.

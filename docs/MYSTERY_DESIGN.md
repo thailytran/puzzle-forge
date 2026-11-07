@@ -62,14 +62,14 @@ back from YAML and re-validated). A stage that fails validation is retried with 
 
 | Stage | Output | Validation (code) |
 |---|---|---|
-| S1 Brief | genre, audience, tone, length, single/series, template | enums, length bounds, kid rules (no murder for kids) |
-| S2 Characters | 5–8 characters: name, role, look, secret, motive, alibi; exactly 1 culprit | unique names, no near-duplicates (edit distance ≤ 2 or same first letter+length), every character has a motive, exactly one `is_culprit` |
-| S3 Relationships | matrix for every pair: relation, attitude, known_secrets | symmetric relation types, consistent with secrets (A cannot "not know" a secret A appears in) |
+| S1 Brief | genre, audience, tone, length, single/series, template, **relationship ontology** of the setting (§13.1) | enums, length bounds, kid rules (no murder for kids), ontology: every type has an inverse, conflict pairs declared |
+| S2 Characters | 5–8 characters: name, archetype, role, look, traits, flaw, **3 tiered secrets (high/medium/low)**, motive, alibi, **hidden agenda**; exactly 1 culprit | unique names, no near-duplicates (edit distance ≤ 2 or same first letter+length), every character has a motive, exactly one `is_culprit`, every false alibi is backed by a high-tier secret |
+| S3 Relationships | directed graph over every ordered pair, typed by the S1 ontology: relation, attitude, known_secrets | **graph validation (§13.1)**: inverse edge present for every edge (A BOSS_OF B ⇒ B WORKS_FOR A), no declared conflict pair on the same pair, no isolated character, every suspect linked to victim or culprit, consistent with secrets |
 | S4 Truth Timeline | what REALLY happened: events `{t_start, t_end, who[], where, what}` | nobody in two places at once, culprit has opportunity (at scene in the crime window), every false alibi contradicts ≥ 1 event (QA L4.timeline) |
-| S5 Story Arc | 10 chapters (8 for kids): knots, climax, twist, ending | chapter count, every knot assigned to a chapter, twist after midpoint |
+| S5 Story Arc | **4 acts** (Setup → Incident → Investigation → Revelation) mapped to 10 chapters (8 for kids); each chapter has a reader **objective** + knot; ≥ 12 timeline checkpoints referenced | chapter count, act order, every knot in a chapter, twist after midpoint, every checkpoint used |
 | S6 Clue Graph | causal graph (§9) | DAG, reachability, ≥ 2 evidence per knot, final depends on all chapter keys |
-| S7 Evidence ↔ puzzles | each evidence: token + `PuzzleSpec` with constraint | every token producible by its puzzle type, generator + verify succeed |
-| S8 Prose + case documents | chapter intros, letters, clippings, interrogation transcripts | grounded: only facts from the graph unlocked up to that chapter (spoiler guard L4.spoilers); reveal rules respected |
+| S7 Evidence ↔ puzzles + artifacts | each clue: real or red herring, tier (= puzzle level), story location, discovery method (puzzle type / document), linked **case artifact** (§13.3), token + `PuzzleSpec` with constraint | ≈ balanced real/red-herring mix, every red herring points away from the culprit and is refuted by later real evidence, every artifact used by ≥ 1 clue, every token producible, generator + verify succeed |
+| S8 Prose + case documents | chapter intros, letters, clippings, interrogation transcripts, **suspect dossiers**, artifact pages | grounded: only facts from the graph unlocked up to that chapter (spoiler guard L4.spoilers); reveal rules and hidden agendas respected |
 | S9 Hook / teaser / book_card | marketing text (QA_SPEC §5) | L5 (no spoilers, limits, names) |
 | S10 Render | Typst interior + solutions | QA L1–L4 |
 
@@ -181,3 +181,51 @@ reveal rules respected; the meta-puzzle's verified answer equals `final_answer`.
 The AI play-test (QA L4.playtest) runs on this export: two agents of different models (Claude +
 GPT), without answers; they must solve the case and must not name the culprit before the last
 chapter. Stuck points are recorded in the QA report.
+
+## 13. Additions from the original Artefactum post (read 2026-11-07)
+
+Artefactum (Maria Lu, Jan 2026) generates 12-player party murder-mystery games: characters →
+relationships (graph-validated) → story → clues (linked to story) → objectives (linked to props) →
+Typst PDFs → web dashboard. No code or prompts are published; we adopt **ideas only**.
+
+### 13.1 Relationship ontology + graph validation (S1, S3)
+- Each setting declares its own relationship types instead of generic friend/enemy
+  (`configs/mystery/ontologies/*.yaml`), each with an **inverse** (`BOSS_OF ↔ WORKS_FOR`,
+  `INFORMANT_FOR ↔ HANDLER_OF`, `BLACKMAILS ↔ BLACKMAILED_BY`, `SIBLING ↔ SIBLING`) and declared
+  **conflict pairs** (e.g. `TRUSTS` and `BLACKMAILED_BY` on the same ordered pair). Kids ontologies
+  are friendly only (classmate, neighbour, rival, helper).
+- `forge/mystery/relations.py` builds a directed graph and validates: inverse present for every edge;
+  no conflict pair; no isolated character; every suspect within 2 hops of the victim/culprit; relations
+  consistent with secrets. Output feeds QA L4.relations.
+
+### 13.2 Characters with tiered secrets and hidden agendas (S2)
+- 3 secrets per character (high / medium / low). The high-tier secret explains the false alibi
+  (an innocent suspect lies to hide it), which is how red herrings become fair: the lie is exposed by
+  evidence the reader can earn.
+- Hidden agenda = what the character wants to protect; it drives **reveal rules** (§9) on
+  interrogation pages ("Mara only admits the late visit after you show the torn ticket").
+
+### 13.3 Clues ↔ story ↔ artifacts (S7) — book version of "props"
+- Party games need physical props; a book needs **case artifacts** printed as pages or inserts:
+  letters, ledgers, tickets, photographs (illustrated later in P6), maps, tide tables.
+  `Artifact {id, kind, title, description, first_page, clue_ids}`.
+- Clue record: `{id, real|red_herring, tier, story_location, discovery: puzzle|artifact|interview,
+  artifact_id?, evidence_id, points_to}`. Target mix ≈ 50 % real / 50 % red herring (configurable);
+  tiers follow the chapter difficulty curve.
+- Party "objectives" become **reader objectives** per chapter ("Find out who left the lighthouse at
+  2 AM") printed on the chapter opener, each tied to the chapter's knot.
+
+### 13.4 Story structure (S5)
+- 4 acts mapped to chapters (adult 10: Setup 1–2, Incident 3, Investigation 4–8, Revelation 9–10).
+- Timeline with ≥ 12 checkpoints; culprit motive written as a layered 3-part twist (surface motive,
+  hidden motive, trigger), all grounded in S4 facts.
+
+### 13.5 Review dashboard (owner aid)
+- Artefactum ships a GM dashboard with a relationship graph. We generate `review/<book_id>/case.html`
+  (self-contained, our own code, no CDN): relationship graph, timeline, clue → artifact → page map.
+  It is a review aid only, never part of the printed book.
+
+### 13.6 Not adopted
+- DSPy / Groq / Llama: our AI layer already uses typed pydantic schemas + validation + retry + cache
+  (same idea as typed signatures) behind `forge/ai`; provider choice stays Anthropic/OpenAI.
+- Party-game artifacts (GM script, voting system) — not applicable to single-reader books.

@@ -7,6 +7,7 @@ license in `licenses/` and a header in the adapted file; no-license or GPL sourc
 ## 1. GeneralReasoning/env-zebra — logic grid (zebra) generator
 - **License**: README states "MIT", but the repository contains **no LICENSE file** and no copyright
   line. Treated as **ideas only**: we write our own code (no copied lines), credited here.
+  **Owner decision (2026-11-07): ideas only, own implementation — confirmed.**
 - **Learned**: (1) generate a random solution first, then a large pool of candidate clues from it;
   (2) clue kinds: same-house, not-same-house, neighbor, left-of, immediately-left, position;
   (3) keep adding clues until a domain-propagation solver with backtracking counts exactly one
@@ -36,14 +37,23 @@ license in `licenses/` and a header in the adapted file; no-license or GPL sourc
   (interrogation pages) — re-implemented in `forge/mystery/causal_graph.py`.
 - **Affects**: `forge/mystery/causal_graph.py`, `forge/qa/reader_sim.py`, interrogation documents (S8).
 
-## 4. Artefactum — mystery game generator (blog, dominatedbycline.github.io)
-- **License**: blog post (no code reused). The host was not reachable from the build session, so
-  the design follows the owner's summary.
-- **Learned**: generate in a fixed order where each stage is grounded in the previous one:
-  brief → characters → relationships → **truth timeline** → story arc → clues → prose; validate
-  each stage before moving on; narration may only use established facts ("grounded").
-- **Reused**: stage order S1–S10 with validation + editable YAML between stages.
-- **Affects**: `forge/mystery/stages/*`, `docs/MYSTERY_DESIGN.md` §5.
+## 4. Artefactum — AI mystery game generator (blog by Maria Lu, Jan 2026)
+- **Source**: https://dominatedbycline.github.io/projects/mystery-game-generator/ (read in full on
+  2026-11-07 after the owner allowed the host).
+- **License**: blog post only. The author explicitly does **not** publish prompts, validation logic,
+  ontology or source code → **ideas only**, nothing copied.
+- **Learned**: multi-stage pipeline where each stage validates the previous one (characters →
+  relationships → story → clues → objectives/props → Typst PDFs → dashboard); custom per-setting
+  relationship **ontology**; **graph validation** of relationships (bidirectional consistency,
+  conflict detection, no orphaned characters); 3 tiered secrets per character; 4-act story with
+  ≥ 12 timeline checkpoints and a layered motive; clues split real / red herring, tiered, with exact
+  location, discovery method and a linked prop; objectives with conflicts; typed (pydantic) outputs;
+  Typst for fast, print-ready PDFs; an auto-generated dashboard with the relationship graph.
+- **Reused (ideas)**: stage order S1–S10; ontology + graph validation (S1/S3); tiered secrets + hidden
+  agendas (S2); 4-act arc, reader objectives (S5); clue ↔ artifact links and the real/red-herring
+  balance (S7); suspect dossiers (S8); review dashboard. Not adopted: DSPy, Groq, party-game GM script.
+- **Affects**: `docs/MYSTERY_DESIGN.md` §5 table and §13, `forge/mystery/relations.py`,
+  `forge/mystery/stages/*`, `configs/mystery/ontologies/`, ROADMAP P3.4–P3.7.
 
 ## 5. thailytran/halospark-suite — Portal / Product Hub (owner's own project)
 - **Learned**: SKU format `BRAND-AUD-LINE-FMT-NNNN-SGL` (single) or `...-NNNN-SERnnn-vv` (series),
