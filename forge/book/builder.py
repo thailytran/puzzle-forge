@@ -166,7 +166,9 @@ def _ctx(
 def _title(n: int, pz: Puzzle) -> str:
     label = LEVEL_LABELS[pz.spec.level]
     theme = f": {pz.spec.theme.replace('_', ' ').title()}" if pz.spec.theme else ""
-    name = {"wordsearch": "Word Search", "scramble": "Word Scramble"}.get(pz.type, pz.type.title())
+    name = {"wordsearch": "Word Search", "scramble": "Word Scramble", "cbn": "Color by Number"}.get(
+        pz.type, pz.type.title()
+    )
     return f"#{n} {name}{theme} ({label})"
 
 
@@ -221,7 +223,11 @@ def layout_book(
         elif item == "how_to_play":
             blocks: list[dict[str, Any]] = []
             for t in types_used:
-                name = {"wordsearch": "Word Search", "scramble": "Word Scramble"}.get(t, t.title())
+                name = {
+                    "wordsearch": "Word Search",
+                    "scramble": "Word Scramble",
+                    "cbn": "Color by Number",
+                }.get(t, t.title())
                 blocks += [
                     {"kind": "heading", "level": 2, "text": name},
                     {"kind": "paragraph", "text": HOW_TO_PLAY.get(t, "")},

@@ -28,3 +28,4 @@
 - PE.1/PE.4: licence lines on the copyright page (personal use; classroom copies for spiral), `forge edition stamp` (buyer footer, metadata, 40-bit micro-pattern with checksum, AES print-only permissions, verified against the QA'd master) and `forge edition trace`; cryptography (Apache-2.0/BSD) dependency
 - PB.1: blueprint library (blueprints/escape_adult/line.yaml: 17 page types, mm zones with z-order, variants, single-sided cut-outs), validator, `forge blueprint preview`
 - PB.2: colour-by-number reveal level 1 (forge/puzzles/cbn): square mosaic with an embedded 5x7 code glyph, type A (numbers) and type B (mini sums), adult/kids palettes with legend, two independent glyph readers (block vote / centre sampling), coloured solution; registered as puzzle type `cbn` (answer_is = code)
+- Review PB package (blueprint preview pages, CBN type A/B adult + kids with coloured solutions); display name 'Color by Number'

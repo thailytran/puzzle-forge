@@ -16,7 +16,7 @@ MIN_TEXT_PT = {"senior_large_print": 16.0, "kids_6_8": 11.0}
 MIN_CELL_IN = {"senior_large_print": 0.4, "kids_6_8": 0.45}
 GRID_BLOCKS = ("letter_grid", "sudoku_grid", "crossword_grid")
 SIZE_EXEMPT_KINDS = ("solutions", "title", "notes", "blank")
-TYPE_NAMES = {"wordsearch": "Word Search", "scramble": "Word Scramble", "cbn": "Cbn"}
+TYPE_NAMES = {"wordsearch": "Word Search", "scramble": "Word Scramble", "cbn": "Color by Number"}
 
 
 def pdf(ctx: Any) -> PdfFacts:
