@@ -8,3 +8,4 @@ Futoshiki
 Hashi
 Cryptogram
 Cryptograms
+PDF

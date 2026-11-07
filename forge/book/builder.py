@@ -170,6 +170,27 @@ def _title(n: int, pz: Puzzle) -> str:
     return f"#{n} {name}{theme} ({label})"
 
 
+def licence_lines(edition: EditionSettings | None) -> list[str]:
+    """Copyright & licence terms for digital / spiral editions (brand config)."""
+    if edition is None or edition.name == "kdp":
+        return []
+    from forge.editions.brand import load_brand
+
+    b = load_brand()
+    lines = [f"Licence: {b.license_line} © {b.year} {b.name} • {b.website}"]
+    if edition.name == "digital":
+        lines.append(
+            "This PDF is licensed to one buyer for personal use. Do not share, upload, "
+            "sell or redistribute it."
+        )
+    if edition.name == "spiral" and b.classroom_copy_allowed:
+        lines.append(
+            "Owners of this printed edition may photocopy pages for use within their own "
+            "family or classroom. Any other copying, sharing or resale is not permitted."
+        )
+    return lines
+
+
 def layout_book(
     spec: BookSpec,
     puzzles: list[Puzzle],
@@ -193,6 +214,7 @@ def layout_book(
                     blocks=[
                         {"kind": "spacer", "height_in": 4.0},
                         {"kind": "paragraph", "text": text},
+                        *[{"kind": "paragraph", "text": t} for t in licence_lines(edition)],
                     ],
                 )
             )

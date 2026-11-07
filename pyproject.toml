@@ -15,6 +15,7 @@ dependencies = [
     "rustoku>=0.16,<0.17",
     "pypdfium2>=4.30",
     "pillow>=10",
+    "cryptography>=42",
 ]
 
 [project.scripts]

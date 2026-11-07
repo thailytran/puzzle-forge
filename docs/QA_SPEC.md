@@ -74,7 +74,7 @@ givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-
 | L2.watermark_contrast | MAJOR | Watermark lightness change outside functional areas ≤ threshold (colour ≤ 5 %, gray ≤ 4 % darkening); grayscale editions have no dark gray patches. |
 | L2.binding_margin | BLOCKER | Spiral: no ink within the binding-edge margin (0.75" default), correct side per page (duplex alternates). |
 | L2.bleed_marks | MAJOR | When bleed is on: page = trim + 2 × 0.125", crop marks at the trim corners outside the trim box. |
-| L2.stamp_diff | BLOCKER | A stamped copy differs from its QA'd master only inside the approved stamp zones (footer band, micro-pattern strip) + metadata; anything else changed = fail. |
+| L2.stamp_diff | BLOCKER | A stamped copy differs from its QA'd master only inside the approved stamp zone (bottom 0.32" band: buyer line + micro-pattern) + metadata; anything else changed = the copy is deleted and stamping fails. Enforced by `forge edition stamp`, which also refuses masters that are not QA_PASSED (hash lock). |
 
 ### L3 — sections / whole book
 | ID | Level | Check |

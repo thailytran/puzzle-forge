@@ -406,6 +406,36 @@ def edition_build(
     typer.echo(f"wrote {pdf}  (QA: uv run forge qa run {pdf.parent})")
 
 
+@edition_app.command("stamp")
+def edition_stamp(
+    book: str = typer.Argument(..., help="book_id (output/<book_id>) or its folder"),
+    buyer: str = typer.Option(..., "--buyer", help='e.g. "Jane D."'),
+    order: int = typer.Option(..., "--order", help="order number"),
+    email: str = typer.Option("", "--email", help="stored only as a hash"),
+) -> None:
+    """Personalised copy of every QA'd digital master -> output/<book>/orders/<order>/."""
+    from forge.editions.stamp import Order, stamp_book
+
+    out_dir = Path(book) if Path(book).is_dir() else get_settings().output_dir / book
+    try:
+        files = stamp_book(out_dir, Order(buyer=buyer, order=order, email=email))
+    except (FileNotFoundError, PermissionError, ValueError) as exc:
+        typer.secho(f"stamp failed: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    for f in files:
+        typer.echo(f"wrote {f}")
+
+
+@edition_app.command("trace")
+def edition_trace(pdf: Path = typer.Argument(..., help="a stamped PDF")) -> None:
+    """Read the order number back (metadata + hidden micro-pattern)."""
+    from forge.editions.stamp import trace_pdf
+
+    r = trace_pdf(pdf)
+    typer.echo(f"metadata order: {r['metadata_order']}")
+    typer.echo(f"micro-pattern order: {r['pattern_order']}")
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 

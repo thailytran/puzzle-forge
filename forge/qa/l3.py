@@ -175,9 +175,11 @@ def _known() -> set[str]:
 @check("L3.proofread", "MAJOR", "Spelling (dictionary) and basic grammar of all prose")
 def proofread(ctx: Any) -> list[Finding]:
     known = _known()
-    names = {
-        w.upper() for w in re.findall(r"[A-Za-z]+", str(ctx.manifest["spec"]["book"]["author"]))
-    }
+    from forge.editions.brand import load_brand
+
+    brand = load_brand()  # author, brand name and website words are not spelling errors
+    names_src = f"{ctx.manifest['spec']['book']['author']} {brand.name} {brand.website}"
+    names = {w.upper() for w in re.findall(r"[A-Za-z]+", names_src)}
     out = []
     for page, text in _prose(ctx):
         for word in re.findall(r"[A-Za-z]+(?:'[a-z]+)?", text):
