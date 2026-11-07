@@ -107,11 +107,11 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] P8.4 Sample CBN Mystery book (kids + adult) → QA_PASSED → review pack.
 
 ## P9 — Case Vault website & rewards (docs/CASEVAULT.md)
-- [ ] P9.1 Docs + config: CASEVAULT.md, KLAVIYO_SETUP.md (vi), DEPLOY_CASEVAULT.md (vi), `apps/casevault/config/casevault.yaml`, `.env.example`.
+- [x] P9.1 Docs + config: CASEVAULT.md, KLAVIYO_SETUP.md (vi), DEPLOY_CASEVAULT.md (vi), `apps/casevault/config/casevault.yaml`, `.env.example`.
 - [ ] P9.2 `forge/vault`: answer normalisation + HMAC, Book Codes (checksum, batches CSV, code pages PDF), registration payload, outbox with retry, `forge vault init/sync/status/codes`, auto-enqueue on APPROVED.
 - [ ] P9.3 `case_vault` last page: "Submit your final answer at <DOMAIN>" + QR (segno, BSD) → `/solve/<book_id>`; QA `L4.vault_page`.
-- [ ] P9.4 `apps/casevault` core: DB models, admin book API, answer check, proofs (Book Code, Etsy API + CSV, Shopify order), binding to first e-mail, counter, rate limits, pending → approved re-check.
-- [ ] P9.5 Rewards + providers: tiers 10/20/30/40/gift (cycle), ShopifyCouponProvider, EtsyCouponPool (+ low-stock alert), KlaviyoProvider (profile, list consent, events), outbox retry, Telegram, certificate PDF, magic-link account page.
-- [ ] P9.6 Public form (HTMX) with consent rules by region + Turnstile; admin (password + TOTP): books, solves, stats, customers, Etsy CSV/pending, coupon stock, consenting e-mail export, fraud log, gift requests.
+- [x] P9.4 `apps/casevault` core: DB models, admin book API, answer check, proofs (Book Code, Etsy API + CSV, Shopify order), binding to first e-mail, counter, rate limits, pending → approved re-check.
+- [x] P9.5 Rewards + providers: tiers 10/20/30/40/gift (cycle), ShopifyCouponProvider, EtsyCouponPool (+ low-stock alert), KlaviyoProvider (profile, list consent, events), outbox retry, Telegram, certificate PDF, magic-link account page.
+- [x] P9.6 Public form (HTMX) with consent rules by region + Turnstile; admin (password + TOTP): books, solves, stats, customers, Etsy CSV/pending, coupon stock, consenting e-mail export, fraud log, gift requests.
 - [ ] P9.7 Docker image + Compose + Caddy, Cloudflare Tunnel option, daily backup script; E2E tests with mocked Etsy/Shopify/Klaviyo.
 - [ ] P9.8 **Go-live** (owner): domain, Klaviyo flows, Shopify app token, Etsy app key, legal review of consent wording.

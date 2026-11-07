@@ -24,3 +24,7 @@ data/*
 .DS_Store
 .idea/
 .vscode/
+
+# Case Vault runtime data (db, Etsy tokens, backups)
+apps/casevault/data/
+apps/casevault/backups/

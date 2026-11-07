@@ -28,7 +28,11 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
     "types-pyyaml>=6.0",
+    "casevault",
 ]
+
+[tool.uv.sources]
+casevault = { path = "apps/casevault", editable = true }
 
 [build-system]
 requires = ["hatchling"]
@@ -46,6 +50,9 @@ extend-exclude = ["*.md"]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 ignore = ["B008"]  # typer uses function calls in defaults
 
+[tool.ruff.lint.per-file-ignores]
+"apps/casevault/**" = ["RUF001"]  # owner wording uses an en dash: "2/5 cases solved – 3 more"
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
@@ -53,8 +60,9 @@ plugins = ["pydantic.mypy"]
 files = ["forge/core", "forge/puzzles"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "apps/casevault/tests"]
 addopts = "-ra"
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
 markers = [
     "typst: needs the typst CLI binary (skipped when missing)",
 ]

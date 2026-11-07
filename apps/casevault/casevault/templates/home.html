@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card">
+<h1>Solved the case?</h1>
+<p>Submit your final answer to unlock rewards. Scan the QR code on the last page of your book, or pick it below.</p>
+</div>
+{% for b in books %}
+<div class="card"><a href="/solve/{{ b.book_id }}"><strong>{{ b.title }}</strong></a></div>
+{% else %}
+<div class="card hint">No cases are open yet.</div>
+{% endfor %}
+<p class="hint"><a href="/account">My account</a></p>
+{% endblock %}
