@@ -43,6 +43,15 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [x] PE.5 QA: watermark knock-out/contrast, binding margin, bleed/crop marks, stamp-vs-master diff.
 - [ ] PE.6 Escape-room sample book in both editions (after P3) + review pack.
 
+## PB — Blueprints, page planner, framed art, colour-by-number (owner rules 2026-11-07)
+- [ ] PB.1 Blueprint library: `blueprints/escape_adult/line.yaml` (page types, zones in mm, z-order, variants) + loader + `forge blueprint preview` (coloured zones PDF).
+- [ ] PB.2 CBN level 1: geometric mosaic (square/hex/Voronoi) with embedded code glyph, type A + type B, palette + legend, glyph-matching solver, QA L1.cbn_reveal, coloured solution.
+- [ ] PB.3 Page planner: case bible + arc + clue graph + blueprint + targets → `page_plan.yaml` (+ validation, `--from-stage page_plan`), hints (4 tiers), code register / host pack.
+- [ ] PB.4 Art requests: per art zone pixel size + mask PNG + style bible + prompt clauses; `art_requests/` export, `forge art import`; compositor layers; QA L2.art_*.
+- [ ] PB.5 Escape sample book ≥ 50 game pages with 1–2 cbn_reveal pages (needs P3 case data) + review pack.
+- [ ] PB.6 CBN level 2: line art from the HALOSPARK image tool → vector regions → glyph-split regions.
+- [ ] PB.7 Blueprints escape_kids, mystery_adult, adventure_kids.
+
 - [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku); done only when all 3 reach **QA_PASSED**; owner reviews PDFs + QA reports via `review/P1.8.md` (`forge review-pack`).
 
 ## P2 — AI content layer (≈2 weeks)

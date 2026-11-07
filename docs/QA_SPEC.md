@@ -76,6 +76,15 @@ givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-
 | L2.bleed_marks | MAJOR | When bleed is on: page = trim + 2 × 0.125", crop marks at the trim corners outside the trim box. |
 | L2.stamp_diff | BLOCKER | A stamped copy differs from its QA'd master only inside the approved stamp zone (bottom 0.32" band: buyer line + micro-pattern) + metadata; anything else changed = the copy is deleted and stamping fails. Enforced by `forge edition stamp`, which also refuses masters that are not QA_PASSED (hash lock). |
 
+### L2 — framed art & colour-by-number (owner rules 2026-11-07)
+| ID | Level | Check |
+|---|---|---|
+| L2.art_mask | BLOCKER | AI image stays out of masked areas (pixel variance inside the mask < threshold). |
+| L2.art_no_text | MAJOR | OCR finds no letters/digits in AI images. |
+| L2.art_style | MAJOR | AI vision score vs the style bible ≥ threshold. |
+| L2.art_dpi | BLOCKER | ≥ 300 effective DPI in its zone (same as L2.image_dpi). |
+| L1.cbn_reveal | BLOCKER | Colouring the regions from the answers reveals the right code: glyph matching reads it back, contrast and glyph size above minimum; every region closed, numbered, ≥ minimum area; type B mini puzzles unique. |
+
 ### L3 — sections / whole book
 | ID | Level | Check |
 |---|---|---|

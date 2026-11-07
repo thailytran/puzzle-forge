@@ -97,3 +97,10 @@ Files stay on disk / object storage under `products/<SKU>/…` (Hub layout) once
 5. P7.5 `ListingOutputPort` adapter: assets + `produced` call; Module 3 lists the book.
 6. P7.6 Run as a Suite tool (`tools/puzzle-forge/tool.json`, portal auth, `/hooks/puzzle-forge/api/...`),
    NotificationPort → Portal Telegram.
+
+## 6. Shared colour-by-number engine
+
+`forge/puzzles/cbn` is written as an independent engine (regions + palette + glyph embedding + solver,
+no book/layout imports) so HALOSPARK's Colour-by-Number line can reuse it later through an adapter:
+input = region map (code-generated mosaic now, vectorised line art from the image tool in PB.6) +
+palette; output = numbered regions, legend, solution render, verification report.

@@ -166,6 +166,10 @@ order id in PDF metadata, a micro-pattern of tinted dots in the bottom border en
 (`forge edition trace <pdf>` reads it back), PDF permissions print-only (owner password). These are
 deterrents only — metadata, permissions and overlays are easy to strip.
 
+## 4c. Blueprints, page planner, framed art, colour-by-number
+See `docs/MYSTERY_DESIGN.md` §14 (applies to escape / mystery / adventure lines and to bonus pages in
+classic books). New puzzle type `cbn` (colour-by-number reveal, constraint `answer_is(code)`).
+
 ## 5. Constraints for mystery puzzles (answer → token)
 
 | Constraint | Applies to | Meaning |

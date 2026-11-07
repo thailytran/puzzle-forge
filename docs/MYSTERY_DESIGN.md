@@ -229,3 +229,38 @@ Typst PDFs → web dashboard. No code or prompts are published; we adopt **ideas
 - DSPy / Groq / Llama: our AI layer already uses typed pydantic schemas + validation + retry + cache
   (same idea as typed signatures) behind `forge/ai`; provider choice stays Anthropic/OpenAI.
 - Party-game artifacts (GM script, voting system) — not applicable to single-reader books.
+
+## 14. Blueprints, page planner, framed AI art, colour-by-number reveals (owner rules 2026-11-07)
+
+**Blueprint library** `blueprints/<line>/line.yaml` (escape_adult, escape_kids, mystery_adult,
+adventure_kids). Page types: inner_cover, how_to_play, story, dossier, reference, main_puzzle,
+supporting_clues, interlude, code_register, evidence_worksheet, final_meta, cbn_reveal, hints, solutions,
+certificate, cutout, notes. Each page type = a Typst template + **zones** in mm relative to the trim box
+(z-ordered): `art` (AI image), `puzzle` (vector game), `text`, `input` (code boxes / handwriting),
+`header`, `footer`, `watermark`; the knock-out zone is derived from puzzle + text + input. Layout variants
+per page type (e.g. main_puzzle: art_top / art_side / frame). `forge blueprint preview <line>` renders
+every page type with coloured zones for owner review.
+
+**Page planner** (input: case bible + story arc + clue graph + blueprint + targets: ≥ 50 game pages,
+difficulty curve, audience, edition) computes: number of puzzles, mechanism per puzzle (varied, never the
+same twice in a row, rising curve), supporting pages, interludes, 4 hint tiers per puzzle, cbn_reveal
+positions, code check table (bound/spiral) or host pack (digital kit). Output `page_plan.yaml` (page no.,
+page type, variant, puzzle ids, text blocks, art requests, codes in/out), editable, rebuild with
+`--from-stage page_plan`. Validation: page count, every clue-graph node placed, no unintended blank page,
+even total, cut-outs single-sided.
+
+**Framed AI art** — never redraws a game. Per art zone an `art_request`: exact pixel size at 300 DPI,
+aspect, **mask PNG** (white = paint, black = leave plain paper), style bible, character references,
+scene from the script, optional render of the puzzle as a *theme reference*. Mandatory prompt clauses:
+no text, no letters, no numbers, keep masked areas empty. Exported to `art_requests/` for the HALOSPARK
+image tool; `forge art import` brings images back. Compositor order: paper → AI art → watermark
+(knocked out) → vector game + text + input boxes (always on top, rendered by code).
+
+**Colour-by-number reveal** (`forge/puzzles/cbn`): type A "colour reveal" (numbers → colours → a digit /
+letter / symbol appears = next code); type B "colour by answer" (each region holds a mini puzzle whose
+answer picks the colour). Level 1 (first): geometric mosaics generated entirely by code with the code
+glyph embedded in the dark colour; level 2 (later): line art from the HALOSPARK image tool, vectorised,
+closed regions split along the glyph outline. Palette 4–8 colours by audience with numbered swatches;
+grayscale editions use patterns/symbols if needed. Solver/QA: render the coloured result from the answers
+→ glyph matching must read the right code with enough contrast and size; every region closed, numbered
+and large enough to write in; type B mini puzzles have unique answers. Solutions show the coloured image.
