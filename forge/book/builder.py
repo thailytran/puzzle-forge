@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from forge import __version__
-from forge.book.plan import Slot, plan_book
+from forge.book.plan import Slot, plan_book, theme_rotation
 from forge.book.texts import ABOUT, COPYRIGHT, HOW_TO_PLAY, THANK_YOU
 from forge.core.book import BookSpec
 from forge.core.models import LEVEL_LABELS, LEVELS, Puzzle, PuzzleSpec
@@ -25,6 +25,7 @@ from forge.puzzles.registry import get_puzzle_type
 from forge.qa.l1 import band_ok
 
 MAX_SEED_TRIES = 30
+MAX_ALT_THEMES = 4
 TITLE_SPACE_IN = 0.9
 SOLUTION_TITLE_IN = 0.35
 
@@ -47,6 +48,7 @@ def generate_puzzles(
 ) -> list[Puzzle]:
     """`offsets[slot]` shifts the seed attempts of a slot (used by the QA auto-fixer)."""
     offsets = offsets or {}
+    themes = theme_rotation(spec)
     out: list[Puzzle] = []
     seen: set[str] = set()
     for slot in plan_book(spec):
@@ -60,9 +62,21 @@ def generate_puzzles(
         )
         last: Exception | None = None
         best: tuple[int, Puzzle] | None = None
-        for attempt in range(MAX_SEED_TRIES):
+        candidates = [ps]
+        if slot.theme is not None:  # themes that cannot reach the level: try the next ones
+            rot = [t for t in themes if t != slot.theme]
+            candidates += [ps.model_copy(update={"theme": t}) for t in rot[:MAX_ALT_THEMES]]
+        tries = [(c, a) for c in candidates for a in range(MAX_SEED_TRIES)]
+        for ps_try, attempt in tries:
+            if best is not None and best[0] == 0:
+                break
             try:
-                pz = pt.generate(ps, puzzle_seed(spec, slot, attempt + offsets.get(slot.index, 0)))
+                pz = pt.generate(
+                    ps_try,
+                    puzzle_seed(spec, slot, attempt + offsets.get(slot.index, 0))
+                    if ps_try.theme == ps.theme
+                    else derive_seed(spec.book.seed, "alt", slot.index, ps_try.theme, attempt),
+                )
             except GenerationError as exc:
                 last = exc
                 continue
@@ -77,8 +91,6 @@ def generate_puzzles(
             )
             if best is None or dist < best[0]:
                 best = (dist, pz)
-            if dist == 0:
-                break
         if best is None:
             raise BuildError(f"puzzle #{slot.index + 1} ({slot.type}, {slot.level}): {last}")
         pz = best[1]  # closest band if no exact match: QA L1.difficulty_band will report it

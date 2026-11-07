@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import random
 from dataclasses import dataclass, replace
 from typing import Any
@@ -24,6 +25,41 @@ from forge.wordlists import blocklist, normalize_word, theme_words
 from forge.wordlists.dictionary import anagrams, is_word
 
 SOLVER = "scramble-anagram-v1"
+MIN_ITEMS = 16  # a page needs at least this many unique-answer words (target 20)
+# target average word length per level (the page average decides the measured level)
+TARGET_AVG_LEN: dict[str, float] = {
+    "very_easy": 5.0,
+    "easy": 5.4,
+    "medium": 6.1,
+    "hard": 7.3,
+    "expert": 8.6,
+}
+# Beginner: first + last letter shown on the answer line; Easy: first letter (classic aid)
+HINT_MODE: dict[str, str] = {"very_easy": "first_last", "easy": "first"}
+HINT_FACTOR: dict[str | None, float] = {"first_last": 0.4, "first": 0.8, None: 1.0}
+
+
+def _hint(answer: str, mode: str | None) -> str:
+    """Answer-line pattern, e.g. 'B _ _ _ T' (empty string = plain line)."""
+    if not mode:
+        return ""
+    cells = ["_"] * len(answer)
+    cells[0] = answer[0]
+    if mode == "first_last":
+        cells[-1] = answer[-1]
+    return " ".join(cells)
+
+
+LEN_TO_SCORE = ((4.0, 5.0), (4.9, 20.0), (5.6, 40.0), (6.6, 60.0), (8.0, 80.0), (9.5, 95.0))
+
+
+def _interp(x: float, pts: tuple[tuple[float, float], ...]) -> float:
+    if x <= pts[0][0]:
+        return pts[0][1]
+    for (x0, y0), (x1, y1) in itertools.pairwise(pts):
+        if x <= x1:
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    return pts[-1][1]
 
 
 @dataclass(frozen=True)
@@ -35,18 +71,19 @@ class ScParams:
 
 
 _BY_LEVEL: dict[Level, ScParams] = {
-    "very_easy": ScParams(3, 4, 8, 1),
-    "easy": ScParams(4, 5, 10, 1),
-    "medium": ScParams(5, 7, 12, 1),
-    "hard": ScParams(7, 9, 12, 0),
-    "expert": ScParams(8, 14, 12, 0),
+    # owner decision 2026-11-07: 20 words per page at every level
+    "very_easy": ScParams(3, 4, 20, 1),
+    "easy": ScParams(4, 5, 20, 1),
+    "medium": ScParams(5, 7, 20, 1),
+    "hard": ScParams(7, 9, 20, 0),
+    "expert": ScParams(8, 14, 20, 0),
 }
 
 
 def resolve_params(spec: PuzzleSpec) -> ScParams:
     p = _BY_LEVEL[spec.level]
     if spec.audience == "kids_6_8":
-        p = replace(p, min_len=min(p.min_len, 3), max_len=min(p.max_len, 6), count=min(p.count, 10))
+        p = replace(p, min_len=min(p.min_len, 3), max_len=min(p.max_len, 6), count=p.count)
     if "count" in spec.options:
         p = replace(p, count=int(spec.options["count"]))
     return p
@@ -102,10 +139,8 @@ class Scramble:
         eligible = [w for w in pool if len(w) >= 3 and w != bonus_word and unique_answer(w, pool)]
         rng.shuffle(eligible)
 
-        def off_band(w: str) -> int:  # prefer the level's lengths, then the nearest ones
-            return max(p.min_len - len(w), len(w) - p.max_len, 0)
-
-        eligible.sort(key=off_band)
+        target = TARGET_AVG_LEN[spec.level]
+        eligible.sort(key=lambda w: abs(len(w) - target))  # shuffled first: random tie-break
         items: list[dict[str, str]] = []
         for w in eligible:
             if len(items) >= p.count:
@@ -113,7 +148,7 @@ class Scramble:
             s = scramble_word(w, p, rng)
             if s:
                 items.append({"scrambled": s, "answer": w})
-        if len(items) < min(p.count, 5):
+        if len(items) < min(p.count, MIN_ITEMS):
             raise GenerationError(f"scramble: only {len(items)} usable words for {spec.theme!r}")
         bonus: dict[str, str] | None = None
         if bonus_word:
@@ -126,6 +161,7 @@ class Scramble:
             seed,
             data={
                 "items": [i["scrambled"] for i in items],
+                "hint_mode": HINT_MODE.get(spec.level),
                 "bonus": bonus["scrambled"] if bonus else None,
                 "word_bank": sorted(pool),
             },
@@ -178,18 +214,20 @@ class Scramble:
         avg_len = sum(map(len, answers)) / len(answers)
         kept = sum(kept_pairs(a, s) for a, s in zip(answers, puzzle.data["items"], strict=True))
         f = {
-            "avg_len": clamp01((avg_len - 3) / (10 - 3)),
-            "count": clamp01((len(answers) - 6) / (14 - 6)),
+            "avg_len": round(avg_len, 3),
+            "count": float(len(answers)),
             "scrambledness": 1 - clamp01(kept / max(len(answers), 1)),
         }
-        score = round(
-            5 + 90 * (0.75 * f["avg_len"] + 0.1 * f["count"] + 0.15 * f["scrambledness"]), 1
-        )
+        # average word length drives difficulty; breakpoints fitted on 20-word pages (2026-11-07)
+        f["hint_factor"] = HINT_FACTOR[puzzle.data.get("hint_mode")]
+        score = _interp(avg_len, LEN_TO_SCORE) * f["hint_factor"] + 3 * (f["scrambledness"] - 0.5)
+        score = round(min(100.0, max(0.0, score)), 1)
         return DifficultyScore(score=score, label=level_from_score(score), features=f)
 
     def _lines(self, puzzle: Puzzle, solution: bool) -> list[dict[str, Any]]:
+        mode = puzzle.data.get("hint_mode")
         rows = [
-            {"left": f"{i}.  {' '.join(s)}", "right": a if solution else ""}
+            {"left": f"{i}.  {' '.join(s)}", "right": a if solution else _hint(a, mode)}
             for i, (s, a) in enumerate(
                 zip(puzzle.data["items"], puzzle.solution["answers"], strict=True), 1
             )
@@ -200,7 +238,13 @@ class Scramble:
         size = 16.0 if ctx.large_print else 13.0
         blocks: list[dict[str, Any]] = [
             {"kind": "paragraph", "text": "Unscramble each word. Every word fits the theme."},
-            {"kind": "answer_lines", "rows": self._lines(puzzle, False), "font_pt": size},
+            {
+                "kind": "answer_lines",
+                "rows": self._lines(puzzle, False),
+                "font_pt": size,
+                "pairs": 2 if len(puzzle.data["items"]) > 12 else 1,
+                "gap_em": 1.3,
+            },
         ]
         if puzzle.data.get("bonus"):
             blocks += [
@@ -224,4 +268,5 @@ class Scramble:
                 }
             )
         size = 11.0 if ctx.width_in > 5 else 8.0
-        return RenderedBlock(blocks=[{"kind": "answer_lines", "rows": rows, "font_pt": size}])
+        block = {"kind": "answer_lines", "rows": rows, "font_pt": size, "pairs": 2, "gap_em": 0.45}
+        return RenderedBlock(blocks=[block])

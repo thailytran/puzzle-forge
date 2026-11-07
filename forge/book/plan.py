@@ -79,7 +79,7 @@ def _levels(spec: BookSpec, n: int) -> list[Level]:
     return [lvl for lvl in LEVELS for _ in range(counts.get(lvl, 0))]  # easy → hard
 
 
-def _themes(spec: BookSpec) -> list[str]:
+def theme_rotation(spec: BookSpec) -> list[str]:
     if isinstance(spec.puzzles.themes, list) and spec.puzzles.themes:
         return list(spec.puzzles.themes)
     pool = [t for t in available_themes() if t != "short_words"]
@@ -109,7 +109,7 @@ def plan_book(spec: BookSpec) -> list[Slot]:
         levels = levels_by_pos
     else:
         seq = _type_sequence(spec, n)
-    themes = _themes(spec)
+    themes = theme_rotation(spec)
     theme_i = 0
     slots: list[Slot] = []
     for i in range(n):

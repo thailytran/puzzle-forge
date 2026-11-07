@@ -14,7 +14,7 @@ from forge.wordlists import blocklist, normalize_word, theme_words
 
 MIN_WORD_LEN = 3
 MIN_WORDS_FLOOR = 5
-COVERAGE = 0.8  # share of the theme words' letters we expect to land on fresh cells
+COVERAGE = 0.6  # share of the theme words' letters we expect to land on fresh cells
 
 
 @dataclass

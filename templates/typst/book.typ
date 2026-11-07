@@ -111,13 +111,14 @@
 
 #let answer-lines(b) = {
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 12) * 1pt)
+  let pairs = b.at("pairs", default: 1)
   grid(
-    columns: (1fr, 1fr),
-    row-gutter: 1.1em,
+    columns: (1.15fr, 1fr) * pairs,
+    row-gutter: b.at("gap_em", default: 1.1) * 1em,
     column-gutter: 1em,
     ..b.rows.map(r => (
       r.left,
-      if r.right == "" { box(width: 100%, height: 1em, stroke: (bottom: 0.6pt)) } else { strong(r.right) },
+      if r.right == "" { box(width: 100%, height: 1em, stroke: (bottom: 0.6pt)) } else if r.right.contains("_") { text(tracking: 0.08em, r.right) } else { strong(r.right) },
     )).flatten(),
   )
 }
