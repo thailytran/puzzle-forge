@@ -98,7 +98,12 @@ Cần điền:
 - Etsy (nếu đã có app key): `ETSY_API_KEY`, `ETSY_SHOP_ID`, `ETSY_SHOP_URL`.
 - Telegram: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
 
-Staging nên dùng key **test**: Klaviyo list riêng (hoặc để trống để không gửi mail), Shopify development store, không có Etsy, Turnstile *test key* hoặc để trống.
+Staging nên dùng key **test**:
+- Klaviyo: list riêng, hoặc để trống để không gửi mail.
+- Shopify: development store.
+- Etsy: để trống.
+- Turnstile: cặp key test của Cloudflare (luôn qua), để `forge smoke` gửi form được:
+  `TURNSTILE_SITE_KEY=1x00000000000000000000AA` và `TURNSTILE_SECRET=1x0000000000000000000000000000000AA`.
 
 ```bash
 casevault up --staging

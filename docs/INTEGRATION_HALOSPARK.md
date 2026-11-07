@@ -14,7 +14,9 @@ The core never imports Halospark code. Facts below were read from `thailytran/ha
 | `SkuPort` | SKU from the shared counter | `HubSkuProvider` (HTTP to Product Hub) — **primary**; `DevSkuProvider` (tests only, `DEV-` prefix) | same `HubSkuProvider`, or an in-process call when running inside the Suite |
 | `ResearchInputPort` | book ideas / niches in | CSV/YAML briefs (P2.5) | Hub `GET api/products?status=approved&line=PZL` (ideas created by Etsy Research → Hub) |
 | `ListingOutputPort` | approved book out | files in `output/<book_id>/` | Hub `POST api/products/{sku}/assets` + `POST api/products/{sku}/produced {title, book_json, listing_copy}` → Module 3 (SEO Listing) |
-| `NotificationPort` | job done / QA failed | console | Portal Telegram (`portal/app/telegram.py`) |
+| `NotificationPort` | job done / QA failed / budget alerts | Telegram bot (`forge/notify.py`) or console | Portal Telegram (`portal/app/telegram.py`) |
+| `AIGateway` (`forge/ai/gateway.py`) | every AI call (JSON, vision, image prompts) | `RoutedGateway` + Anthropic / OpenAI / Gemini adapters, `configs/ai_routing.yaml`, SQLite ledger + budgets | `HalosparkAIGatewayAdapter` → the Suite's shared AI gateway (§8) |
+| Case Vault admin API | approved books → rewards site | `forge/vault` outbox → `POST /api/admin/books` | unchanged; customer tables move into the Suite DB (§7) |
 
 Rules: core packages (`core`, `puzzles`, `book`, `qa`, `mystery`, `layout`) take ports as arguments;
 only `forge/cli.py` / `forge/api` wire concrete adapters (from `.env`). Tests use fakes.
@@ -122,3 +124,37 @@ designed to move into the shared Suite DB with a `cv_` prefix and no renames:
 Rules: e-mail is the customer key everywhere; consent rows are append-only; answer hashes and Book
 Codes stay hashed. A one-off import (P7.3 style) copies the tables; the site then switches its
 `DATABASE_URL` to the Suite Postgres schema.
+
+## 8. Shared AI gateway (Suite) — contract for `HalosparkAIGatewayAdapter`
+
+Today Puzzle Forge owns its keys, routing, budgets and cost ledger (`forge/ai`, P10.3). When the Suite
+gets one AI gateway for every module, Forge keeps the **same port** and only switches the provider in
+`ai_routing.yaml` (`provider: halospark`); no core code changes.
+
+```
+POST {HALOSPARK_AI_URL}/v1/complete        Authorization: Bearer <HALOSPARK_AI_TOKEN>
+{ "app": "puzzle-forge", "task": "case_bible", "model": "<model or 'auto'>",
+  "system": "...", "prompt": "...", "images": [{"mime": "image/png", "b64": "..."}],
+  "json_schema": {...} | null, "max_tokens": 16000, "temperature": null, "effort": "high" }
+200 -> { "text": "...", "model": "...", "provider": "anthropic", "input_tokens": 1234,
+         "output_tokens": 567, "cost_usd": 0.0123 }
+4xx/5xx -> error (Forge falls back to the next provider of the task's route)
+GET  {HALOSPARK_AI_URL}/v1/models -> { "models": ["..."] }
+```
+
+Suite side owns: provider keys, per-app budgets, refusal fallbacks, a shared cache, cost reports per
+module. Forge keeps: JSON-schema validation + repair round, golden rule 1 (AI never decides answers),
+its per-book ledger (`cost_usd` from the Suite is recorded as-is).
+
+## 9. Plugging Puzzle Forge into the Suite (order of work)
+
+| Step | What changes | Forge side |
+|---|---|---|
+| 1 | Shared AI | `HALOSPARK_AI_URL` + token in forge.env, routing tasks → `provider: halospark` |
+| 2 | SKU | already `SkuPort` → `HubSkuProvider`; Hub adds idempotent `external_id` (§2.1) |
+| 3 | Shared DB | Postgres adapters for `PuzzleRegistryPort` / `BookStatePort` / jobs / AI ledger (tables `forge_*`, §4); `forge migrate` gains a Postgres path; one-off SQLite → Postgres import |
+| 4 | Research in / Listing out | `ResearchInputPort` (approved PZL ideas → book briefs = jobs), `ListingOutputPort` (assets + `produced`) |
+| 5 | Run as a Suite tool | the Forge web UI/API sits behind the Portal auth (`/hooks/puzzle-forge/…`); the VM install stays the runner (worker) or moves into the Suite host |
+| 6 | Case Vault customers | `cv_*` tables move into the Suite DB (§7); the site switches `DATABASE_URL` |
+
+Every step keeps the standalone adapters working (tests run without the Suite).

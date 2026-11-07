@@ -155,6 +155,7 @@ uv run forge web run [--host 100.x.y.z] [--port 8710]      # web UI (localhost /
 uv run forge migrate | backup [--no-upload] | restore --data X --config Y   # maintenance
 sudo bash scripts/install.sh [--env test|prod] [--ref vX.Y.Z]   # VM system install (docs/INSTALL_VM.md)
 sudo forge update [--ref vX.Y.Z] | forge logs [web|worker] | forge status | sudo forge restart | sudo forge smoke
+uv run forge smoke-run [--email me@x]                     # FORGE_ENV=test: 2 samples -> QA -> staging/mock -> redeem
 uv run pytest -q apps/casevault/tests                      # Case Vault website tests (E2E, providers mocked)
 uv run uvicorn casevault.web:app_factory --factory --reload   # run the website locally (dev, SQLite)
 sudo bash scripts/casevault/install_oracle.sh --ghcr-user <user>   # Case Vault server (docs/DEPLOY_CASEVAULT.md)

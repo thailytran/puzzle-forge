@@ -620,6 +620,21 @@ def restore(
     typer.echo(f"restored {_restore(get_settings(), data, config)}")
 
 
+@app.command("smoke-run")
+def smoke_run(
+    email: str = typer.Option("smoke-test@example.com", help="E-mail used for the staging redeem"),
+) -> None:
+    """End-to-end smoke test (FORGE_ENV=test): 2 sample books -> QA -> staging -> redeem."""
+    from forge.smoke import SmokeError, run_smoke
+
+    try:
+        res = run_smoke(get_settings(), email=email, log=typer.echo)
+    except SmokeError as exc:
+        typer.secho(f"SMOKE FAILED: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"smoke ok: {res}")
+
+
 sku_app = typer.Typer(help="SKU from the HALOSPARK Product Hub (configs/sku.yaml).")
 app.add_typer(sku_app, name="sku")
 
