@@ -1,0 +1,240 @@
+{
+ "book_id": "brain-workout-puzzle-collection-20261107",
+ "run_id": "qa-20261107T053532+0000",
+ "started": "2026-11-07T05:35:32+00:00",
+ "finished": "2026-11-07T05:36:18+00:00",
+ "result": "PASSED",
+ "hashes": {
+  "interior": "5d736d8f66376b37e257142bc0d897fcede3d1df046fdbdd1e53446a0beffdea",
+  "cover": null,
+  "manifest": "5f1ffc39f5263418b3e296fcf11ddd261c1c5f75ad42ca5d08729dc6650fb6ca"
+ },
+ "counts": {
+  "blocker_fail": 0,
+  "major_fail": 0,
+  "minor_fail": 0,
+  "waived": 0,
+  "passed": 23,
+  "skipped": 1
+ },
+ "checks": [
+  {
+   "id": "L1.dual_solver",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.unique",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.rules",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.difficulty_band",
+   "layer": "L1",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.kid_safety",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "skip",
+   "message": "not a kids' book",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.catalog_unique",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.trim",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.safe_area",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.fonts_embedded",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.min_sizes",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.image_dpi",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.page_numbers",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.solution_match",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.instructions",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.no_unintended_blank",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.thumbnails",
+   "layer": "L2",
+   "level": "MINOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.page_count_match",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.print_roundtrip",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.counts",
+   "layer": "L3",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.distribution",
+   "layer": "L3",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.toc",
+   "layer": "L3",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.matter",
+   "layer": "L3",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.proofread",
+   "layer": "L3",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.placeholders",
+   "layer": "L3",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  }
+ ],
+ "fix_rounds": 0,
+ "notes": []
+}

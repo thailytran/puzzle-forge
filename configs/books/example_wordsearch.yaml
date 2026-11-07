@@ -1,0 +1,21 @@
+# Example classic book spec (docs/SPEC.md §2)
+book:
+  title: "Ocean Adventures Word Search"
+  subtitle: "100 Fun Puzzles for Kids Ages 6-8"
+  author: "Pen Name"
+  audience: kids_6_8
+  trim: "8.5x11"            # 8.5x11 | 8x10 | 6x9 | 8.5x8.5
+  large_print: false
+  interior: bw              # bw | color
+  content_pages: 100        # puzzle pages (front matter + solutions are extra)
+  seed: 20261106
+puzzles:
+  mode: progressive         # progressive | mixed | by_section
+  distribution: { very_easy: 30, easy: 40, medium: 30 }   # Beginner -> Intermediate (kids 6-8 max, SPEC §3)
+  types:
+    - { type: wordsearch, weight: 1.0, options: { directions: auto_by_level } }
+  themes: auto              # auto = AI picks 100 sub-themes from book theme; or explicit list
+  theme: "ocean"
+front_matter: [title, copyright, how_to_play, table_of_contents]
+back_matter:  [solutions, about, thank_you]
+solutions: { per_page: 6 }

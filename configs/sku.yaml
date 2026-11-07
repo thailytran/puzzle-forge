@@ -1,0 +1,17 @@
+# SKU = HALOSPARK Portal / Product Hub format (halospark-suite product-hub next_sku):
+#   single : BRAND-AUD-LINE-FMT-NNNN-SGL            e.g. HSP-KID4-PZL-PBK-0007-SGL
+#   series : BRAND-AUD-LINE-FMT-NNNN-SERnnn-vv      e.g. HSP-ADULT-PZL-PBK-0012-SER003-02
+# Numbers come from the Hub's shared counter (per prefix). Migration of the new audience codes:
+# docs/INTEGRATION_HALOSPARK.md §3.
+brand: HSP
+line: PZL            # Hub line "Puzzle / game book"
+format: PBK          # Hub format "Sách in" (printed book)
+audience_codes:      # forge audience -> Portal age-group code (named by starting age)
+  kids_6_8: KID4     # 4-8 (= old Hub code KID)
+  kids_9_12: KID9    # 9-12
+  teen: TEEN
+  adult: ADULT
+  senior_large_print: SENIOR
+# Reserved / aliases (never re-number old SKUs):
+reserved_codes: [KID1, LP]     # KID1 = 1-3 (future); LP = alternative to SENIOR, pending owner choice
+aliases: { KID: KID4, ADU: ADULT, TEE: TEEN, TOD: KID1 }

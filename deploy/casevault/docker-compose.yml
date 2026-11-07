@@ -1,0 +1,103 @@
+# Case Vault on the Oracle Cloud VM (docs/DEPLOY_CASEVAULT.md). One file, two instances:
+#   prod:     docker compose -p casevault         --env-file /opt/casevault/prod/.env --profile edge up -d
+#   staging:  docker compose -p casevault-staging --env-file /opt/casevault/staging/.env up -d
+# (the `casevault` command does this for you). Caddy (profile "edge") runs once, in prod, and
+# serves both DOMAIN and STAGING_DOMAIN over the shared docker network "edge".
+
+x-app: &app
+  image: ghcr.io/${GHCR_OWNER:-thailytran}/casevault:${CASEVAULT_VERSION:?set CASEVAULT_VERSION}
+  restart: unless-stopped
+  env_file: ${ENV_FILE:?set ENV_FILE}
+  environment:
+    DATABASE_URL: postgresql://casevault:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/casevault
+    CASEVAULT_CONFIG: /app/config/casevault.yaml
+  volumes:
+    - ${INSTANCE_DIR:?set INSTANCE_DIR}/data:/app/data
+    - ${INSTANCE_DIR}/config:/app/config:ro      # edit config/casevault.yaml, then `casevault restart`
+  depends_on:
+    db: {condition: service_healthy}
+
+services:
+  app:
+    <<: *app
+    command: ["sh", "-c", "python -m casevault migrate && exec uvicorn casevault.web:app_factory --factory --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*' --no-server-header"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5)"]
+      interval: 30s
+      retries: 3
+    networks:
+      default: {}
+      edge: {aliases: ["${INSTANCE:-prod}-app"]}
+
+  worker:   # outbox (Klaviyo / Telegram / coupons) every minute, pending order re-check every 30 min
+    <<: *app
+    command: ["python", "-m", "casevault", "worker"]
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: casevault
+      POSTGRES_USER: casevault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casevault"]
+      interval: 10s
+      retries: 6
+
+  backup:   # pg_dump once a day at BACKUP_HOUR (UTC); dumps older than 14 days are deleted
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_HOUR: ${BACKUP_HOUR:-3}
+    volumes:
+      - ${INSTANCE_DIR}/backups:/backups
+    entrypoint: ["/bin/sh", "/app/backup-loop.sh"]
+    configs:
+      - source: backup_loop
+        target: /app/backup-loop.sh
+    depends_on:
+      db: {condition: service_healthy}
+
+  backup-upload:   # optional: copies backups/ to Object Storage / Google Drive (rclone remote)
+    image: rclone/rclone:1.68
+    restart: unless-stopped
+    profiles: ["upload"]
+    environment:
+      REMOTE: ${BACKUP_REMOTE:-}
+    volumes:
+      - ${INSTANCE_DIR}/backups:/backups:ro
+      - ${INSTANCE_DIR}/rclone:/config/rclone
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["while true; do [ -n \"$$REMOTE\" ] && rclone copy /backups \"$$REMOTE\" --include 'casevault-*.sql.gz'; sleep 21600; done"]
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    profiles: ["edge"]
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN}
+      STAGING_DOMAIN: ${STAGING_DOMAIN:-staging.invalid}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./${CADDYFILE:-Caddyfile}:/etc/caddy/Caddyfile:ro
+      - ${INSTANCE_DIR}/certs:/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+
+configs:
+  backup_loop:
+    file: ./backup-loop.sh
+
+networks:
+  edge:
+    external: true
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

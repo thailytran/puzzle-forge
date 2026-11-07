@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card">
+<h1>{{ book.title }}</h1>
+<p class="{{ 'ok' if out.status in ('approved', 'pending', 'duplicate') else 'error' }}"><strong>{{ out.message }}</strong></p>
+{% if out.reward %}
+  {% if out.reward.status == 'issued' %}
+  <p>Your reward: <strong>{{ out.reward.percent }} % off</strong> on {{ 'Etsy' if out.reward.platform == 'etsy' else 'our online shop' }}</p>
+  <p class="code">{{ out.reward.code }}</p>
+  <p class="hint">Single use, valid until {{ out.reward.expires_at.date() }}. Not combinable with other offers. We also sent it to your e-mail.</p>
+  {% elif out.reward.status == 'choose' %}
+  <p><strong>Milestone reached: a FREE new book is yours!</strong> Choose it on your <a href="/account">account page</a> (we e-mailed you a login link).</p>
+  {% else %}
+  <p>Your coupon is being prepared and will arrive by e-mail shortly.</p>
+  {% endif %}
+{% endif %}
+{% if account %}
+<p>{{ account.progress_text }}</p>
+<div class="progress"><div style="width: {{ ((5 - account.next_milestone) * 20) }}%"></div></div>
+{% endif %}
+{% if out.status in ('wrong', 'rejected', 'rate_limited') %}<p><a href="/solve/{{ book.book_id }}">Try again</a></p>{% endif %}
+</div>
+{% endblock %}

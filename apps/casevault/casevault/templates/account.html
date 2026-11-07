@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card">
+<h1>My cases</h1>
+<p>{{ a.email }} · {{ a.progress_text }}</p>
+<div class="progress"><div style="width: {{ ((5 - a.next_milestone) * 20) if a.count else 0 }}%"></div></div>
+{% if a.pending %}<p class="hint">{{ a.pending }} case(s) waiting for order verification.</p>{% endif %}
+<table><tr><th>Case</th><th>Solved</th></tr>
+{% for s in a.solved %}<tr><td>{{ s.title }}</td><td>{{ s.at.date() }}</td></tr>{% else %}<tr><td colspan="2" class="hint">None yet.</td></tr>{% endfor %}
+</table>
+</div>
+<div class="card">
+<h2>My rewards</h2>
+<table><tr><th>Reward</th><th>Code</th><th>Where</th><th>Valid until</th></tr>
+{% for r in a.rewards %}
+<tr><td>{{ 'FREE book' if r.tier == 5 else (r.percent|string + ' % off') }}</td>
+<td>{% if r.code %}<span class="code">{{ r.code }}</span>{% elif r.status == 'choose' %}
+<form method="post" action="/account/gift/{{ r.id }}"><select name="book_id">{% for b in books %}<option value="{{ b.book_id }}">{{ b.title }}</option>{% endfor %}</select><button type="submit">Choose this book</button></form>
+{% elif r.status == 'requested' %}We are preparing your gift.{% else %}Being prepared…{% endif %}</td>
+<td>{{ 'Etsy' if r.platform == 'etsy' else 'Our shop' }}</td><td>{{ r.expires_at.date() if r.expires_at else '' }}</td></tr>
+{% else %}<tr><td colspan="4" class="hint">No rewards yet.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,240 @@
+{
+ "book_id": "ocean-adventures-word-search-20261106",
+ "run_id": "qa-20261107T053423+0000",
+ "started": "2026-11-07T05:34:23+00:00",
+ "finished": "2026-11-07T05:34:25+00:00",
+ "result": "PASSED",
+ "hashes": {
+  "interior": "a400b9030983228bd2708f9fc44c0843215f94d8927bc6f1acab86c18cd7ba95",
+  "cover": null,
+  "manifest": "638b969d69ae35a118bdbeb2a23590b6473db56248a0b883c9189e75df2a4337"
+ },
+ "counts": {
+  "blocker_fail": 0,
+  "major_fail": 0,
+  "minor_fail": 0,
+  "waived": 0,
+  "passed": 24,
+  "skipped": 0
+ },
+ "checks": [
+  {
+   "id": "L1.dual_solver",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.unique",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.rules",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.difficulty_band",
+   "layer": "L1",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.kid_safety",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.catalog_unique",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.trim",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.safe_area",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.fonts_embedded",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.min_sizes",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.image_dpi",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.page_numbers",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.solution_match",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.instructions",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.no_unintended_blank",
+   "layer": "L2",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.thumbnails",
+   "layer": "L2",
+   "level": "MINOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L2.page_count_match",
+   "layer": "L2",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L1.print_roundtrip",
+   "layer": "L1",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.counts",
+   "layer": "L3",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.distribution",
+   "layer": "L3",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.toc",
+   "layer": "L3",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.matter",
+   "layer": "L3",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.proofread",
+   "layer": "L3",
+   "level": "MAJOR",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  },
+  {
+   "id": "L3.placeholders",
+   "layer": "L3",
+   "level": "BLOCKER",
+   "status": "pass",
+   "message": "",
+   "findings": [],
+   "waived": false
+  }
+ ],
+ "fix_rounds": 0,
+ "notes": []
+}

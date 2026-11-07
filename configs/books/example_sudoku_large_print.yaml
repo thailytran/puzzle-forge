@@ -1,0 +1,15 @@
+book:
+  title: "Large Print Sudoku for Seniors"
+  subtitle: "100 Easy to Hard Puzzles with Big Numbers"
+  author: "Pen Name"
+  audience: senior_large_print
+  trim: "8.5x11"
+  large_print: true
+  content_pages: 100
+  seed: 20261108
+puzzles:
+  mode: progressive
+  distribution: { very_easy: 20, easy: 40, medium: 30, hard: 10 }
+  types:
+    - { type: sudoku, weight: 1 }
+solutions: { per_page: 4 }
