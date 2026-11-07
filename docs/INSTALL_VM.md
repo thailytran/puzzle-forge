@@ -1,57 +1,63 @@
 # Cài Puzzle Forge trên VM Ubuntu 24.04 (cá nhân)
 
-Hướng dẫn copy‑paste từng khối lệnh. Chạy bằng **user thường** (có quyền `sudo`), **không** chạy bằng root.
-Thời gian: khoảng 5–10 phút.
+Puzzle Forge chạy như một **dịch vụ hệ thống** trên VM ở nhà. Anh dùng nó qua trình duyệt (qua Tailscale), không cần mở terminal hằng ngày.
+
+| Thành phần | Vị trí |
+|---|---|
+| Code (mỗi phiên bản một thư mục) | `/opt/puzzle-forge/releases/vX.Y.Z`, bản đang chạy: `/opt/puzzle-forge/current` |
+| Dữ liệu: sách, database, bản sao lưu | `/var/lib/puzzle-forge/` (`output/`, `data/forge.db`, `backups/`) |
+| Cấu hình + khoá API (đã mã hoá) | `/etc/puzzle-forge/` (`forge.env` quyền 600, `secrets.enc`, `ai_routing.yaml`, `brand.yaml`) |
+| Dịch vụ systemd | `forge-web` (giao diện web, chỉ nghe trên IP Tailscale), `forge-worker` (build sách), `forge-backup.timer` (sao lưu 03:20 mỗi ngày) |
+| Lệnh quản trị | `forge …` (đã cài sẵn vào `/usr/local/bin/forge`) |
 
 ---
 
 ## 0. Yêu cầu
 
-- Ubuntu 24.04 (x86_64 hoặc arm64), có Internet.
-- Đã đăng nhập vào VM (qua Tailscale: `ssh <user>@<tên-vm>`).
-- Repo GitHub `thailytran/puzzle-forge` là **private**, nên phải xác thực trước khi clone (chọn **cách A** hoặc **cách B**).
+- VM Ubuntu 24.04, tối thiểu 2 vCPU, 4 GB RAM, 20 GB đĩa trống. User thường của anh có quyền `sudo`.
+- **Tailscale** đã cài và đăng nhập trên VM và trên máy công ty:
 
-```bash
-sudo apt-get update && sudo apt-get install -y git curl
-```
+  ```bash
+  curl -fsSL https://tailscale.com/install.sh | sh
+  ```
+  ```bash
+  sudo tailscale up
+  ```
+  ```bash
+  tailscale ip -4
+  ```
+
+  Ghi lại IP dạng `100.x.y.z`. Giao diện web sẽ chỉ nghe trên IP này.
 
 ---
 
-## 1. Clone repo private
+## 1. Clone repo private (một lần)
 
 ### Cách A — `gh auth login` (dễ nhất)
 
 ```bash
 sudo apt-get install -y gh
 ```
-
 ```bash
 gh auth login
 ```
 
-Chọn lần lượt: `GitHub.com` → `HTTPS` → `Yes` (authenticate Git) → `Login with a web browser`.
-Lệnh sẽ in ra một mã 8 ký tự. Mở https://github.com/login/device trên máy công ty, dán mã vào rồi bấm Authorize.
+Lần lượt chọn: `GitHub.com` → `HTTPS` → `Yes` → `Login with a web browser`. Mở https://github.com/login/device trên máy công ty, dán mã 8 ký tự rồi bấm Authorize.
 
 ```bash
 gh repo clone thailytran/puzzle-forge ~/puzzle-forge
 ```
 
-### Cách B — Deploy key (chỉ cho repo này, chỉ đọc)
-
-1. Tạo key trên VM:
+### Cách B — Deploy key (chỉ đọc, chỉ cho repo này)
 
 ```bash
 ssh-keygen -t ed25519 -C "puzzle-forge-vm" -f ~/.ssh/puzzle_forge_deploy -N ""
 ```
-
 ```bash
 cat ~/.ssh/puzzle_forge_deploy.pub
 ```
 
-2. Trên GitHub: repo → **Settings → Deploy keys → Add deploy key**. Title `vm`, dán nội dung file `.pub`,
-   **không** tick "Allow write access", rồi bấm Add key.
-
-3. Khai báo key cho SSH:
+Trên GitHub: repo → **Settings → Deploy keys → Add deploy key**. Dán nội dung file `.pub`, **không** tick "Allow write access".
 
 ```bash
 cat >> ~/.ssh/config <<'CFG'
@@ -63,116 +69,185 @@ Host github-puzzle-forge
 CFG
 chmod 600 ~/.ssh/config
 ```
-
 ```bash
 git clone git@github-puzzle-forge:thailytran/puzzle-forge.git ~/puzzle-forge
 ```
 
-(Lần đầu SSH hỏi `Are you sure you want to continue connecting` thì gõ `yes`.)
+> Thư mục `~/puzzle-forge` chỉ là **nguồn code**. Bộ cài lấy code theo **tag phiên bản** (`v0.2.0`…) từ đây, nên đừng xoá nó.
 
 ---
 
-## 2. Chọn branch
+## 2. Cài đặt (một lệnh)
 
-Trước khi PR được merge, code mới nằm trên branch đang làm (xem trong PR trên GitHub). Ví dụ:
+Chạy thử ở chế độ **test** trước (SKU giả `DEV-…`, Case Vault staging hoặc mock, ngân sách AI thấp):
 
 ```bash
-cd ~/puzzle-forge && git fetch && git checkout claude/quirky-wright-imdimf
+cd ~/puzzle-forge && sudo bash scripts/install.sh --env test
 ```
 
-Khi PR đã merge vào `main`:
+Script làm 9 bước, chạy lại bao nhiêu lần cũng được:
+1. Cài gói hệ thống (git, sqlite3, rclone…).
+2. Tạo user hệ thống `forge` và các thư mục.
+3. Tạo `/etc/puzzle-forge/forge.env`.
+4. Cài uv, Python 3.12 và Typst đúng phiên bản đã ghim.
+5. Lấy code theo tag mới nhất.
+6. Cài thư viện Python.
+7. Migrate database và chạy `forge doctor`.
+8. Bật bản mới, cài các dịch vụ systemd.
+9. In ra hướng dẫn tiếp theo.
+
+Muốn cài một tag cụ thể: thêm `--ref v0.2.0`.
+
+---
+
+## 3. Đặt mật khẩu và mở giao diện web
 
 ```bash
-cd ~/puzzle-forge && git checkout main && git pull
+sudo forge web set-password
+```
+```bash
+sudo systemctl enable --now forge-web
+```
+
+Trên máy công ty (đã bật Tailscale), mở: `http://100.x.y.z:8710` → đăng nhập bằng mật khẩu vừa đặt.
+
+Giao diện web **không bao giờ** nghe trên IP public. `forge web` từ chối mọi địa chỉ không phải localhost hoặc Tailscale.
+
+---
+
+## 4. Nhập khoá AI (Anthropic / OpenAI / Gemini)
+
+Cách 1 (khuyên dùng) — trên web:
+1. Vào **Cài đặt → AI Providers**, dán key rồi bấm **Lưu**.
+   - Key được mã hoá vào `/etc/puzzle-forge/secrets.enc`.
+   - Màn hình chỉ hiện 4 ký tự đầu và cuối của key.
+2. Bấm **Test connection**.
+3. Bấm **Tải model** để chọn model cho từng tác vụ.
+4. Đặt **ngân sách** ngày / tháng / mỗi cuốn. Telegram cảnh báo khi chạm 80 %; tới 100 % thì dừng gọi AI.
+
+Cách 2 — sửa file:
+```bash
+sudo nano /etc/puzzle-forge/forge.env
+```
+Sau đó khởi động lại:
+```bash
+sudo forge restart
+```
+
+Kiểm tra từ terminal:
+```bash
+sudo forge ai test
+```
+Thêm `--call` để gọi thử 1 lần thật (tốn vài xu):
+```bash
+sudo forge ai test --call
 ```
 
 ---
 
-## 3. Chạy script cài đặt (một lệnh)
+## 5. Chạy thử end-to-end (smoke test)
 
 ```bash
-cd ~/puzzle-forge && bash scripts/setup_vm.sh --with-tests
+sudo forge smoke
 ```
 
-Script tự làm, và **chạy lại nhiều lần cũng an toàn**:
+Lệnh này làm 4 việc:
+1. Chạy `forge doctor`.
+2. Tạo một cuốn word search mẫu và một cuốn escape mẫu (chế độ test).
+3. Chạy QA tới `QA_PASSED`, rồi đẩy lên Case Vault **staging** (hoặc mock).
+4. Thử redeem trên staging.
 
-1. Cài gói apt: `curl ca-certificates git xz-utils sqlite3` (sẽ hỏi mật khẩu sudo).
-2. Thêm `~/.local/bin` vào `PATH` (ghi một lần vào `~/.bashrc`).
-3. Cài `uv` và Python 3.12 (do uv quản lý, không đụng vào Python của hệ thống).
-4. Cài **Typst 0.14.2** (đúng phiên bản đã ghim) vào `~/.local/bin/typst`.
-5. Kiểm tra font OFL có sẵn trong `assets/fonts/`.
-6. `uv sync` (tạo `.venv`), tạo `.env` từ `.env.example` (quyền 600), tạo các thư mục `output/` và `data/`.
-7. Chạy test (`--with-tests`) và `forge doctor`.
+Kết thúc phải in `Smoke test passed`.
 
-Sau khi xong, mở terminal mới (hoặc chạy `source ~/.bashrc`).
+Tạo sách thật trên web: **Tạo sách** → điền form (hoặc upload CSV) → sách vào hàng đợi. Worker build xong sẽ báo Telegram. Mở cuốn sách để xem báo cáo QA, tải PDF, bấm Duyệt hoặc Từ chối.
+
+Chuyển sang **prod** khi đã sẵn sàng (xem `docs/GO_LIVE.md`):
+```bash
+cd ~/puzzle-forge && sudo bash scripts/install.sh --env prod
+```
 
 ---
 
-## 4. Kiểm tra
+## 6. Cập nhật phiên bản
 
 ```bash
-cd ~/puzzle-forge && uv run forge doctor
+sudo forge update
 ```
 
-Kết quả mong đợi: mọi dòng **OK** (xanh). Riêng `API keys` có thể là **WARN** (vàng), vì chưa cần cho tới phase P2.
-Có dòng **FAIL** (đỏ) thì lệnh trả mã lỗi 1; xem mục 7.
+Lệnh này lấy **tag mới nhất** trong `~/puzzle-forge`, rồi:
+1. Cài vào `releases/<tag>`.
+2. Migrate database.
+3. Chạy `forge doctor`.
+4. **Chỉ khi mọi bước đều ổn** mới chuyển `current` sang bản mới và restart dịch vụ. Lỗi ở bất kỳ bước nào thì bản cũ vẫn chạy.
 
-Tạo thử một PDF mẫu:
-
+Cập nhật lên một tag cụ thể (hoặc quay lại bản trước):
 ```bash
-uv run forge layout demo --trim 8.5x11 --out output/layout_demo
+sudo forge update --ref v0.2.0
 ```
 
-File kết quả là `~/puzzle-forge/output/layout_demo/interior.pdf`.
+Xem phiên bản đang chạy:
+```bash
+forge --version
+```
 
 ---
 
-## 5. Lấy PDF về máy công ty để xem
+## 7. Sao lưu và khôi phục
 
-Chọn một trong các cách sau.
-
-- **scp qua Tailscale** (chạy trên máy công ty):
-
-  ```bash
-  scp <user>@<tên-vm>:~/puzzle-forge/output/layout_demo/interior.pdf .
-  ```
-
-- **Tailscale Taildrop** (chạy trên VM):
-
-  ```bash
-  tailscale file cp ~/puzzle-forge/output/layout_demo/interior.pdf <tên-máy-công-ty>:
-  ```
-
-- **Web server tạm** chỉ nghe trên IP Tailscale (chạy trên VM, bấm Ctrl+C để tắt):
-
-  ```bash
-  cd ~/puzzle-forge/output && python3 -m http.server 8765 --bind "$(tailscale ip -4)"
-  ```
-
-  Sau đó mở trình duyệt trên máy công ty: `http://<ip-tailscale-của-vm>:8765/`
-
----
-
-## 6. Cập nhật khi có code mới
+Sao lưu tự động lúc 03:20 mỗi ngày (giữ 14 bản trong `/var/lib/puzzle-forge/backups/`). Chạy tay:
 
 ```bash
-cd ~/puzzle-forge && bash scripts/update.sh
+sudo forge backup
 ```
 
-Lệnh này làm: `git pull --ff-only` → `uv sync` → `pytest` → `forge doctor`.
-Muốn chuyển sang branch khác: `bash scripts/update.sh <tên-branch>`.
+Mỗi lần tạo **hai** file:
+- `forge-data-…tar.gz`: database và toàn bộ sách.
+- `forge-config-…tar.gz`: cấu hình và **khoá mã hoá**. Hãy giữ file này kỹ.
+
+### Đẩy bản sao lưu lên Google Drive (tuỳ chọn)
+
+```bash
+sudo -u forge rclone config
+```
+
+Tạo remote tên `gdrive`, kiểu `drive`, làm theo hướng dẫn đăng nhập. Sau đó vào web **Cài đặt** → `FORGE_BACKUP_REMOTE` = `gdrive:puzzle-forge-backups`.
+
+Mặc định chỉ file **data** được đẩy lên. Muốn đẩy cả file config, phải dùng remote `crypt` của rclone và đặt `FORGE_BACKUP_INCLUDE_SECRETS=1`.
+
+### Khôi phục
+
+```bash
+sudo forge restore --data /var/lib/puzzle-forge/backups/forge-data-YYYYMMDD-HHMMSS.tar.gz --config /var/lib/puzzle-forge/backups/forge-config-YYYYMMDD-HHMMSS.tar.gz
+```
+
+Lệnh tự dừng dịch vụ, khôi phục, rồi chạy lại dịch vụ.
 
 ---
 
-## 7. Lỗi thường gặp
+## 8. Lệnh quản trị hay dùng
+
+| Việc | Lệnh |
+|---|---|
+| Tình trạng dịch vụ | `forge status` |
+| Xem log (web / worker / backup) | `forge logs`, `forge logs worker` |
+| Khởi động lại | `sudo forge restart` |
+| Tự kiểm tra máy | `sudo forge doctor` |
+| Chi phí AI | `sudo forge ai usage --by book_id` |
+| Hàng đợi Case Vault | `sudo forge vault status` |
+
+---
+
+## 9. Lỗi thường gặp
 
 | Triệu chứng | Cách xử lý |
 |---|---|
-| `uv: command not found` | `source ~/.bashrc` hoặc mở terminal mới. |
-| `Typst ... WARN CLI missing` | Tải typst bị lỗi; chạy lại `bash scripts/setup_vm.sh`. Trong lúc đó tool vẫn chạy được nhờ gói Python `typst` dự phòng. |
-| `Typst ... WARN (pinned 0.14.2)` | Máy đang có typst bản khác trong `PATH`. Chạy lại script: script sẽ cài bản đã ghim vào `~/.local/bin` (thư mục này đứng đầu `PATH`). |
-| `Output dir FAIL` | Kiểm tra quyền thư mục: `ls -ld ~/puzzle-forge/output` (thư mục phải thuộc user của bạn). |
-| `Permission denied (publickey)` khi clone | Deploy key chưa được thêm, hoặc file `~/.ssh/config` sai. Thử `ssh -T git@github-puzzle-forge`. |
-| `uv sync --locked` báo lock lỗi thời | Bạn đang ở commit cũ; chạy `git pull` rồi chạy lại. |
+| Không mở được `http://100.x.y.z:8710` | Kiểm tra `tailscale status` trên cả hai máy, rồi `forge status`. Nếu `forge-web` chưa chạy: `sudo forge web set-password && sudo systemctl enable --now forge-web`. |
+| `forge-web` khởi động lại liên tục | Tailscale chưa có IP lúc khởi động; dịch vụ tự thử lại sau 10 giây. Xem `forge logs web`. |
+| `doctor failed – current release left unchanged` khi update | Bản mới có lỗi nên bản cũ vẫn chạy. Gửi log `forge logs` cho Claude Code. |
+| `unknown ref vX.Y.Z` | Tag chưa có trong `~/puzzle-forge`: `cd ~/puzzle-forge && git fetch --tags`. |
+| `AI budget … reached` | Hết ngân sách AI: tăng ngân sách trong **Cài đặt** hoặc chờ sang ngày/tháng mới. |
+| `FORGE_ENV=prod refuses the dev SKU provider` | Ở prod phải dùng Hub thật: đặt `FORGE_SKU_PROVIDER=hub`, `HUB_URL` và `HUB_TOKEN`. |
+| `Permission denied (publickey)` khi update | Deploy key / gh không còn hiệu lực trong `~/puzzle-forge`. Thử `ssh -T git@github-puzzle-forge` hoặc `gh auth status`. |
+| `rclone … failed` | Chạy `sudo -u forge rclone lsd gdrive:` để kiểm tra đăng nhập Drive. |
 
-Khi báo lỗi cho Claude Code, dùng mẫu số 4 trong `docs/PROMPTS.md` (dán lệnh và log).
+Máy phát triển (không cài dịch vụ) vẫn dùng được `bash scripts/setup_vm.sh` trong checkout, như trước.

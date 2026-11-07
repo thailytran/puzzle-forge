@@ -1,0 +1,23 @@
+[Unit]
+Description=Puzzle Forge worker (book builds, QA, Case Vault sync)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=forge
+Group=forge
+EnvironmentFile=/etc/puzzle-forge/forge.env
+Environment=FORGE_CONFIG=/etc/puzzle-forge/forge.env
+WorkingDirectory=/var/lib/puzzle-forge
+ExecStart=/opt/puzzle-forge/current/.venv/bin/forge worker
+Restart=always
+RestartSec=10
+Nice=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/puzzle-forge /etc/puzzle-forge
+
+[Install]
+WantedBy=multi-user.target

@@ -152,6 +152,9 @@ uv run forge ai usage [--by task|provider|model|book_id|day] [--days 30]   # AI 
 uv run forge worker [--once]                               # run queued jobs (systemd forge-worker)
 uv run forge web set-password                              # owner password for the web UI
 uv run forge web run [--host 100.x.y.z] [--port 8710]      # web UI (localhost / Tailscale only; systemd forge-web)
+uv run forge migrate | backup [--no-upload] | restore --data X --config Y   # maintenance
+sudo bash scripts/install.sh [--env test|prod] [--ref vX.Y.Z]   # VM system install (docs/INSTALL_VM.md)
+sudo forge update [--ref vX.Y.Z] | forge logs [web|worker] | forge status | sudo forge restart | sudo forge smoke
 uv run pytest -q apps/casevault/tests                      # Case Vault website tests (E2E, providers mocked)
 uv run uvicorn casevault.web:app_factory --factory --reload   # run the website locally (apps/casevault/.env)
 ```

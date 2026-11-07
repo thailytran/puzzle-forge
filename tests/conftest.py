@@ -13,3 +13,14 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
     for item in items:
         if "typst" in item.keywords:
             item.add_marker(skip)
+
+
+@pytest.fixture(autouse=True)
+def _restore_environ():
+    """get_settings() loads env files into os.environ (python-dotenv): undo that after each test."""
+    import os
+
+    saved = dict(os.environ)
+    yield
+    os.environ.clear()
+    os.environ.update(saved)

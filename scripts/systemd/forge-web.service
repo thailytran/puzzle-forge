@@ -1,0 +1,22 @@
+[Unit]
+Description=Puzzle Forge web UI + API (Tailscale / localhost only)
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+User=forge
+Group=forge
+EnvironmentFile=/etc/puzzle-forge/forge.env
+Environment=FORGE_CONFIG=/etc/puzzle-forge/forge.env
+WorkingDirectory=/var/lib/puzzle-forge
+ExecStart=/opt/puzzle-forge/current/.venv/bin/forge web run
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/puzzle-forge /etc/puzzle-forge
+
+[Install]
+WantedBy=multi-user.target

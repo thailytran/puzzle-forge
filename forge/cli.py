@@ -586,6 +586,40 @@ def web_set_password() -> None:
     typer.echo("password saved")
 
 
+@app.command()
+def migrate() -> None:
+    """Create / upgrade every database table (run by install.sh and `forge update`)."""
+    from forge.maintenance import migrate as _migrate
+
+    typer.echo(f"schema version {_migrate(get_settings())}")
+
+
+@app.command()
+def backup(
+    dest: Path = typer.Option(None, help="Default <data>/backups"),
+    no_upload: bool = typer.Option(False, "--no-upload", help="Skip rclone upload"),
+) -> None:
+    """Backup db + output (+ config archive) -> backups/, keep 14, rclone if FORGE_BACKUP_REMOTE."""
+    from forge.maintenance import backup as _backup
+
+    for p in _backup(get_settings(), dest, upload=not no_upload):
+        typer.echo(f"wrote {p}")
+
+
+@app.command()
+def restore(
+    data: Path = typer.Option(None, "--data", help="forge-data-*.tar.gz"),
+    config: Path = typer.Option(None, "--config", help="forge-config-*.tar.gz"),
+) -> None:
+    """Restore a backup (installed VM: `sudo forge restore ...` stops/starts the services)."""
+    from forge.maintenance import restore as _restore
+
+    if not data and not config:
+        typer.secho("give --data and/or --config", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    typer.echo(f"restored {_restore(get_settings(), data, config)}")
+
+
 sku_app = typer.Typer(help="SKU from the HALOSPARK Product Hub (configs/sku.yaml).")
 app.add_typer(sku_app, name="sku")
 

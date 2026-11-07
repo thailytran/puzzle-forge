@@ -1,0 +1,10 @@
+[Unit]
+Description=Puzzle Forge backup (db + output + config -> backups/, rclone if configured)
+
+[Service]
+Type=oneshot
+User=forge
+Group=forge
+EnvironmentFile=/etc/puzzle-forge/forge.env
+Environment=FORGE_CONFIG=/etc/puzzle-forge/forge.env
+ExecStart=/opt/puzzle-forge/current/.venv/bin/forge backup

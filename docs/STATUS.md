@@ -1,7 +1,7 @@
 # STATUS
 
 - Current phase: P10
-- Current task: P10.5
-- What works: P10.1-P10.4
+- Current task: P10.6
+- What works: P10.1-P10.5
 - Known issues: none
-- Next: P10.5 install.sh + systemd + update/backup/restore/logs
+- Next: P10.6 Case Vault packaging (GHCR, compose, Oracle installer, staging)
