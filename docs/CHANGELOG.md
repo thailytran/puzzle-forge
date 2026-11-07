@@ -29,3 +29,4 @@
 - PB.1: blueprint library (blueprints/escape_adult/line.yaml: 17 page types, mm zones with z-order, variants, single-sided cut-outs), validator, `forge blueprint preview`
 - PB.2: colour-by-number reveal level 1 (forge/puzzles/cbn): square mosaic with an embedded 5x7 code glyph, type A (numbers) and type B (mini sums), adult/kids palettes with legend, two independent glyph readers (block vote / centre sampling), coloured solution; registered as puzzle type `cbn` (answer_is = code)
 - Review PB package (blueprint preview pages, CBN type A/B adult + kids with coloured solutions); display name 'Color by Number'
+- P8.1: all-clues-required engine (forge/mystery/necessity.py) + QA L4.all_clues_required

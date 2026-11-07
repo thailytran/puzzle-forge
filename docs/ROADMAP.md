@@ -101,7 +101,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] P7.6 Puzzle Forge as a Suite tool (tool.json, portal auth, hooks API, Telegram notifications).
 
 ## P8 — CBN Mystery line (docs/MYSTERY_DESIGN.md §15–§16)
-- [ ] P8.1 "All clues required" engine `forge/mystery/necessity.py` (candidate spaces: suspects × attributes, codes, locations; declarative clue predicates) + QA `L4.all_clues_required` (drop any clue → > 1 candidate) for every escape/mystery/adventure line.
+- [x] P8.1 "All clues required" engine `forge/mystery/necessity.py` (candidate spaces: suspects × attributes, codes, locations; declarative clue predicates) + QA `L4.all_clues_required` (drop any clue → > 1 candidate) for every escape/mystery/adventure line.
 - [ ] P8.2 Blueprint `cbn_mystery` (kids + adult): chapter = story page + cbn_reveal + evidence card; final deduction page; `case_vault` last page.
 - [ ] P8.3 Case builder: suspects/codes + reveal glyphs → clues that pass P8.1; CBN pages generated with the glyph constraint (PB.2 engine).
 - [ ] P8.4 Sample CBN Mystery book (kids + adult) → QA_PASSED → review pack.
