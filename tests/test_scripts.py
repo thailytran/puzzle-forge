@@ -38,3 +38,30 @@ def test_no_cloud_paths_in_scripts() -> None:
         text = s.read_text()
         assert "/home/user" not in text
         assert "/tmp/claude" not in text
+
+
+def test_casevault_deploy_files() -> None:
+
+    import yaml
+
+    root = REPO_ROOT / "apps" / "casevault"
+    compose = yaml.safe_load((root / "docker-compose.yml").read_text())
+    assert {"db", "web", "worker", "caddy", "tunnel"} <= set(compose["services"])
+    assert subprocess.run(["bash", "-n", str(root / "scripts" / "backup.sh")]).returncode == 0
+    secrets = (
+        "SECRET_KEY",
+        "VAULT_ADMIN_TOKEN",
+        "VAULT_ANSWER_KEY",
+        "KLAVIYO_API_KEY",
+        "SHOPIFY_ADMIN_TOKEN",
+        "ETSY_API_KEY",
+        "TURNSTILE_SECRET",
+        "POSTGRES_PASSWORD",
+        "TELEGRAM_BOT_TOKEN",
+        "CLOUDFLARE_TUNNEL_TOKEN",
+    )
+    for line in (root / ".env.example").read_text().splitlines():
+        key, _, value = line.partition("=")
+        if key in secrets:
+            assert value.split("#")[0].strip() == "", f"{key} must be empty in .env.example"
+    assert "CASEVAULT_CONFIG" in (root / "Dockerfile").read_text()
