@@ -67,6 +67,15 @@ KDP minimums (0.25" + gutter by page count; recto pages have the gutter on the l
 L1.print_roundtrip compares whitespace-free page text with the verified data (grid letters in reading order,
 givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-renders maze SVGs byte-for-byte.
 
+### L2 — editions & watermark (owner rules 2026-11-07)
+| ID | Level | Check |
+|---|---|---|
+| L2.watermark_knockout | BLOCKER | No watermark ink inside any functional block (render with vs. without watermark: functional areas identical). |
+| L2.watermark_contrast | MAJOR | Watermark lightness change outside functional areas ≤ threshold (colour ≤ 5 %, gray ≤ 4 % darkening); grayscale editions have no dark gray patches. |
+| L2.binding_margin | BLOCKER | Spiral: no ink within the binding-edge margin (0.75" default), correct side per page (duplex alternates). |
+| L2.bleed_marks | MAJOR | When bleed is on: page = trim + 2 × 0.125", crop marks at the trim corners outside the trim box. |
+| L2.stamp_diff | BLOCKER | A stamped copy differs from its QA'd master only inside the approved stamp zones (footer band, micro-pattern strip) + metadata; anything else changed = fail. |
+
 ### L3 — sections / whole book
 | ID | Level | Check |
 |---|---|---|

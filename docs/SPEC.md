@@ -143,6 +143,29 @@ pages:
 - Preflight (part of QA L2, `forge/qa/`): page size, all fonts embedded, no content inside margins, images
   ≥ 300 DPI, even page count, PDF/X-friendly (no transparency issues).
 
+## 4b. Editions, brand watermark, personalisation (owner rules 2026-11-07)
+
+Book YAML: `editions: [digital, spiral]` (default: KDP interior only). Each edition is a separate layout
+of the **same verified puzzles** (`puzzles.jsonl`), written to `output/<book_id>/editions/<edition>/`.
+
+| Edition | Trim | Margins | Output |
+|---|---|---|---|
+| `kdp` | spec trim | KDP gutter table | `interior.pdf` (existing) |
+| `digital` | US Letter **and** A4 | symmetric 0.5" | master PDF per trim; per-order stamped copies |
+| `spiral` | US Letter | binding edge 0.75" (coil; wire-o configurable), others 0.5" | colour + grayscale, simplex or duplex (binding side alternates), optional 0.125" bleed + crop marks, cut-out pages single-sided (back = "Notes") |
+
+**Brand** (`configs/brand.yaml`): name, website, logo, emblem, primary colour, copyright year, licence line.
+**Watermark** — layer 1: the emblem, pre-tinted to 5 % (colour) / 3.5 % (grayscale) of the brand colour
+(no PDF transparency), in the decorative lower-outer zone of every page; every functional block (grid,
+maze, table, code boxes, text, writing areas) is drawn on a white panel that **knocks the watermark
+out**. Layer 2: small logo in the outer header corner + footer microtext 6.8 pt
+"© 2026 <Brand> • <website>". Never diagonal, never tiled, never over character faces.
+**Personalisation (digital only)**: `forge edition stamp <book_id> --buyer "Jane D." --order 1234`
+overlays the master PDF (pypdf, BSD): footer "Licensed to <buyer> • Order #<order> • Personal use only",
+order id in PDF metadata, a micro-pattern of tinted dots in the bottom border encoding the order id
+(`forge edition trace <pdf>` reads it back), PDF permissions print-only (owner password). These are
+deterrents only — metadata, permissions and overlays are easy to strip.
+
 ## 5. Constraints for mystery puzzles (answer → token)
 
 | Constraint | Applies to | Meaning |
