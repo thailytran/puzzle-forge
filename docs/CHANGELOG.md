@@ -8,6 +8,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 
 - P10.1: versioning: single semver source (pyproject), forge --version with git sha + env, CHANGELOG Unreleased/version sections, release workflow (tag v* -> tests -> wheel + source tarball + SHA256SUMS -> GitHub Release), Case Vault image workflow (tag casevault-v* -> GHCR)
 - P10.2: FORGE_ENV dev/test/prod: config from env / $FORGE_CONFIG / /etc/puzzle-forge/forge.env / .env, FORGE_DATA_DIR paths, encrypted secret store (Fernet, 600), test = DevSkuProvider + Case Vault staging or mock, prod refuses DEV SKUs, doctor shows environment + config permissions
+- P10.3: AI gateway port (complete_json / vision_judge / image_prompt) + Anthropic (official SDK, structured outputs, effort, server-side refusal fallback) / OpenAI / Gemini / future HALOSPARK adapters, configs/ai_routing.yaml + ai_pricing.yaml (no model names in code), provider fallback, JSON schema check + repair round, SQLite cache + cost ledger, day/month/book budgets (Telegram at 80 %, stop at 100 %), forge ai test|models|usage
 
 ## [0.1.0] - 2026-11-07 — development history (P0–P9)
 

@@ -183,15 +183,25 @@ classic books). New puzzle type `cbn` (colour-by-number reveal, constraint `answ
 
 Generators should try up to N seeds to satisfy constraints, then verify. Fail loudly if impossible.
 
-## 6. AI layer (`forge/ai/`)
+## 6. AI layer (`forge/ai/`, P10.3)
 
-- `LLMClient` interface: `complete_json(prompt_id, variables, schema) -> dict`.
-- Prompts live in `forge/ai/prompts/*.md` with front-matter (model, temperature, max_tokens, schema).
-- Every response is validated by pydantic; on failure → retry with the error message (max 2), then fail.
-- Cache by `(prompt_id, variables, model)` hash in SQLite → re-runs are free and deterministic.
-- Track tokens + cost per book in `manifest.json`.
-- Tasks: `theme_ideas`, `word_list`, `crossword_clues`, `kid_safety_check`, `case_bible`, `clue_graph`,
-  `chapter_prose`, `solution_explanation`, `listing_copy`, `playtest_reader`.
+- **Port `AIGateway`** (`forge/ai/gateway.py`): `complete_json(task, prompt, schema)`,
+  `vision_judge(task, prompt, images, schema)`, `image_prompt(task, brief)`. Core code takes the port;
+  CLI / web / worker build it with `forge.ai.factory.gateway_from(settings)`.
+- **Adapters**: `AnthropicAdapter` (official SDK, `output_config.format` json_schema + `effort`,
+  server-side refusal fallback, no sampling params), `OpenAIAdapter`, `GeminiAdapter` (HTTPS), and
+  `HalosparkAIGatewayAdapter` (future shared Suite gateway, INTEGRATION_HALOSPARK.md §8).
+- **Routing** `configs/ai_routing.yaml` (override `/etc/puzzle-forge/ai_routing.yaml`): per task provider,
+  model, max_tokens, effort, temperature, fallback list. **No model name in code.** Prices:
+  `configs/ai_pricing.yaml`.
+- Every JSON answer is checked against its schema; one repair round, then the next provider.
+- **Cache** (SQLite `ai_cache`, key = task + provider + model + prompt + schema + images) → re-runs are
+  free; **ledger** `ai_usage` (tokens, USD, book, task, provider); **budgets** day / month / book with a
+  Telegram warning at 80 % and a hard stop at 100 % (`BudgetExceeded`, no fallback); lower budgets in
+  `FORGE_ENV=test`.
+- Keys: forge.env or the encrypted store (web Settings → AI Providers); `forge ai test|models|usage`.
+- Tasks: `case_bible`, `story`, `clues`, `word_list`, `crossword_clues`, `content_plan`, `proofread`,
+  `playtest_reader_A` / `_B` (different providers), `vision_qa`, `marketing_master_prompt`, `image_prompt`.
 
 ## 7. CLI
 

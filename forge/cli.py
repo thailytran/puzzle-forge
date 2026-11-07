@@ -454,6 +454,83 @@ def vault_status(book_id: str = typer.Argument("", help="Filter by book id")) ->
     Console().print(t)
 
 
+ai_app = typer.Typer(help="AI gateway: providers, routing, costs (configs/ai_routing.yaml).")
+app.add_typer(ai_app, name="ai")
+
+
+@ai_app.command("test")
+def ai_test(
+    call: bool = typer.Option(False, "--call", help="Also make one tiny paid JSON call"),
+) -> None:
+    """Check every AI provider key (lists its models); --call runs the test_connection task."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from forge.ai.factory import test_providers
+
+    rows = test_providers(get_settings(), call=call)
+    t = Table("provider", "status", "detail")
+    for r in rows:
+        t.add_row(r["provider"], r["status"], r["detail"])
+    Console().print(t)
+    if any(r["status"] == "fail" for r in rows):
+        raise typer.Exit(1)
+
+
+@ai_app.command("models")
+def ai_models(
+    provider: str = typer.Argument(..., help="anthropic | openai | gemini | halospark"),
+) -> None:
+    """List the models the provider's API offers (pick them in ai_routing.yaml / Settings)."""
+    from forge.ai.providers import build_provider
+
+    p = build_provider(provider, get_settings().secret)
+    if p is None:
+        typer.secho(f"no API key for {provider}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
+    for m in p.list_models():
+        typer.echo(m)
+
+
+@ai_app.command("usage")
+def ai_usage(
+    by: str = typer.Option("task", "--by", help="task | provider | model | book_id | day"),
+    days: int = typer.Option(30, "--days"),
+) -> None:
+    """AI cost report (USD) + budget status for today / this month."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from forge.ai.ledger import Ledger
+    from forge.ai.routing import Routing
+
+    st = get_settings()
+    led = Ledger(st.db_path)
+    try:
+        rows = led.report(by, days)
+        p = led.periods()
+        day, month = led.spent(p["day"]), led.spent(p["month"])
+    finally:
+        led.close()
+    t = Table(by, "calls", "in tok", "out tok", "USD", "cached", "errors")
+    for r in rows:
+        t.add_row(
+            str(r[by]),
+            str(r["calls"]),
+            str(r["input_tokens"]),
+            str(r["output_tokens"]),
+            f"{r['cost_usd']:.4f}",
+            str(r["cached"]),
+            str(r["errors"]),
+        )
+    Console().print(t)
+    b = Routing.load(st.config_dir, st.env).budget()
+    typer.echo(
+        f"today ${day:.2f} / ${b.get('daily_usd', 0):.2f}   "
+        f"month ${month:.2f} / ${b.get('monthly_usd', 0):.2f}   (FORGE_ENV={st.env})"
+    )
+
+
 sku_app = typer.Typer(help="SKU from the HALOSPARK Product Hub (configs/sku.yaml).")
 app.add_typer(sku_app, name="sku")
 

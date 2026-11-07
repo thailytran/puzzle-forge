@@ -1,0 +1,15 @@
+# USD per 1 million tokens (input, output). Used for the cost ledger and budget checks.
+# Anthropic: first-party API prices (checked 2026-11-07). OpenAI / Gemini: set from the
+# provider's pricing page before relying on reports; unknown models use the provider default
+# (deliberately high, so budgets stay on the safe side).
+anthropic:
+  default: {input: 4.00, output: 20.00}
+  claude-opus-5-5: {input: 4.00, output: 20.00}
+  claude-sonnet-5-5: {input: 2.00, output: 10.00}
+  claude-haiku-5-5: {input: 0.10, output: 0.50}
+openai:
+  default: {input: 10.00, output: 40.00}     # VERIFY on the OpenAI pricing page
+gemini:
+  default: {input: 10.00, output: 40.00}     # VERIFY on the Google AI pricing page
+halospark:
+  default: {input: 0.0, output: 0.0}         # the Suite reports its own cost_usd

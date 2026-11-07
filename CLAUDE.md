@@ -146,6 +146,9 @@ uv run forge vault init output/<book_id>                    # vault.yaml: answer
 uv run forge vault codes output/<book_id> --count 200 [--channel print|shopify_digital]   # Book Codes CSV + code pages PDF
 uv run forge vault sync [--force]                          # send queued registrations (auto-queued on APPROVED)
 uv run forge vault status [<book_id>]                      # registration queue
+uv run forge ai test [--call]                              # AI provider keys + model lists (+ one tiny paid call)
+uv run forge ai models anthropic|openai|gemini              # models offered by the provider API
+uv run forge ai usage [--by task|provider|model|book_id|day] [--days 30]   # AI cost report + budget
 uv run pytest -q apps/casevault/tests                      # Case Vault website tests (E2E, providers mocked)
 uv run uvicorn casevault.web:app_factory --factory --reload   # run the website locally (apps/casevault/.env)
 ```
