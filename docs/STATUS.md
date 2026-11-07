@@ -1,7 +1,31 @@
 # STATUS
 
-- Current phase: P1
-- Current task: P1.8
-- What works: P0, P1.1-P1.6, PQ (QA gate L1-L3 with report, auto-fix, states); 3 sample books QA_PASSED
-- Known issues: none
-- Next: P1.8 Milestone: owner reviews 3 sample books + QA reports
+- Current phase: P1 milestone
+- Current task: **P1.8 — waiting for owner review** (`review/P1.8.md`)
+- What works: 6 puzzle types; `forge book build`; QA gate L1–L3 (`forge qa run`, auto-fix, HTML report,
+  hash lock, states); `forge sku assign` (Product Hub / dev); `forge review-pack`; 3 sample books QA_PASSED.
+- Known issues: crosswords are fill-in until AI clues (P2.3); `themes: auto` rotates all built-in themes
+  until AI sub-themes (P2.4); proofread is dictionary-only until P2; cryptograms need ~5 given letters for
+  provable uniqueness.
+- Next: owner feedback on P1.8 → P2.1 LLM client.
+
+## Coverage of the "QA gate + SKU/Marketing + references" request (2026-11-07)
+
+| Item | State |
+|---|---|
+| Step 0 licenses, notices, REFERENCES (env-zebra, escaperoom, AymanJabr, Artefactum original) | done |
+| Step 1 QA_SPEC + golden rule 9 | done |
+| QA state machine + history, hash lock, scoring, waivers | done (PQ.1) |
+| L1 per puzzle (dual solver, unique, rules, band, kid safety, catalog, print round-trip) | done (PQ.2/PQ.3) |
+| L2 per page | done (PQ.3) |
+| L3 whole book (+ dictionary proofread) | done (PQ.4); AI proofread → P2 |
+| Report json/html, `forge review` | done (PQ.5) |
+| Auto-fix N rounds | done (classic books) |
+| L4 mystery logic, reader_sim, case uniqueness, playtest | spec done; code in P3.8–P3.10 |
+| L5 metadata/marketing text | spec done; code in P4.5 |
+| SKU (Portal format, Hub shared counter, Dev provider, age codes) | done (P4.4) |
+| book_card.json | spec done; code in P4.5 |
+| marketing_brief.json + `forge marketing prompt` | spec done; code in P4.6 |
+| Steps 2–5 mystery pipeline S1–S10, causal graph, logic grid, reader sim, export-play | design done (MYSTERY_DESIGN §5, §9–§13); code in P3.1–P3.10 |
+| Step 6 ROADMAP (PQ, P3 detail, P4.4–4.6), tests listed | done; logicgrid/causal/reader_sim tests come with P3 |
+| Ports & adapters + INTEGRATION_HALOSPARK.md + P7 | done (design + SKU port); rest in P7 |
