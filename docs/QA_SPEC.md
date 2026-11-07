@@ -113,6 +113,11 @@ givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-
 | L4.solution_text | MAJOR | Solution/explanation text agrees with solver output. |
 | L4.playtest | MAJOR | Two independent agents of different models (Claude + GPT), no answers, on the play-test export: (a) solve the case; (b) cannot name the culprit before the last chapter. Stuck points recorded. |
 
+- `L4.all_clues_required` (BLOCKER) — all clues → exactly 1 candidate = declared answer; dropping
+  any single clue → > 1 candidate (`forge/mystery/necessity.py`, MYSTERY_DESIGN §15).
+- `L4.vault_page` (MAJOR, mystery/escape lines) — last content page is the `case_vault` page: prints
+  the domain + `/solve/<book_id>` URL and a QR code that encodes exactly that URL.
+
 ### L5 — metadata & marketing text
 | ID | Level | Check |
 |---|---|---|

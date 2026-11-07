@@ -264,3 +264,32 @@ closed regions split along the glyph outline. Palette 4–8 colours by audience 
 grayscale editions use patterns/symbols if needed. Solver/QA: render the coloured result from the answers
 → glyph matching must read the right code with enough contrast and size; every region closed, numbered
 and large enough to write in; type B mini puzzles have unique answers. Solutions show the coloured image.
+
+## 15. General rule for every escape / mystery / adventure line (incl. CBN Mystery) — owner rules 2026-11-07
+
+**All clues required.** The final answer (culprit name and/or unlock code / key location) can be
+deduced **only when every clue is combined**. This is a hard rule for every blueprint
+(`escape_adult`, `escape_kids`, `mystery_adult`, `adventure_kids`, `cbn_mystery`).
+
+Mandatory QA (`L4.all_clues_required`, BLOCKER), run by `forge/mystery/necessity.py`:
+- the case declares a **candidate space** (suspects × attributes, or every code of the given length /
+  alphabet, or every location) and the clues as **declarative predicates** (no free text in the check);
+- with **all** clues → exactly **1** candidate remains, and it equals the declared answer;
+- for **each** clue, dropping it alone → the solver finds **> 1** candidate (no redundant clue);
+- the report lists the survivors for every dropped clue (evidence for the owner).
+
+Clue predicate language (JSON/YAML, stored in the case bible and the manifest):
+`{field, op, value}` with `op` ∈ `eq ne in not_in lt le gt ge`, plus `{"any_of": [...]}`,
+`{"not": {...}}`, `{"distinct": [fields]}` and derived fields for codes (`d1..dn`, `sum`, `even_count`).
+
+The book still prints the full solutions at the back; the website is an extra for rewards. The **last
+page** of these lines is the `case_vault` page: "Submit your final answer at <DOMAIN> to unlock rewards"
++ a QR code that opens the book's own page (`https://<DOMAIN>/solve/<book_id>`), see docs/CASEVAULT.md.
+
+## 16. CBN Mystery line (ROADMAP P8)
+
+A colour-by-number mystery: each chapter's colouring page (type A or B, §14) reveals one **clue glyph**
+(letter, digit or symbol); short story pages and evidence cards give the meaning of each glyph. The
+clue glyphs combined with the evidence narrow the suspects (or the code digits) to exactly one — the
+§15 rule applies unchanged (drop any reveal → > 1 candidate). Audience: kids 6–8 (4-colour palettes,
+3–4 reveals) and adults (6–8 colours, 6–8 reveals). Blueprint `blueprints/cbn_mystery/line.yaml`.

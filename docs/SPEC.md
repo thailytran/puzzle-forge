@@ -226,3 +226,10 @@ output/<book_id>/
 
 See `docs/QA_SPEC.md` (golden rule 9): state machine DRAFT → … → MARKETING_READY, check catalog
 L1–L5 (BLOCKER/MAJOR/MINOR), hash-locked reports, SKU in the Portal format, book_card, marketing brief.
+
+## 10. Case Vault (rewards website) and the "all clues required" rule
+
+Escape / mystery / adventure books (incl. CBN Mystery) must pass `L4.all_clues_required`
+(docs/MYSTERY_DESIGN.md §15) and end with the `case_vault` page (domain + QR to `/solve/<book_id>`).
+On APPROVED the book is registered on the Case Vault site (`forge/vault`, outbox + `forge vault sync`).
+Website, proofs of purchase, rewards, Klaviyo, admin: docs/CASEVAULT.md.

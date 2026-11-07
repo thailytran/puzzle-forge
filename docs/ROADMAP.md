@@ -99,3 +99,19 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] P7.4 ResearchInputPort adapter: approved `PZL` ideas from the Hub → book briefs.
 - [ ] P7.5 ListingOutputPort adapter: Hub assets + `produced` → SEO Listing module.
 - [ ] P7.6 Puzzle Forge as a Suite tool (tool.json, portal auth, hooks API, Telegram notifications).
+
+## P8 — CBN Mystery line (docs/MYSTERY_DESIGN.md §15–§16)
+- [ ] P8.1 "All clues required" engine `forge/mystery/necessity.py` (candidate spaces: suspects × attributes, codes, locations; declarative clue predicates) + QA `L4.all_clues_required` (drop any clue → > 1 candidate) for every escape/mystery/adventure line.
+- [ ] P8.2 Blueprint `cbn_mystery` (kids + adult): chapter = story page + cbn_reveal + evidence card; final deduction page; `case_vault` last page.
+- [ ] P8.3 Case builder: suspects/codes + reveal glyphs → clues that pass P8.1; CBN pages generated with the glyph constraint (PB.2 engine).
+- [ ] P8.4 Sample CBN Mystery book (kids + adult) → QA_PASSED → review pack.
+
+## P9 — Case Vault website & rewards (docs/CASEVAULT.md)
+- [ ] P9.1 Docs + config: CASEVAULT.md, KLAVIYO_SETUP.md (vi), DEPLOY_CASEVAULT.md (vi), `apps/casevault/config/casevault.yaml`, `.env.example`.
+- [ ] P9.2 `forge/vault`: answer normalisation + HMAC, Book Codes (checksum, batches CSV, code pages PDF), registration payload, outbox with retry, `forge vault init/sync/status/codes`, auto-enqueue on APPROVED.
+- [ ] P9.3 `case_vault` last page: "Submit your final answer at <DOMAIN>" + QR (segno, BSD) → `/solve/<book_id>`; QA `L4.vault_page`.
+- [ ] P9.4 `apps/casevault` core: DB models, admin book API, answer check, proofs (Book Code, Etsy API + CSV, Shopify order), binding to first e-mail, counter, rate limits, pending → approved re-check.
+- [ ] P9.5 Rewards + providers: tiers 10/20/30/40/gift (cycle), ShopifyCouponProvider, EtsyCouponPool (+ low-stock alert), KlaviyoProvider (profile, list consent, events), outbox retry, Telegram, certificate PDF, magic-link account page.
+- [ ] P9.6 Public form (HTMX) with consent rules by region + Turnstile; admin (password + TOTP): books, solves, stats, customers, Etsy CSV/pending, coupon stock, consenting e-mail export, fraud log, gift requests.
+- [ ] P9.7 Docker image + Compose + Caddy, Cloudflare Tunnel option, daily backup script; E2E tests with mocked Etsy/Shopify/Klaviyo.
+- [ ] P9.8 **Go-live** (owner): domain, Klaviyo flows, Shopify app token, Etsy app key, legal review of consent wording.

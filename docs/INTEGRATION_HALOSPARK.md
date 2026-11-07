@@ -104,3 +104,21 @@ Files stay on disk / object storage under `products/<SKU>/…` (Hub layout) once
 no book/layout imports) so HALOSPARK's Colour-by-Number line can reuse it later through an adapter:
 input = region map (code-generated mosaic now, vectorised line art from the image tool in PB.6) +
 palette; output = numbered regions, legend, solution render, verification report.
+
+## 7. Case Vault customer data (merge into the Suite DB later)
+
+The Case Vault site (`apps/casevault`, docs/CASEVAULT.md) keeps its own Postgres now; tables are
+designed to move into the shared Suite DB with a `cv_` prefix and no renames:
+
+| Table | Key | Joins to the Suite |
+|---|---|---|
+| `cv_customers` | `email` (lower-case) | future `customers.email` of the Portal (one person across modules) |
+| `cv_consents` | `id`; `email`, `at`, `ip`, `wording`, `form_version`, `country`, `newsletter` | consent ledger reused by the Suite's marketing tools |
+| `cv_books` | `book_id` | `sku` → Hub `products.sku`; `book_id` → `forge_books.book_id` |
+| `cv_solves` / `cv_rewards` | `id` | per-customer history; Hub `product_events` can mirror `CASE_SOLVED` |
+| `cv_proofs` | `(kind, value_hash)` | Etsy receipt / Shopify order ids for the Suite's order sync |
+| `cv_coupon_pool`, `cv_fraud_log`, `cv_outbox` | `id` | Suite-wide coupon stock / audit / job queue |
+
+Rules: e-mail is the customer key everywhere; consent rows are append-only; answer hashes and Book
+Codes stay hashed. A one-off import (P7.3 style) copies the tables; the site then switches its
+`DATABASE_URL` to the Suite Postgres schema.
