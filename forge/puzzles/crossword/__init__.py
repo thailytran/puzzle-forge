@@ -165,7 +165,7 @@ class Crossword:
             for wd in puzzle.data["words"]:
                 by_len.setdefault(len(wd), []).append(wd)
             for n, ws in sorted(by_len.items()):
-                blocks.append({"kind": "paragraph", "text": f"{n} letters:  " + "   ".join(ws)})
+                blocks.append({"kind": "paragraph", "text": f"{n} letters: " + ", ".join(ws)})
         else:
             rows = puzzle.solution["rows"]
             nums = numbering(rows)
