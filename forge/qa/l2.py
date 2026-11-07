@@ -16,7 +16,7 @@ MIN_TEXT_PT = {"senior_large_print": 16.0, "kids_6_8": 11.0}
 MIN_CELL_IN = {"senior_large_print": 0.4, "kids_6_8": 0.45}
 GRID_BLOCKS = ("letter_grid", "sudoku_grid", "crossword_grid")
 SIZE_EXEMPT_KINDS = ("solutions", "title", "notes", "blank")
-TYPE_NAMES = {"wordsearch": "Word Search", "scramble": "Word Scramble"}
+TYPE_NAMES = {"wordsearch": "Word Search", "scramble": "Word Scramble", "cbn": "Cbn"}
 
 
 def pdf(ctx: Any) -> PdfFacts:
@@ -297,6 +297,8 @@ def _expected(p: Puzzle) -> tuple[list[str], list[str]]:
         return [], [letters]
     if p.type == "maze":
         return [], ["".join(x["ch"] for x in d.get("letters", []))]
+    if p.type == "cbn":
+        return ["".join(label for row in d["cells"] for label in row)], []
     return [], []
 
 

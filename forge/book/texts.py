@@ -13,6 +13,8 @@ HOW_TO_PLAY: dict[str, str] = {
     "cryptogram": "Each letter of the message has been swapped for a different letter. "
     "Work out the code to reveal the quote. Some letters are given to get you started.",
     "crossword": "Fit every word from the list into the grid so that all crossing letters match.",
+    "cbn": "Colour each square with the colour of its number (or of the answer to its sum). "
+    "When every square is coloured, a secret code appears.",
 }
 
 COPYRIGHT = (

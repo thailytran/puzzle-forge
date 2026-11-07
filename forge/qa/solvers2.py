@@ -254,6 +254,16 @@ def cryptogram(p: Puzzle) -> Result:
     return worst, plains if worst == 1 else None
 
 
+def cbn(p: Puzzle) -> Result:
+    """Centre sampling of each glyph cell block (solver 1 votes over the whole block)."""
+    from forge.puzzles.cbn import ColorByNumber, read_with
+
+    colors = ColorByNumber().colours_from_cells(p)
+    if colors is None:
+        return 0, None
+    return 1, {"colors": colors, "code": read_with(colors, "centre")}
+
+
 SOLVERS = {
     "sudoku": sudoku,
     "wordsearch": wordsearch,
@@ -261,6 +271,7 @@ SOLVERS = {
     "scramble": scramble,
     "crossword": crossword,
     "cryptogram": cryptogram,
+    "cbn": cbn,
 }
 
 
@@ -288,4 +299,6 @@ def matches_stored(p: Puzzle, solution: Any) -> bool:
         return bool(solution == p.solution["rows"])
     if t == "cryptogram":
         return bool(solution == [q["plain"] for q in p.solution["quotes"]])
+    if t == "cbn":
+        return bool(solution == {"colors": p.solution["colors"], "code": p.solution["code"]})
     return False

@@ -206,6 +206,35 @@
   }))
 }
 
+#let cbn-grid(b) = {
+  let rows = b.cells
+  let nr = rows.len()
+  let nc = rows.at(0).len()
+  let cell = b.cell_in * inch
+  let fpt = b.font_pt * 1pt
+  let colors = b.at("colors", default: none)
+  align(center, box(width: nc * cell, height: nr * cell, {
+    for (r, row) in rows.enumerate() {
+      for (c, lab) in row.enumerate() {
+        let fill = if colors != none { rgb(b.palette.at(colors.at(r).at(c) - 1).hex) } else { white }
+        place(top + left, dx: c * cell, dy: r * cell,
+          rect(width: cell, height: cell, fill: fill, stroke: 0.4pt + luma(140)))
+        if colors == none {
+          place(top + left, dx: c * cell, dy: r * cell, box(width: cell, height: cell,
+            align(center + horizon, text(font: L.fonts.sans, size: fpt, lab))))
+        }
+      }
+    }
+  }))
+  if b.at("legend", default: true) {
+    v(0.6em)
+    set text(font: L.fonts.sans, size: base)
+    align(center, b.palette.map(e => box(inset: 3pt, stack(dir: ltr, spacing: 4pt,
+      rect(width: 0.3in, height: 0.3in, fill: rgb(e.hex), stroke: 0.4pt),
+      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.6em)))
+  }
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -271,6 +300,8 @@
         for x in it.blocks { render-block(x) }
       })),
     )
+  } else if k == "cbn_grid" {
+    cbn-grid(b)
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {
