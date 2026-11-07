@@ -91,3 +91,17 @@ def test_waive_rejects_major(tmp_path: Path) -> None:
     out = build_book(spec(), tmp_path / "o", tmp_path / "f.db", render=False)
     res = runner.invoke(app, ["qa", "waive", str(out), "L1.difficulty_band", "--reason", "x"])
     assert res.exit_code == 1
+
+
+@pytest.mark.typst
+def test_cli_sku_assign_dev(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    db = tmp_path / "f.db"
+    monkeypatch.setenv("FORGE_DB_PATH", str(db))
+    monkeypatch.setenv("FORGE_SKU_PROVIDER", "dev")
+    out = build_book(spec(), tmp_path / "o", db)
+    assert runner.invoke(app, ["sku", "assign", str(out)]).exit_code == 1  # not QA_PASSED yet
+    assert runner.invoke(app, ["qa", "run", str(out)]).exit_code == 0
+    res = runner.invoke(app, ["sku", "assign", str(out)])
+    assert res.exit_code == 0, res.output
+    assert "DEV-HSP-ADULT-PZL-PBK-0001-SGL" in res.output
+    assert "SKU_ASSIGNED" in runner.invoke(app, ["book", "status", str(out)]).output

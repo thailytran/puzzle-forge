@@ -112,9 +112,10 @@ Reviewers only see books in `QA_PASSED`. Before the web UI (P5): `forge review <
 
 - **SKU** (Portal standard, from halospark-suite Product Hub):
   `BRAND-AUD-LINE-FMT-NNNN-SGL` or `BRAND-AUD-LINE-FMT-NNNN-SERnnn-vv`, e.g.
-  `HSP-ADU-PZL-PBK-0007-SGL`. Codes and the audience mapping live in `configs/sku.yaml`.
-  Preferred source: Product Hub `POST api/products` (global counter); offline fallback: local
-  counter in `data/forge.db` (`sku_counters`), never reusing a number. SKU must be unique.
+  `HSP-ADULT-PZL-PBK-0007-SGL`. Codes and the audience mapping live in `configs/sku.yaml`.
+  Source: Product Hub shared counter via `SkuPort` → `HubSkuProvider` (`POST api/products`,
+  `X-Hub-Token`). `DevSkuProvider` exists for tests only and prefixes every SKU with `DEV-`.
+  Age codes: KID1/KID4/KID9/TEEN/ADULT/SENIOR (docs/INTEGRATION_HALOSPARK.md §3).
 - **book_card.json** (AI-written text, code-filled facts): `sku, series_name, volume, title, subtitle,
   pen_name, tagline, hooks[3–5], short_description (2–3 sentences), long_description (KDP HTML subset),
   case_teaser (no spoilers), characters[{name, role, look}], setting, tone, audience/ages,

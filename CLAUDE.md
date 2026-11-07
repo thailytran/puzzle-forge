@@ -72,6 +72,8 @@ forge/
   layout/        # typst templates, page planner, trim sizes, answer key, front matter
   qa/            # QA gate: check registry, L1–L5, state machine, reader_sim, report (docs/QA_SPEC.md)
   publish/       # cover, SKU, book_card, listing.json, marketing brief, export package
+  ports/         # interfaces to the outside (registry, state, SKU, research, listing, notify)
+  adapters/      # port implementations: standalone now, HALOSPARK SUITE later (INTEGRATION_HALOSPARK.md)
   api/           # FastAPI (later phase)
   cli.py
 templates/typst/ # .typ templates
@@ -97,6 +99,10 @@ class PuzzleType(Protocol):
     def render(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:  # typst/svg for puzzle page
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock: ...
 ```
+
+Architecture: **ports & adapters**. Core packages never import HALOSPARK code; they talk to the outside
+through `forge/ports` protocols, and only the CLI/API wires concrete adapters (see
+`docs/INTEGRATION_HALOSPARK.md`).
 
 Mystery support: generators must accept **constraints** (e.g. "the leftover letters must spell HARBOR",
 "the shaded cells must read 4-7", "the maze path must pass letters K,E,Y"), so a story can force a puzzle
@@ -127,6 +133,7 @@ uv run forge qa run output/<book_id>              # QA gate L1-L3 (+auto-fix) ->
 uv run forge qa waive output/<book_id> <check> --reason "..."   # MINOR checks only
 uv run forge book status output/<book_id>         # state, history, report valid/stale
 uv run forge review output/<book_id> --approve | --reject --note "..."   # MANUAL_REVIEW only
+uv run forge sku assign output/<book_id>          # QA_PASSED -> SKU from Product Hub (FORGE_SKU_PROVIDER=hub|dev)
 ```
 
 Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is

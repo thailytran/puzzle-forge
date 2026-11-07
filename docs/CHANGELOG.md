@@ -19,3 +19,4 @@
 - PQ.4: QA L3: counts (puzzles/pages/even/KDP limits), distribution vs plan + progressive curve, TOC printed + pointing at real pages, front/back matter + copyright, dictionary proofread (+repeated words, double spaces, project vocabulary), placeholders
 - PQ.5: qa_report.html (summary, every check with evidence + page links, flagged thumbnails), `forge qa run` with auto-fix (failing puzzles regenerated via seed offsets, never hand-edited), `forge qa waive`, `forge book status` (stale detection), `forge review --approve/--reject`
 - Difficulty caps: kids 6-8 and large-print crossword up to medium (Intermediate); reader labels Beginner/Easy/Intermediate/Hard/Expert; kids sample very_easy->medium
+- P4.4 + integration: ports & adapters (forge/ports, forge/adapters), SkuPort with HubSkuProvider (Product Hub API) + DevSkuProvider (DEV- prefix), age codes KID1/KID4/KID9/TEEN/ADULT/SENIOR, `forge sku assign`, docs/INTEGRATION_HALOSPARK.md, ROADMAP P7

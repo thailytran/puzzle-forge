@@ -62,6 +62,7 @@ license in `licenses/` and a header in the adapted file; no-license or GPL sourc
   `POST api/products`, `POST api/products/{sku}/produced {title, book_json, listing_copy}`.
   Coloring Studio marketing v3: ChatGPT writes layout/style ideas, Gemini draws graphics,
   **Python places exact content** (real pages, text that must be exact).
-- **Reused**: SKU format (`configs/sku.yaml`), marketing rule "AI draws background only, code places
+- **Reused**: SKU format + `POST api/products` contract (`forge/adapters/sku_hub.py`, `configs/sku.yaml`,
+  `docs/INTEGRATION_HALOSPARK.md`), marketing rule "AI draws background only, code places
   real pages and every number", Hub handoff fields.
 - **Affects**: `forge/publish/sku.py`, `forge/publish/book_card.py`, `forge/publish/marketing.py`.

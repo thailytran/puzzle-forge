@@ -53,7 +53,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] P4.1 Series bible, `forge series new/next`, continuity checks, cross-volume dedupe.
 - [ ] P4.2 Cover generator (Typst: front/spine/back from KDP page count + paper type; image slot for art).
 - [ ] P4.3 Export package + checklist for KDP upload.
-- [ ] P4.4 SKU: Portal format `BRAND-AUD-LINE-FMT-NNNN-SGL|SERnnn-vv` (`configs/sku.yaml`), Product Hub API when reachable, local unique counter fallback; state SKU_ASSIGNED.
+- [x] P4.4 SKU: Portal format, `SkuPort` with `HubSkuProvider` (Product Hub shared counter, `X-Hub-Token`) and `DevSkuProvider` (tests, `DEV-` prefix), age codes KID1/KID4/KID9/TEEN/ADULT/SENIOR, `forge sku assign` (QA_PASSED → SKU_ASSIGNED).
 - [ ] P4.5 book_card.json (AI text + code facts, spine width, sample pages 300 DPI) + L5 checks → METADATA_READY.
 - [ ] P4.6 Marketing handoff: marketing_brief.json in the Portal (Coloring Page) schema, `forge marketing prompt <book_id>` (OpenAI master prompt), image set plan; code composites real pages/text, AI only backgrounds.
 
@@ -66,3 +66,11 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 ## P6 — Illustrations & extras (parallel / later)
 - [ ] P6.1 Image slots + prompt export for illustrations (scenes, props) to be made by the HALOSPARK image tool; import + 300 DPI check.
 - [ ] P6.2 More puzzle types (nonogram, kakuro, futoshiki, hashi…), spot-the-difference for kids.
+
+## P7 — HALOSPARK SUITE integration (docs/INTEGRATION_HALOSPARK.md)
+- [ ] P7.1 Ports wired through the core (registry, state, SKU, research, listing, notification); CLI builds adapters from `.env`.
+- [ ] P7.2 Hub changes (in halospark-suite): age-code migration (KID1/KID4/KID9/TEEN/ADULT/SENIOR, aliases) + idempotent `external_id` on `POST api/products`.
+- [ ] P7.3 Postgres adapters for registry/state/QA reports + SQLite → Postgres import.
+- [ ] P7.4 ResearchInputPort adapter: approved `PZL` ideas from the Hub → book briefs.
+- [ ] P7.5 ListingOutputPort adapter: Hub assets + `produced` → SEO Listing module.
+- [ ] P7.6 Puzzle Forge as a Suite tool (tool.json, portal auth, hooks API, Telegram notifications).

@@ -310,6 +310,41 @@ def review(
     typer.echo(f"{book_id}: {'APPROVED' if approve else 'REJECTED -> DRAFT'}")
 
 
+sku_app = typer.Typer(help="SKU from the HALOSPARK Product Hub (configs/sku.yaml).")
+app.add_typer(sku_app, name="sku")
+
+
+@sku_app.command("assign")
+def sku_assign(out_dir: Path = typer.Argument(..., help="output/<book_id>")) -> None:
+    """QA_PASSED book -> SKU from the Hub shared counter -> SKU_ASSIGNED (idempotent)."""
+    import json as _json
+
+    from forge.ports import SkuError
+    from forge.publish.sku import assign_sku, existing_sku, provider_from_env
+    from forge.qa.gate import sync_state
+    from forge.qa.state import StateStore
+
+    settings = get_settings()
+    book_id = _json.loads((out_dir / "manifest.json").read_text())["book_id"]
+    with StateStore(settings.db_path) as store:
+        state = sync_state(store, book_id, out_dir)
+        if state != "QA_PASSED" and not (state == "SKU_ASSIGNED" and existing_sku(out_dir)):
+            typer.secho(
+                f"{book_id} is {state}; run `forge qa run` until QA_PASSED first",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(1)
+        try:
+            data = assign_sku(out_dir, provider_from_env(settings.db_path))
+        except SkuError as exc:
+            typer.secho(f"SKU failed: {exc}", fg=typer.colors.RED, err=True)
+            raise typer.Exit(1) from exc
+        if state == "QA_PASSED":
+            store.transition(book_id, "SKU_ASSIGNED", note=data["sku"])
+    typer.echo(f"{book_id}: {data['sku']} ({data['provider']})")
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 
