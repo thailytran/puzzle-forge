@@ -1,6 +1,6 @@
 [project]
 name = "casevault"
-version = "0.1.0"
+version = "0.2.0"
 description = "Case Vault: final-answer check, proof of purchase and rewards for Puzzle Forge books"
 requires-python = ">=3.12,<3.14"
 dependencies = [

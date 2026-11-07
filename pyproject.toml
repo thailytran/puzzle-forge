@@ -1,6 +1,6 @@
 [project]
 name = "puzzle-forge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Print-ready puzzle books (classic + mystery) for Amazon KDP"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
