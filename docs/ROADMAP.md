@@ -44,7 +44,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] PE.6 Escape-room sample book in both editions (after P3) + review pack.
 
 ## PB — Blueprints, page planner, framed art, colour-by-number (owner rules 2026-11-07)
-- [ ] PB.1 Blueprint library: `blueprints/escape_adult/line.yaml` (page types, zones in mm, z-order, variants) + loader + `forge blueprint preview` (coloured zones PDF).
+- [x] PB.1 Blueprint library: `blueprints/escape_adult/line.yaml` (page types, zones in mm, z-order, variants) + loader + `forge blueprint preview` (coloured zones PDF).
 - [ ] PB.2 CBN level 1: geometric mosaic (square/hex/Voronoi) with embedded code glyph, type A + type B, palette + legend, glyph-matching solver, QA L1.cbn_reveal, coloured solution.
 - [ ] PB.3 Page planner: case bible + arc + clue graph + blueprint + targets → `page_plan.yaml` (+ validation, `--from-stage page_plan`), hints (4 tiers), code register / host pack.
 - [ ] PB.4 Art requests: per art zone pixel size + mask PNG + style bible + prompt clauses; `art_requests/` export, `forge art import`; compositor layers; QA L2.art_*.

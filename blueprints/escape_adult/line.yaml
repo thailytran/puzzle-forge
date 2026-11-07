@@ -1,0 +1,114 @@
+# Blueprint: adult escape-room book (owner rules 2026-11-07, docs/MYSTERY_DESIGN.md §14)
+# Zones: x, y, w, h in mm from the trim top-left of US Letter (215.9 x 279.4); scaled for other trims.
+# kinds: art (AI image) | puzzle (vector game) | text | input (code boxes / handwriting) | header |
+#        footer | watermark. z = stacking order (higher on top). Knock-out = puzzle + text + input.
+line: escape_adult
+audience: adult
+base_trim: "8.5x11"
+binding_mm: 19          # spiral binding edge (0.75"); content zones keep clear of it
+common:                 # added to every page type unless the type sets `bare: true`
+  - { name: header,    kind: header,    x: 19,  y: 4,   w: 184, h: 8,  z: 5 }
+  - { name: footer,    kind: footer,    x: 19,  y: 263, w: 184, h: 12, z: 5 }
+  - { name: watermark, kind: watermark, x: 140, y: 192, w: 63,  h: 63, z: 1 }
+page_types:
+  inner_cover:
+    bare: true
+    variants:
+      default:
+        - { name: cover_art, kind: art,  x: 0,  y: 0,  w: 215.9, h: 279.4, z: 0 }
+        - { name: title,     kind: text, x: 25, y: 30, w: 166,   h: 50,    z: 10 }
+  how_to_play:
+    variants:
+      default:
+        - { name: rules, kind: text, x: 19, y: 15,  w: 184, h: 125, z: 10 }
+        - { name: scene, kind: art,  x: 19, y: 145, w: 184, h: 110, z: 0 }
+  story:
+    variants:
+      art_top:
+        - { name: scene, kind: art,  x: 19, y: 15,  w: 184, h: 90,  z: 0 }
+        - { name: prose, kind: text, x: 19, y: 110, w: 184, h: 148, z: 10 }
+      full_text:
+        - { name: prose, kind: text, x: 19, y: 15, w: 184, h: 243, z: 10 }
+  dossier:
+    variants:
+      default:
+        - { name: portrait_a, kind: art,  x: 19, y: 15,  w: 70,  h: 90,  z: 0 }
+        - { name: portrait_b, kind: art,  x: 19, y: 112, w: 70,  h: 90,  z: 0 }
+        - { name: profile,    kind: text, x: 95, y: 15,  w: 108, h: 243, z: 10 }
+  reference:
+    variants:
+      default:
+        - { name: document, kind: text, x: 19, y: 15, w: 184, h: 243, z: 10 }
+  main_puzzle:
+    variants:
+      art_top:
+        - { name: scene,  kind: art,    x: 19, y: 15,  w: 184, h: 55,  z: 0 }
+        - { name: intro,  kind: text,   x: 19, y: 73,  w: 184, h: 18,  z: 10 }
+        - { name: game,   kind: puzzle, x: 19, y: 94,  w: 184, h: 130, z: 10 }
+        - { name: answer, kind: input,  x: 60, y: 228, w: 96,  h: 28,  z: 10 }
+      art_side:
+        - { name: scene,  kind: art,    x: 19, y: 15,  w: 55,  h: 243, z: 0 }
+        - { name: intro,  kind: text,   x: 78, y: 15,  w: 125, h: 20,  z: 10 }
+        - { name: game,   kind: puzzle, x: 78, y: 38,  w: 125, h: 180, z: 10 }
+        - { name: answer, kind: input,  x: 78, y: 222, w: 125, h: 30,  z: 10 }
+      frame:
+        - { name: frame,  kind: art,    x: 0,  y: 0,   w: 215.9, h: 279.4, z: 0 }
+        - { name: intro,  kind: text,   x: 30, y: 20,  w: 156, h: 18,  z: 10 }
+        - { name: game,   kind: puzzle, x: 30, y: 42,  w: 156, h: 170, z: 10 }
+        - { name: answer, kind: input,  x: 60, y: 218, w: 96,  h: 28,  z: 10 }
+  supporting_clues:
+    variants:
+      default:
+        - { name: clue_text, kind: text,   x: 19, y: 15,  w: 184, h: 60,  z: 10 }
+        - { name: clue_game, kind: puzzle, x: 19, y: 80,  w: 184, h: 150, z: 10 }
+        - { name: strip,     kind: art,    x: 19, y: 234, w: 184, h: 24,  z: 0 }
+  interlude:
+    variants:
+      default:
+        - { name: scene, kind: art,  x: 19, y: 15,  w: 184, h: 150, z: 0 }
+        - { name: prose, kind: text, x: 19, y: 170, w: 184, h: 88,  z: 10 }
+  code_register:
+    variants:
+      default:
+        - { name: intro, kind: text,  x: 19, y: 15, w: 184, h: 20,  z: 10 }
+        - { name: table, kind: input, x: 19, y: 40, w: 184, h: 218, z: 10 }
+  evidence_worksheet:
+    variants:
+      default:
+        - { name: intro, kind: text,  x: 19, y: 15, w: 184, h: 25,  z: 10 }
+        - { name: notes, kind: input, x: 19, y: 45, w: 184, h: 213, z: 10 }
+  final_meta:
+    variants:
+      default:
+        - { name: intro,  kind: text,   x: 19, y: 15,  w: 184, h: 40,  z: 10 }
+        - { name: game,   kind: puzzle, x: 19, y: 60,  w: 184, h: 150, z: 10 }
+        - { name: answer, kind: input,  x: 60, y: 215, w: 96,  h: 40,  z: 10 }
+  cbn_reveal:
+    variants:
+      default:
+        - { name: intro,  kind: text,   x: 19, y: 15,  w: 184, h: 22,  z: 10 }
+        - { name: mosaic, kind: puzzle, x: 19, y: 40,  w: 184, h: 184, z: 10 }
+        - { name: legend, kind: text,   x: 19, y: 228, w: 184, h: 30,  z: 10 }
+  hints:
+    variants:
+      default:
+        - { name: hints, kind: text, x: 19, y: 15, w: 184, h: 243, z: 10 }
+  solutions:
+    variants:
+      default:
+        - { name: answers, kind: text, x: 19, y: 15, w: 184, h: 243, z: 10 }
+  certificate:
+    variants:
+      default:
+        - { name: frame, kind: art,   x: 0,  y: 0,   w: 215.9, h: 279.4, z: 0 }
+        - { name: award, kind: text,  x: 35, y: 60,  w: 146, h: 140, z: 10 }
+        - { name: name,  kind: input, x: 60, y: 205, w: 96,  h: 30,  z: 10 }
+  cutout:
+    single_sided: true   # back page left blank / "Notes"
+    variants:
+      default:
+        - { name: cut_piece, kind: puzzle, x: 19, y: 15, w: 184, h: 243, z: 10 }
+  notes:
+    variants:
+      default:
+        - { name: lines, kind: input, x: 19, y: 15, w: 184, h: 243, z: 10 }

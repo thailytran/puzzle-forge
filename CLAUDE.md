@@ -141,6 +141,7 @@ uv run forge edition build output/<book_id> --edition spiral [--grayscale] [--si
 uv run forge qa run output/<book_id>/editions/<label>      # edition QA (watermark knock-out, binding, bleed)
 uv run forge edition stamp <book_id> --buyer "Jane D." --order 1234 [--email x]   # per-order PDF (digital)
 uv run forge edition trace <stamped.pdf>                   # read the order number back
+uv run forge blueprint preview escape_adult [--trim A4]    # page types with coloured zones -> output/blueprints/
 ```
 
 Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is

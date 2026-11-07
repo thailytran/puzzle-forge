@@ -436,6 +436,30 @@ def edition_trace(pdf: Path = typer.Argument(..., help="a stamped PDF")) -> None
     typer.echo(f"micro-pattern order: {r['pattern_order']}")
 
 
+blueprint_app = typer.Typer(help="Blueprint library: page types and zones per book line.")
+app.add_typer(blueprint_app, name="blueprint")
+
+
+@blueprint_app.command("preview")
+def blueprint_preview(
+    line: str = typer.Argument(..., help="e.g. escape_adult"),
+    trim: str = typer.Option("", help="Scale zones to another trim (default: the blueprint's)"),
+    out: Path = typer.Option(Path("output/blueprints"), help="Output folder"),
+) -> None:
+    """Validate a blueprint and render every page type with coloured zones."""
+    from forge.blueprints import load_blueprint, validate_blueprint
+    from forge.blueprints.preview import render_preview
+
+    bp = load_blueprint(line)
+    problems = validate_blueprint(bp)
+    for pr in problems:
+        typer.secho(pr, fg=typer.colors.RED, err=True)
+    pdf = render_preview(bp, out / f"{line}-preview.pdf", trim or None)
+    typer.echo(f"wrote {pdf}")
+    if problems:
+        raise typer.Exit(1)
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 
