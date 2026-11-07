@@ -49,16 +49,20 @@ def generate_puzzles(
     """`offsets[slot]` shifts the seed attempts of a slot (used by the QA auto-fixer)."""
     offsets = offsets or {}
     themes = theme_rotation(spec)
+    used_quotes: set[str] = set()
     out: list[Puzzle] = []
     seen: set[str] = set()
     for slot in plan_book(spec):
         pt = get_puzzle_type(slot.type)
+        opts = dict(slot.options)
+        if slot.type == "cryptogram" and used_quotes:
+            opts["exclude"] = sorted(used_quotes)  # no quote twice in one book
         ps = PuzzleSpec(
             type=slot.type,
             level=slot.level,
             audience=spec.book.audience,
             theme=slot.theme,
-            options=slot.options,
+            options=opts,
         )
         last: Exception | None = None
         best: tuple[int, Puzzle] | None = None
@@ -95,6 +99,10 @@ def generate_puzzles(
             raise BuildError(f"puzzle #{slot.index + 1} ({slot.type}, {slot.level}): {last}")
         pz = best[1]  # closest band if no exact match: QA L1.difficulty_band will report it
         registry.add(pz, book_id)
+        if pz.type == "cryptogram":
+            from forge.puzzles.cryptogram import quote_id
+
+            used_quotes.update(quote_id(q["plain"]) for q in pz.solution["quotes"])
         seen.add(pz.content_hash)
         out.append(pz)
     return out

@@ -259,14 +259,12 @@ class Scramble:
         return RenderedBlock(blocks=blocks)
 
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
-        rows = self._lines(puzzle, True)
-        if puzzle.data.get("bonus"):
-            rows.append(
-                {
-                    "left": f"Secret:  {' '.join(puzzle.data['bonus'])}",
-                    "right": puzzle.solution["bonus"],
-                }
-            )
-        size = 11.0 if ctx.width_in > 5 else 8.0
-        block = {"kind": "answer_lines", "rows": rows, "font_pt": size, "pairs": 2, "gap_em": 0.45}
+        answers = [f"{i}. {a}" for i, a in enumerate(puzzle.solution["answers"], 1)]
+        if puzzle.solution.get("bonus"):
+            answers.append(f"Secret: {puzzle.solution['bonus']}")
+        half = -(-len(answers) // 2)  # column-major: 1-10 left, 11-20 right
+        cols = [answers[:half], answers[half:]]
+        words = [c[r] if r < len(c) else "" for r in range(half) for c in cols]
+        size = 11.0 if ctx.width_in > 5 else 8.5
+        block = {"kind": "word_list", "words": words, "columns": 2, "font_pt": size}
         return RenderedBlock(blocks=[block])

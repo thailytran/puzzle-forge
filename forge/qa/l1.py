@@ -112,7 +112,7 @@ def _texts(p: Puzzle) -> list[str]:
     if p.type == "crossword":
         return list(d["words"]) + list(d.get("clues", {}).values())
     if p.type == "cryptogram":
-        return [s["plain"]]
+        return [q["plain"] for q in s["quotes"]]
     return []
 
 

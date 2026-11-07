@@ -83,6 +83,10 @@ Mixed books: list several `types` with weights; `mode: mixed` interleaves types 
 Kids (6–8): levels `very_easy` → `medium` at most (owner decision 2026-11-07), bigger cells (≥ 0.45"),
 uppercase, no backwards words. Senior large print: font ≥ 16pt, cell ≥ 0.4", fewer puzzles per page;
 large-print crosswords at most `medium` (grid ≤ 13×13). Scramble and cryptogram at most `hard`.
+Word scramble: 20 words per page (two per row); Beginner shows first + last letter on the answer line,
+Easy the first letter. Cryptogram: 5–10 quotes per page (Beginner 10, Easy 8, Intermediate 7, Hard 6,
+Expert 5; fewer only if the page height requires it), each quote with its own key, no quote twice in a
+book; large-print cryptograms hold 5–7 quotes per page.
 Levels above a cap are lowered by the planner and recorded as `requested_level` in the manifest.
 
 Reader-facing labels (books, listings): very_easy = **Beginner**, easy = **Easy**, medium =

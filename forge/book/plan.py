@@ -17,7 +17,7 @@ TYPE_MAX_LEVEL: dict[str, Level] = {"scramble": "hard", "cryptogram": "hard"}
 AUDIENCE_MAX_LEVEL: dict[str, Level] = {"kids_6_8": "medium"}  # owner decision: Intermediate max
 # large-print crosswords: grid <= 13x13 so cells stay >= 0.4" (owner decision: Intermediate max)
 TYPE_AUDIENCE_MAX_LEVEL: dict[tuple[str, str], Level] = {
-    ("crossword", "senior_large_print"): "medium"
+    ("crossword", "senior_large_print"): "medium",
 }
 
 

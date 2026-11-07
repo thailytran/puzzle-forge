@@ -1,13 +1,13 @@
 {
  "book_id": "brain-workout-puzzle-collection-20261107",
- "run_id": "qa-20261107T042203+0000",
- "started": "2026-11-07T04:22:03+00:00",
- "finished": "2026-11-07T04:22:11+00:00",
+ "run_id": "qa-20261107T053532+0000",
+ "started": "2026-11-07T05:35:32+00:00",
+ "finished": "2026-11-07T05:36:18+00:00",
  "result": "PASSED",
  "hashes": {
-  "interior": "9c461c727fa2faabb441e5637869829bb425b1b305aefee46c6f88b5edd2c585",
+  "interior": "5d736d8f66376b37e257142bc0d897fcede3d1df046fdbdd1e53446a0beffdea",
   "cover": null,
-  "manifest": "9dfabcbcf36adbda4dd06b34aded6a98674d21176493761614168c767ef9dfc2"
+  "manifest": "5f1ffc39f5263418b3e296fcf11ddd261c1c5f75ad42ca5d08729dc6650fb6ca"
  },
  "counts": {
   "blocker_fail": 0,

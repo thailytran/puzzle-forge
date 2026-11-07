@@ -1,7 +1,7 @@
 # STATUS
 
 - Current phase: P1 milestone
-- Current task: **P1.8 — waiting for owner review** (`review/P1.8.md`)
+- Current task: **P1.8 — waiting for owner review** (`review/P1.8.md`, regenerated after feedback: cryptogram 5-10 quotes/page, scramble 20 words/page)
 - What works: 6 puzzle types; `forge book build`; QA gate L1–L3 (`forge qa run`, auto-fix, HTML report,
   hash lock, states); `forge sku assign` (Product Hub / dev); `forge review-pack`; 3 sample books QA_PASSED.
 - Known issues: crosswords are fill-in until AI clues (P2.3); `themes: auto` rotates all built-in themes

@@ -192,13 +192,12 @@ def crossword(p: Puzzle) -> Result:
     return len(sols), rows
 
 
-def cryptogram(p: Puzzle) -> Result:
+def _crypto_one(cipher: str, hints: dict[str, str]) -> Result:
     from forge.puzzles.cryptogram import plain_words
     from forge.wordlists.dictionary import by_pattern, pattern
 
-    cipher_words = sorted({w for w in plain_words(p.data["cipher"])})
-    hints: dict[str, str] = dict(p.data["hints"])
-    cands = {cw: [w for w in by_pattern().get(pattern(cw), ())] for cw in cipher_words}
+    cipher_words = sorted(set(plain_words(cipher)))
+    cands = {cw: list(by_pattern().get(pattern(cw), ())) for cw in cipher_words}
     letters = sorted(
         {ch for cw in cipher_words for ch in cw if ch not in hints},
         key=lambda ch: -sum(cw.count(ch) for cw in cipher_words),
@@ -209,8 +208,7 @@ def cryptogram(p: Puzzle) -> Result:
     def consistent(m: dict[str, str]) -> bool:
         for cw in cipher_words:
             if not any(
-                all(m.get(c, pw[i]) == pw[i] for i, c in enumerate(cw))
-                and all(c != pw[i] for i, c in enumerate(cw))
+                all(m.get(c, pw[i]) == pw[i] and c != pw[i] for i, c in enumerate(cw))
                 for pw in cands[cw]
             ):
                 return False
@@ -243,8 +241,17 @@ def cryptogram(p: Puzzle) -> Result:
         return 2, None  # could not prove uniqueness in budget → treat as not unique
     if not sols:
         return 0, None
-    m = sols[0]
-    return len(sols), "".join(m.get(ch, ch) for ch in p.data["cipher"])
+    return len(sols), "".join(sols[0].get(ch, ch) for ch in cipher)
+
+
+def cryptogram(p: Puzzle) -> Result:
+    """Letter-level backtracking per quote (verify uses word-level search)."""
+    worst, plains = 1, []
+    for q in p.data["quotes"]:
+        n, plain = _crypto_one(q["cipher"], dict(q["hints"]))
+        worst = n if n != 1 else worst
+        plains.append(plain)
+    return worst, plains if worst == 1 else None
 
 
 SOLVERS = {
@@ -280,5 +287,5 @@ def matches_stored(p: Puzzle, solution: Any) -> bool:
     if t == "crossword":
         return bool(solution == p.solution["rows"])
     if t == "cryptogram":
-        return bool(solution == p.solution["plain"])
+        return bool(solution == [q["plain"] for q in p.solution["quotes"]])
     return False

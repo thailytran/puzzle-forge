@@ -6,6 +6,7 @@ hint letters. Hints are added until exactly one decoding exists.
 
 from __future__ import annotations
 
+import itertools
 import random
 import string
 from dataclasses import dataclass, replace
@@ -24,7 +25,7 @@ from forge.core.models import (
 )
 from forge.core.protocol import RenderCtx, RenderedBlock
 from forge.core.seeds import derive_seed, make_rng
-from forge.puzzles.base import GenerationError, clamp01, find_constraint
+from forge.puzzles.base import GenerationError, find_constraint
 from forge.wordlists import normalize_word
 from forge.wordlists.dictionary import by_pattern, is_common, pattern, quotes
 
@@ -32,31 +33,90 @@ SOLVER = "cryptogram-pattern-v1"
 NODE_LIMIT = 300_000
 HINT_CANDIDATES = 8  # letters tried per greedy hint step (most frequent first)
 ALPHA = string.ascii_uppercase
+MIN_QUOTES = 5
+# page-average letters per quote at the centre of each level's band (LETTERS_TO_SCORE), so the
+# measured level matches on the first try (the uniqueness proof is the slow part)
+TARGET_LETTERS: dict[str, float] = {
+    "very_easy": 18.0,
+    "easy": 24.0,
+    "medium": 28.0,
+    "hard": 33.0,
+    "expert": 41.0,
+}
+LETTERS_TO_SCORE = (
+    (16.0, 5.0),
+    (22.0, 20.0),
+    (26.0, 40.0),
+    (30.0, 60.0),
+    (36.0, 80.0),
+    (46.0, 95.0),
+)
+
+
+def _interp(x: float, pts: tuple[tuple[float, float], ...]) -> float:
+    if x <= pts[0][0]:
+        return pts[0][1]
+    for (x0, y0), (x1, y1) in itertools.pairwise(pts):
+        if x <= x1:
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    return pts[-1][1]
 
 
 @dataclass(frozen=True)
 class CgParams:
-    min_words: int
-    max_words: int
-    hints: int
+    count: int  # quotes per page (owner: 5-10)
+    target_words: float  # preferred quote length
+    hints: int  # minimum given letters per quote (more are added until unique)
 
 
 _BY_LEVEL: dict[Level, CgParams] = {
-    "very_easy": CgParams(3, 5, 5),
-    "easy": CgParams(4, 6, 3),
-    "medium": CgParams(6, 8, 1),
-    "hard": CgParams(8, 12, 0),
-    "expert": CgParams(11, 30, 0),
+    "very_easy": CgParams(10, 4.5, 5),
+    "easy": CgParams(10, 6.0, 3),
+    "medium": CgParams(9, 7.5, 1),
+    "hard": CgParams(8, 9.5, 0),
+    "expert": CgParams(7, 12.0, 0),
 }
+# page budget in "lines" of cipher cells (≈ 36 letters/line at 12 pt, 27 at 16 pt large print)
+PAGE_LINES = {"normal": 18, "large": 13}
+LINE_CHARS = {"normal": 36, "large": 27}
+FONT_PT = {"normal": 12.0, "large": 16.0}
 
 
 def resolve_params(spec: PuzzleSpec) -> CgParams:
     p = _BY_LEVEL[spec.level]
     if spec.audience == "kids_6_8":
-        p = replace(p, max_words=min(p.max_words, 7), hints=max(p.hints, 4))
+        p = replace(p, hints=max(p.hints, 4), target_words=min(p.target_words, 6.0))
+    if spec.audience == "senior_large_print":  # 16 pt cells: shorter quotes so >= 5 fit a page
+        p = replace(p, target_words=min(p.target_words, 6.0), count=min(p.count, 7))
     if "hints" in spec.options:
         p = replace(p, hints=int(spec.options["hints"]))
+    if "count" in spec.options:
+        p = replace(p, count=int(spec.options["count"]))
     return p
+
+
+def quote_id(text: str) -> str:
+    """Short stable id of a quote (book-level dedupe via options.exclude)."""
+    import hashlib
+
+    return hashlib.sha256(normalize_word(text).encode()).hexdigest()[:10]
+
+
+def show_source(source: str) -> bool:
+    """Proverbs are anonymous: print a source line only for a named author."""
+    return bool(source) and source != "Proverb"
+
+
+def lines_needed(text: str, large: bool) -> int:
+    width = LINE_CHARS["large" if large else "normal"]
+    lines, cur = 1, 0
+    for w in text.split():
+        n = len(w) + 1
+        if cur + n > width:
+            lines, cur = lines + 1, n
+        else:
+            cur += n
+    return lines
 
 
 def plain_words(text: str) -> list[str]:
@@ -162,53 +222,89 @@ def best_hint(
     return best
 
 
+def _one_quote(plain: str, source: str, p: CgParams, rng: random.Random) -> dict[str, Any] | None:
+    """Encipher one quote and add hints until its decoding is provably unique."""
+    key = derangement(rng)
+    words = plain_words(plain)
+    letters = sorted({ch for w in words for ch in w})
+    hinted = {ch for w in words if not is_common(w) for ch in w}  # names etc. are always given
+    extra = [ch for ch in letters if ch not in hinted]
+    rng.shuffle(extra)
+    hinted.update(extra[: p.hints])
+    cipher_words = [encipher(w, key) for w in words]
+    while True:
+        n, done = count_decodings(cipher_words, {key[ch]: ch for ch in hinted})
+        if (n == 1 and done) or len(hinted) == len(letters):
+            break
+        hinted.add(best_hint(cipher_words, words, letters, hinted, key))
+    if not (n == 1 and done):
+        return None
+    return {
+        "cipher": encipher(plain, key),
+        "hints": {key[ch]: ch for ch in sorted(hinted)},
+        "source": source,
+        "plain": plain,
+        "key": {k: v for k, v in key.items() if k in letters},
+    }
+
+
 class Cryptogram:
     name = "cryptogram"
 
-    def _source(self, spec: PuzzleSpec, p: CgParams, rng: random.Random) -> tuple[str, str]:
+    def _texts(self, spec: PuzzleSpec, p: CgParams, rng: random.Random) -> list[tuple[str, str]]:
         ans = find_constraint(spec, AnswerIs)
         if "text" in spec.options:
-            return str(spec.options["text"]).upper(), str(spec.options.get("source", ""))
+            return [(str(spec.options["text"]).upper(), str(spec.options.get("source", "")))]
         if ans is not None:
-            return f"THE ANSWER IS {normalize_word(ans.word)}.", ""
-        pool = [(t, s) for t, s in quotes() if p.min_words <= len(plain_words(t)) <= p.max_words]
-        if not pool:
-            raise GenerationError("cryptogram: no quote fits this level")
-        text, source = pool[rng.randrange(len(pool))]
-        return text.upper(), source
+            return [(f"THE ANSWER IS {normalize_word(ans.word)}.", "")]
+        exclude = set(spec.options.get("exclude", []))
+        pool = [(t, src) for t, src in quotes() if quote_id(t) not in exclude]
+        rng.shuffle(pool)
+        target = TARGET_LETTERS[spec.level]
+
+        def letters(t: str) -> int:
+            return sum(len(w) for w in plain_words(t))
+
+        pool.sort(key=lambda q: abs(letters(q[0]) - target))
+        large = spec.audience == "senior_large_print"
+        budget = 2 * PAGE_LINES["large" if large else "normal"]  # in half-lines
+        chosen: list[tuple[str, str]] = []
+        used = 0
+        for t, src in pool:
+            if len(chosen) >= p.count:
+                break
+            need = 2 * lines_needed(t, large) + 1 + (1 if show_source(src) else 0)
+            if used + need > budget:
+                continue
+            chosen.append((t.upper(), src))
+            used += need
+        if len(chosen) < min(p.count, MIN_QUOTES):
+            raise GenerationError(
+                f"cryptogram: only {len(chosen)} unused quotes fit (book exhausted the quote bank)"
+            )
+        return chosen
 
     def generate(self, spec: PuzzleSpec, seed: int) -> Puzzle:
         p = resolve_params(spec)
         ans = find_constraint(spec, AnswerIs)
-        for attempt in range(10):
+        for attempt in range(5):
             rng = make_rng(derive_seed(seed, "cryptogram", attempt))
-            plain, source = self._source(spec, p, rng)
-            key = derangement(rng)
-            words = plain_words(plain)
-            letters = sorted({ch for w in words for ch in w})
-            # letters of uncommon words (names...) are always given
-            hinted = {ch for w in words if not is_common(w) for ch in w}
-            extra = [ch for ch in letters if ch not in hinted]
-            rng.shuffle(extra)
-            hinted.update(extra[: p.hints])
-            cipher_words = [encipher(w, key) for w in words]
-            while True:
-                fixed = {key[ch]: ch for ch in hinted}
-                n, done = count_decodings(cipher_words, fixed)
-                if (n == 1 and done) or len(hinted) == len(letters):
-                    break
-                hinted.add(best_hint(cipher_words, words, letters, hinted, key))
-            if not (n == 1 and done):
+            texts = self._texts(spec, p, rng)
+            items = [_one_quote(t, src, p, rng) for t, src in texts]
+            if any(x is None for x in items):
                 continue
+            qs = [x for x in items if x is not None]
             puzzle = build_puzzle(
                 spec,
                 seed,
                 data={
-                    "cipher": encipher(plain, key),
-                    "hints": {key[ch]: ch for ch in sorted(hinted)},
-                    "source": source,
+                    "quotes": [
+                        {"cipher": q["cipher"], "hints": q["hints"], "source": q["source"]}
+                        for q in qs
+                    ],
+                    "large": spec.audience == "senior_large_print",
                 },
-                solution={"plain": plain, "key": {k: v for k, v in key.items() if k in letters}},
+                solution={"quotes": [{"plain": q["plain"], "key": q["key"]} for q in qs]},
                 token=normalize_word(ans.word) if ans else None,
             )
             report = self.verify(puzzle)
@@ -216,86 +312,123 @@ class Cryptogram:
                 return puzzle.model_copy(
                     update={"verify": report, "difficulty": self.difficulty(puzzle)}
                 )
-        raise GenerationError("cryptogram: could not build a uniquely solvable puzzle")
+        raise GenerationError("cryptogram: could not build a uniquely solvable page")
 
     def solve(self, puzzle: Puzzle) -> SolveResult:
-        cipher: str = puzzle.data["cipher"]
-        words = [w for w in (normalize_word(x) for x in cipher.split()) if w]
-        n, done = count_decodings(words, dict(puzzle.data["hints"]))
+        counts = []
+        for q in puzzle.data["quotes"]:
+            words = [w for w in (normalize_word(x) for x in q["cipher"].split()) if w]
+            n, done = count_decodings(words, dict(q["hints"]))
+            counts.append(n if done else 2)
         return SolveResult(
-            solved=n >= 1, solutions_found=n if done else 2, stats={"complete": float(done)}
+            solved=all(c >= 1 for c in counts),
+            solutions_found=max(counts) if counts else 0,
+            stats={"quotes": float(len(counts))},
         )
 
     def verify(self, puzzle: Puzzle) -> VerifyReport:
         msgs: list[str] = []
-        key: dict[str, str] = puzzle.solution["key"]
-        plain: str = puzzle.solution["plain"]
-        if any(k == v for k, v in key.items()):
-            msgs.append("a letter maps to itself")
-        if len(set(key.values())) != len(key):
-            msgs.append("key is not one-to-one")
-        if encipher(plain, key) != puzzle.data["cipher"]:
-            msgs.append("cipher does not match plaintext under the key")
-        inverse = {v: k for k, v in key.items()}
-        for c, p in puzzle.data["hints"].items():
-            if inverse.get(c) != p:
-                msgs.append(f"hint {c}={p} is wrong")
-        res = self.solve(puzzle)
-        if res.solutions_found != 1:
-            msgs.append(f"{res.solutions_found} decodings fit the dictionary (need exactly 1)")
+        qs, sols = puzzle.data["quotes"], puzzle.solution["quotes"]
+        if len(qs) != len(sols) or not qs:
+            return VerifyReport(ok=False, unique=None, solver=SOLVER, messages=["quote count"])
+        for i, (q, sol) in enumerate(zip(qs, sols, strict=True), 1):
+            key: dict[str, str] = sol["key"]
+            if any(k == v for k, v in key.items()):
+                msgs.append(f"#{i}: a letter maps to itself")
+            if len(set(key.values())) != len(key):
+                msgs.append(f"#{i}: key is not one-to-one")
+            if encipher(sol["plain"], key) != q["cipher"]:
+                msgs.append(f"#{i}: cipher does not match plaintext under the key")
+            inverse = {v: k for k, v in key.items()}
+            for c, pch in q["hints"].items():
+                if inverse.get(c) != pch:
+                    msgs.append(f"#{i}: hint {c}={pch} is wrong")
+            words = [w for w in (normalize_word(x) for x in q["cipher"].split()) if w]
+            n, done = count_decodings(words, dict(q["hints"]))
+            if not (n == 1 and done):
+                msgs.append(f"#{i}: {n if done else '≥2?'} decodings fit the dictionary")
+        plains = [normalize_word(s["plain"]) for s in sols]
+        if len(set(plains)) != len(plains):
+            msgs.append("the same quote appears twice on the page")
         ans = find_constraint(puzzle.spec, AnswerIs)
-        if ans and normalize_word(ans.word) not in plain_words(plain):
+        if ans and not any(normalize_word(ans.word) in plain_words(s["plain"]) for s in sols):
             msgs.append("answer word not in the plaintext")
         return VerifyReport(
-            ok=not msgs, unique=res.solutions_found == 1, solver=SOLVER, messages=msgs
+            ok=not msgs,
+            unique=not any("decodings" in m for m in msgs),
+            solver=SOLVER,
+            messages=msgs,
         )
 
     def difficulty(self, puzzle: Puzzle) -> DifficultyScore:
-        plain = puzzle.solution["plain"]
-        n_letters = len(puzzle.solution["key"])
-        hints = len(puzzle.data["hints"])
-        total = sum(len(w) for w in plain_words(plain))
+        rows = []
+        for q, sol in zip(puzzle.data["quotes"], puzzle.solution["quotes"], strict=True):
+            n_letters = len(sol["key"])
+            total = sum(len(w) for w in plain_words(sol["plain"]))
+            rows.append((len(q["hints"]) / max(n_letters, 1), total, n_letters))
+        k = len(rows)
+        avg_letters = sum(r[1] for r in rows) / k
+        hint_ratio = sum(r[0] for r in rows) / k
         f = {
-            "hint_ratio": 1 - clamp01(hints / max(n_letters, 1) / 0.6),
-            "length": clamp01((total - 12) / (45 - 12)),
-            "distinct_letters": clamp01((n_letters - 8) / (20 - 8)),
+            "avg_letters": round(avg_letters, 2),
+            "hint_ratio": round(hint_ratio, 3),
+            "distinct_letters": round(sum(r[2] for r in rows) / k, 2),
+            "quotes": float(k),
         }
-        mix = 0.55 * f["length"] + 0.25 * f["distinct_letters"] + 0.2 * f["hint_ratio"]
-        score = round(5 + 95 * mix, 1)
+        # quote length separates the levels; hints are forced by uniqueness (≈ 0.5-0.6),
+        # so they only nudge the score. Breakpoints fitted on 5-10 quote pages (2026-11-07).
+        score = _interp(avg_letters, LETTERS_TO_SCORE) + 10 * (0.55 - hint_ratio)
+        score = round(min(100.0, max(0.0, score)), 1)
         return DifficultyScore(score=score, label=level_from_score(score), features=f)
 
-    def _block(self, puzzle: Puzzle, ctx: RenderCtx, solution: bool) -> dict[str, Any]:
-        key = puzzle.solution["key"]
-        inverse = {v: k for k, v in key.items()}
-        hints = puzzle.data["hints"]
-        words = []
-        for cw in puzzle.data["cipher"].split():
-            cells = []
-            for ch in cw:
-                if ch in ALPHA:
-                    shown = inverse[ch] if solution else hints.get(ch, "")
-                    cells.append({"c": ch, "p": shown})
-                else:
-                    cells.append({"c": "", "p": ch})
-            words.append(cells)
-        return {
-            "kind": "cryptogram",
-            "words": words,
-            "font_pt": (20.0 if ctx.large_print else 16.0) if ctx.width_in > 5 else 9.0,
-            "source": puzzle.data.get("source", ""),
-        }
-
-    def render(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
-        return RenderedBlock(
-            blocks=[
+    def _block(self, puzzle: Puzzle, ctx: RenderCtx, solution: bool) -> list[dict[str, Any]]:
+        large = bool(puzzle.data.get("large")) or ctx.large_print
+        fpt = FONT_PT["large" if large else "normal"]
+        if ctx.width_in < 5:  # solution cell: plain text list
+            return [
                 {
                     "kind": "paragraph",
-                    "text": "Each letter stands for another letter. Crack the code to reveal "
-                    "the message. Some letters are given to get you started.",
-                },
-                self._block(puzzle, ctx, False),
+                    "text": f"{i}. {s['plain']}" + (f" — {q['source']}" if q["source"] else ""),
+                    "font_pt": 8.0,
+                }
+                for i, (q, s) in enumerate(
+                    zip(puzzle.data["quotes"], puzzle.solution["quotes"], strict=True), 1
+                )
             ]
-        )
+        blocks: list[dict[str, Any]] = []
+        for i, (q, sol) in enumerate(
+            zip(puzzle.data["quotes"], puzzle.solution["quotes"], strict=True), 1
+        ):
+            inverse = {v: k for k, v in sol["key"].items()}
+            words = []
+            for cw in q["cipher"].split():
+                cells = []
+                for ch in cw:
+                    if ch in ALPHA:
+                        cells.append(
+                            {"c": ch, "p": inverse[ch] if solution else q["hints"].get(ch, "")}
+                        )
+                    else:
+                        cells.append({"c": "", "p": ch})
+                words.append(cells)
+            blocks.append(
+                {
+                    "kind": "cryptogram",
+                    "number": i,
+                    "words": words,
+                    "font_pt": fpt,
+                    "source": q["source"] if show_source(q["source"]) else "",
+                }
+            )
+        return blocks
+
+    def render(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
+        intro = {
+            "kind": "paragraph",
+            "text": "Each letter stands for another letter, and every quote has its own code. "
+            "Some letters are given to get you started.",
+        }
+        return RenderedBlock(blocks=[intro, *self._block(puzzle, ctx, False)])
 
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
-        return RenderedBlock(blocks=[self._block(puzzle, ctx, True)])
+        return RenderedBlock(blocks=self._block(puzzle, ctx, True))

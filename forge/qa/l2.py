@@ -276,7 +276,7 @@ def _expected(p: Puzzle) -> tuple[list[str], list[str]]:
     if p.type == "scramble":
         return [*d["items"], *([d["bonus"]] if d.get("bonus") else [])], []
     if p.type == "cryptogram":
-        letters = "".join(ch for ch in d["cipher"] if ch.isalpha())
+        letters = "".join(ch for q in d["quotes"] for ch in q["cipher"] if ch.isalpha())
         return [], [letters]
     if p.type == "maze":
         return [], ["".join(x["ch"] for x in d.get("letters", []))]

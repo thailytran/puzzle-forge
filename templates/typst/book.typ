@@ -125,17 +125,24 @@
 
 #let cryptogram(b) = {
   let fpt = b.at("font_pt", default: 12) * 1pt
+  let small = if fpt >= 16pt { fpt } else { 0.8 * fpt }  // large print: no text below 16 pt
   set text(font: L.fonts.sans, size: fpt)
-  let cell(x) = box(width: 1.25 * fpt, stack(dir: ttb, spacing: 0.25em,
+  let cell(x) = box(width: 1.1 * fpt, stack(dir: ttb, spacing: 0.2em,
     box(width: 100%, height: 1.3 * fpt, stroke: if x.c != "" { (bottom: 0.6pt) } else { none },
       align(center + bottom, strong(x.p))),
-    box(width: 100%, height: 1em, align(center, text(size: 0.8 * fpt, fill: luma(60), x.c))),
+    box(width: 100%, height: 1em, align(center, text(size: small, fill: luma(60), x.c))),
   ))
-  par(leading: 1.6em, justify: false, b.words.map(w => box(w.map(cell).join())).join(h(1.1em)))
-  if b.at("source", default: "") != "" {
-    v(0.8em)
-    align(right, text(style: "italic", size: 0.85 * fpt, "— " + b.source))
-  }
+  let body = par(leading: 0.7em, justify: false,
+    b.words.map(w => box(w.map(cell).join())).join(h(0.9em)))
+  block(breakable: false, below: 0.9em, {
+    if b.at("number", default: none) != none {
+      grid(columns: (auto, 1fr), column-gutter: 0.6em,
+        text(weight: "bold", str(b.number) + "."), body)
+    } else { body }
+    if b.at("source", default: "") != "" {
+      align(right, text(style: "italic", size: small, "— " + b.source))
+    }
+  })
 }
 
 #let crossword-grid(b) = {
@@ -182,7 +189,8 @@
     let size = if lvl == 1 { 1.8 * base } else { 1.3 * base }
     block(below: 0.8em, text(font: L.fonts.sans, weight: "bold", size: size, b.text))
   } else if k == "paragraph" {
-    par(justify: true, b.text)
+    let fp = b.at("font_pt", default: none)
+    if fp != none { text(size: fp * 1pt, par(justify: true, b.text)) } else { par(justify: true, b.text) }
     v(0.4em)
   } else if k == "list" {
     list(..b.items)

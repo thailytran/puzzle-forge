@@ -109,21 +109,23 @@ def test_cryptogram_verifies(level: str) -> None:
 def test_cryptogram_answer_is() -> None:
     p = CG.generate(spec("cryptogram", constraints=[{"kind": "answer_is", "word": "lantern"}]), 1)
     assert p.token == "LANTERN"
-    assert "LANTERN" in p.solution["plain"]
+    assert "LANTERN" in p.solution["quotes"][0]["plain"]
     assert CG.verify(p).ok
 
 
 def test_cryptogram_custom_text_with_name() -> None:
     text = "MEET ELIZA AT THE OLD HARBOR"
     p = CG.generate(spec("cryptogram", options={"text": text}), 2)
-    assert p.solution["plain"] == text
-    hints = set(p.data["hints"].values())
+    assert p.solution["quotes"][0]["plain"] == text
+    hints = set(p.data["quotes"][0]["hints"].values())
     assert set("ELIZA") <= hints  # uncommon word -> its letters are given
 
 
 def test_cryptogram_tamper_detected() -> None:
     p = CG.generate(spec("cryptogram"), 3)
-    bad = p.model_copy(update={"data": {**p.data, "hints": {}}})
+    quotes = [dict(q) for q in p.data["quotes"]]
+    quotes[0]["hints"] = {}
+    bad = p.model_copy(update={"data": {**p.data, "quotes": quotes}})
     assert not CG.verify(bad).ok
 
 
@@ -140,3 +142,38 @@ def test_render_pdf(tmp_path: Path, type_: str) -> None:
 
     p = get_puzzle_type(type_).generate(spec(type_, theme="animals"), 2)
     assert preview_pdf(p, tmp_path / "p.pdf").stat().st_size > 1000
+
+
+@pytest.mark.parametrize("level", ["very_easy", "medium", "hard"])
+def test_cryptogram_page_has_5_to_10_quotes(level: str) -> None:
+    p = CG.generate(spec("cryptogram", level), 6)
+    n = len(p.data["quotes"])
+    assert 5 <= n <= 10
+    plains = [q["plain"] for q in p.solution["quotes"]]
+    assert len(set(plains)) == n
+    keys = {tuple(sorted(q["key"].items())) for q in p.solution["quotes"]}
+    assert len(keys) == n  # every quote has its own code
+
+
+def test_cryptogram_exclude_quotes() -> None:
+    from forge.puzzles.cryptogram import quote_id
+
+    p = CG.generate(spec("cryptogram", "easy"), 1)
+    used = sorted(quote_id(q["plain"]) for q in p.solution["quotes"])
+    q = CG.generate(spec("cryptogram", "easy", options={"exclude": used}), 1)
+    assert not {quote_id(x["plain"]) for x in q.solution["quotes"]} & set(used)
+
+
+def test_large_print_cryptogram_fits_5() -> None:
+    p = CG.generate(spec("cryptogram", "medium", audience="senior_large_print"), 2)
+    assert len(p.data["quotes"]) >= 5
+
+
+def test_scramble_has_20_words_and_hints() -> None:
+    p = SC.generate(spec("scramble", "easy", theme="ocean"), 1)
+    assert len(p.data["items"]) == 20
+    assert p.data["hint_mode"] == "first"
+    lines = SC.render(p, CTX).blocks[1]["rows"]
+    assert all(
+        r["right"].startswith(a[0]) for r, a in zip(lines, p.solution["answers"], strict=True)
+    )
