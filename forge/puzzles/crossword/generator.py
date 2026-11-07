@@ -80,9 +80,11 @@ def build(spec: PuzzleSpec, rng: random.Random) -> tuple[Rows, list[str]] | None
     first = pool[0]
     cells: Cells = {(0, i): ch for i, ch in enumerate(first)}
     placed = [first]
-    for w in pool[1:]:
+    for w in pool[1:] + pool[1:]:  # second pass: earlier misfits may fit now
         if len(placed) >= p.words:
             break
+        if w in placed:
+            continue
         r0, c0, r1, c1 = _bbox(cells)
         best: list[tuple[int, int, str]] = []
         best_score = 0
@@ -110,7 +112,7 @@ def build(spec: PuzzleSpec, rng: random.Random) -> tuple[Rows, list[str]] | None
         for i, ch in enumerate(w):
             cells[(r + dr * i, c + dc * i)] = ch
         placed.append(w)
-    if len(placed) < min(p.words, max(4, len(pool) // 2)):
+    if len(placed) < min(max(4, -(-p.words * 3 // 4)), len(pool)):
         return None
     r0, c0, r1, c1 = _bbox(cells)
     rows = ["".join(cells.get((r, c), BLOCK) for c in range(c0, c1 + 1)) for r in range(r0, r1 + 1)]
