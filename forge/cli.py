@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import typer
@@ -334,6 +335,121 @@ def review(
             typer.secho(str(exc), fg=typer.colors.RED, err=True)
             raise typer.Exit(1) from exc
     typer.echo(f"{book_id}: {'APPROVED' if approve else 'REJECTED -> DRAFT'}")
+    if approve:
+        _vault_on_approved(out_dir)
+
+
+def _vault_on_approved(out_dir: Path) -> None:
+    """APPROVED -> register on Case Vault (queued; offline = retried by `forge vault sync`)."""
+    from forge.vault.spec import load_vault_spec
+    from forge.vault.sync import VaultError, VaultOutbox, build_payload, http_sender
+
+    st = get_settings()
+    if load_vault_spec(out_dir) is None:
+        typer.echo("Case Vault: no vault.yaml (classic book) - not registered")
+        return
+    try:
+        payload = build_payload(out_dir, st.vault_answer_key)
+    except VaultError as exc:
+        typer.secho(f"Case Vault: {exc}", fg=typer.colors.YELLOW, err=True)
+        return
+    box = VaultOutbox(st.db_path)
+    try:
+        box.enqueue(payload["book_id"], payload)
+        if st.vault_url and st.vault_token:
+            res = box.sync(http_sender(st.vault_url, st.vault_token))
+            typer.echo(f"Case Vault: sent {res['sent']}, queued for retry {res['failed']}")
+        else:
+            typer.echo(
+                "Case Vault: queued (set VAULT_URL + VAULT_ADMIN_TOKEN, then `forge vault sync`)"
+            )
+    finally:
+        box.close()
+
+
+vault_app = typer.Typer(
+    help="Case Vault website: answers, Book Codes, registration (docs/CASEVAULT.md)."
+)
+app.add_typer(vault_app, name="vault")
+
+
+@vault_app.command("init")
+def vault_init(out_dir: Path = typer.Argument(..., help="output/<book_id>")) -> None:
+    """Create output/<book_id>/vault.yaml (answer type, accepted answers, listings) to fill in."""
+    from forge.vault.spec import init_vault_spec
+
+    typer.echo(f"edit {init_vault_spec(out_dir)}")
+
+
+@vault_app.command("codes")
+def vault_codes(
+    out_dir: Path = typer.Argument(..., help="output/<book_id>"),
+    count: int = typer.Option(..., "--count", help="Number of Book Codes (one per copy)"),
+    channel: str = typer.Option("print", "--channel", help="print | shopify_digital"),
+    pages: bool = typer.Option(True, "--pages/--no-pages", help="Also write the code-page PDF"),
+) -> None:
+    """New Book Code batch -> vault/codes/<batch>.csv (+ .pdf, one page per copy); re-registers."""
+    from forge.vault.codes import code_pages_pdf, make_batch
+
+    csv_path = make_batch(out_dir, count, channel)
+    typer.echo(f"wrote {csv_path}")
+    if pages:
+        typer.echo(f"wrote {code_pages_pdf(out_dir, csv_path, get_settings().vault_domain)}")
+    from forge.qa.state import StateStore
+
+    book_id = json.loads((out_dir / "manifest.json").read_text())["book_id"]
+    with StateStore(get_settings().db_path) as store:
+        state = store.current(book_id)
+    if state in ("APPROVED", "MARKETING_READY"):
+        _vault_on_approved(out_dir)
+
+
+@vault_app.command("sync")
+def vault_sync(force: bool = typer.Option(False, "--force", help="Ignore the retry delay")) -> None:
+    """Send queued registrations to the Case Vault site (retry with back-off when offline)."""
+    from forge.vault.sync import VaultError, VaultOutbox, http_sender
+
+    st = get_settings()
+    try:
+        sender = http_sender(st.vault_url, st.vault_token)
+    except VaultError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    box = VaultOutbox(st.db_path)
+    try:
+        res = box.sync(sender, force=force)
+    finally:
+        box.close()
+    typer.echo(f"sent {res['sent']}, failed {res['failed']}")
+    if res["failed"]:
+        raise typer.Exit(1)
+
+
+@vault_app.command("status")
+def vault_status(book_id: str = typer.Argument("", help="Filter by book id")) -> None:
+    """Registration queue: queued / sent / dead, attempts, last error."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from forge.vault.sync import VaultOutbox
+
+    box = VaultOutbox(get_settings().db_path)
+    try:
+        items = box.items(book_id or None)
+    finally:
+        box.close()
+    t = Table("id", "book", "status", "tries", "next try", "sent", "last error")
+    for i in items:
+        t.add_row(
+            str(i.id),
+            i.book_id,
+            i.status,
+            str(i.attempts),
+            i.next_at,
+            i.sent_at or "",
+            i.last_error[:60],
+        )
+    Console().print(t)
 
 
 sku_app = typer.Typer(help="SKU from the HALOSPARK Product Hub (configs/sku.yaml).")

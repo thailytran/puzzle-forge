@@ -24,6 +24,10 @@ class Settings:
     anthropic_api_key: str | None
     openai_api_key: str | None
     llm_provider: str
+    vault_url: str = ""
+    vault_token: str = ""
+    vault_answer_key: str = ""
+    vault_domain: str = ""
 
 
 def get_settings(env_file: str | Path | None = None) -> Settings:
@@ -36,4 +40,8 @@ def get_settings(env_file: str | Path | None = None) -> Settings:
         anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
         openai_api_key=os.environ.get("OPENAI_API_KEY") or None,
         llm_provider=os.environ.get("FORGE_LLM_PROVIDER") or "anthropic",
+        vault_url=os.environ.get("VAULT_URL", "").strip(),
+        vault_token=os.environ.get("VAULT_ADMIN_TOKEN", "").strip(),
+        vault_answer_key=os.environ.get("VAULT_ANSWER_KEY", "").strip(),
+        vault_domain=os.environ.get("VAULT_DOMAIN", "").strip(),
     )

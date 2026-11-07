@@ -12,6 +12,9 @@ Only MIT / BSD / Apache / Expat / OFL / public-domain material ships inside Puzz
 | Pillow | QA: ink bounding boxes, thumbnails | MIT-CMU (HPND) | package metadata |
 | cryptography | AES permissions on stamped digital PDFs | Apache-2.0 / BSD-3-Clause | package metadata |
 | pydantic, typer, rich, PyYAML, python-dotenv | core | MIT / BSD | package metadata |
+| segno | QR codes (Case Vault page, Book Code pages) | BSD-3-Clause | package metadata |
+| Case Vault site (`apps/casevault`): FastAPI, Starlette, Uvicorn, SQLAlchemy, Jinja2, MarkupSafe, httpx, httpcore, anyio, h11, python-multipart, pg8000, scramp, greenlet, tzdata | web app, DB, HTTP clients | MIT / BSD-3-Clause / Apache-2.0 / MIT-0 (pg8000 chosen over LGPL psycopg) | package metadata |
+| htmx (CDN, unpkg) | progressive form enhancement | 0BSD / BSD-2-Clause | package metadata |
 | OR-Tools (planned, PQ/P3) | CP-SAT second solver | Apache-2.0 | package metadata |
 | Atkinson Hyperlegible, Courier Prime | fonts | OFL-1.1 | `licenses/OFL-*.txt` |
 | ENABLE word list | dictionary | Public domain | `forge/wordlists/LICENSES.md` |

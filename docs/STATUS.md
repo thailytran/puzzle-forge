@@ -1,7 +1,7 @@
 # STATUS
 
 - Current phase: P9
-- Current task: P9.2
-- What works: P8.1 necessity engine + L4 check; Case Vault design in docs/CASEVAULT.md
+- Current task: P9.3
+- What works: P8.1 necessity; P9 Case Vault site (apps/casevault) + forge vault client
 - Known issues: none
-- Next: P9.2 forge/vault: answers HMAC, Book Codes, outbox, forge vault sync/status
+- Next: P9.3 case_vault last page with domain + QR; QA L4.vault_page
