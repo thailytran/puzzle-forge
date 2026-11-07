@@ -45,7 +45,12 @@ class SkuConfig:
 
 
 def provider_from_env(db_path: Path) -> SkuPort:
-    kind = os.environ.get("FORGE_SKU_PROVIDER", "hub").lower()
+    from forge.config import get_settings
+
+    st = get_settings()
+    kind = st.sku_provider
+    if kind == "dev" and st.is_prod:
+        raise SkuError("FORGE_ENV=prod refuses the dev SKU provider (DEV- SKUs are for tests only)")
     if kind == "dev":
         from forge.adapters.sku_dev import DevSkuProvider
 
@@ -53,7 +58,7 @@ def provider_from_env(db_path: Path) -> SkuPort:
     if kind == "hub":
         from forge.adapters.sku_hub import HubSkuProvider
 
-        return HubSkuProvider(os.environ.get("HUB_URL", ""), os.environ.get("HUB_TOKEN", ""))
+        return HubSkuProvider(os.environ.get("HUB_URL", ""), st.secret("HUB_TOKEN"))
     raise SkuError(f"FORGE_SKU_PROVIDER must be hub or dev, got {kind!r}")
 
 

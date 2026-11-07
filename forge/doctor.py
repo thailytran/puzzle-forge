@@ -76,10 +76,21 @@ def check_db(settings: Settings) -> CheckResult:
     return CheckResult("Database", "ok", f"{settings.db_path} ({total} puzzles)")
 
 
-def check_env_file(root: Path = REPO_ROOT) -> CheckResult:
-    if (Path.cwd() / ".env").is_file() or (root / ".env").is_file():
-        return CheckResult(".env", "ok", "found")
-    return CheckResult(".env", "warn", "missing — cp .env.example .env")
+def check_env_file(root: Path = REPO_ROOT, settings: Settings | None = None) -> CheckResult:
+    f = settings.config_file if settings else Path.cwd() / ".env"
+    if not f.is_file() and not (root / ".env").is_file():
+        return CheckResult("Config file", "warn", f"missing — {f} (cp .env.example)")
+    if f.is_file() and f.stat().st_mode & 0o077:
+        return CheckResult("Config file", "warn", f"{f} readable by others: chmod 600 {f}")
+    return CheckResult("Config file", "ok", str(f) if f.is_file() else str(root / ".env"))
+
+
+def check_environment(settings: Settings) -> CheckResult:
+    detail = f"FORGE_ENV={settings.env}, data={settings.data_dir}, SKU={settings.sku_provider}"
+    if settings.is_prod and settings.sku_provider == "dev":
+        return CheckResult("Environment", "fail", detail + " — prod must not use DEV SKUs")
+    vault = settings.vault_url or "not set (registrations stay queued)"
+    return CheckResult("Environment", "ok", f"{detail}, Case Vault={vault}")
 
 
 def check_api_keys(settings: Settings) -> CheckResult:
@@ -88,6 +99,7 @@ def check_api_keys(settings: Settings) -> CheckResult:
         for name, val in (
             ("ANTHROPIC_API_KEY", settings.anthropic_api_key),
             ("OPENAI_API_KEY", settings.openai_api_key),
+            ("GEMINI_API_KEY", settings.gemini_api_key),
         )
         if val
     ]
@@ -120,7 +132,8 @@ def run_all(settings: Settings) -> list[CheckResult]:
         check_fonts,
         lambda: check_output_dir(settings),
         lambda: check_db(settings),
-        check_env_file,
+        lambda: check_env_file(REPO_ROOT, settings),
+        lambda: check_environment(settings),
         lambda: check_api_keys(settings),
         check_render,
     ]

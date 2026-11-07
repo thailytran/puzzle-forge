@@ -7,6 +7,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 ## [Unreleased]
 
 - P10.1: versioning: single semver source (pyproject), forge --version with git sha + env, CHANGELOG Unreleased/version sections, release workflow (tag v* -> tests -> wheel + source tarball + SHA256SUMS -> GitHub Release), Case Vault image workflow (tag casevault-v* -> GHCR)
+- P10.2: FORGE_ENV dev/test/prod: config from env / $FORGE_CONFIG / /etc/puzzle-forge/forge.env / .env, FORGE_DATA_DIR paths, encrypted secret store (Fernet, 600), test = DevSkuProvider + Case Vault staging or mock, prod refuses DEV SKUs, doctor shows environment + config permissions
 
 ## [0.1.0] - 2026-11-07 — development history (P0–P9)
 

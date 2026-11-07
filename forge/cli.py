@@ -344,7 +344,7 @@ def review(
 def _vault_on_approved(out_dir: Path) -> None:
     """APPROVED -> register on Case Vault (queued; offline = retried by `forge vault sync`)."""
     from forge.vault.spec import load_vault_spec
-    from forge.vault.sync import VaultError, VaultOutbox, build_payload, http_sender
+    from forge.vault.sync import VaultError, VaultOutbox, build_payload, sender_for
 
     st = get_settings()
     if load_vault_spec(out_dir) is None:
@@ -358,8 +358,8 @@ def _vault_on_approved(out_dir: Path) -> None:
     box = VaultOutbox(st.db_path)
     try:
         box.enqueue(payload["book_id"], payload)
-        if st.vault_url and st.vault_token:
-            res = box.sync(http_sender(st.vault_url, st.vault_token))
+        if st.vault_url and (st.vault_token or st.vault_url == "mock"):
+            res = box.sync(sender_for(st.vault_url, st.vault_token, st.data_dir))
             typer.echo(f"Case Vault: sent {res['sent']}, queued for retry {res['failed']}")
         else:
             typer.echo(
@@ -409,11 +409,11 @@ def vault_codes(
 @vault_app.command("sync")
 def vault_sync(force: bool = typer.Option(False, "--force", help="Ignore the retry delay")) -> None:
     """Send queued registrations to the Case Vault site (retry with back-off when offline)."""
-    from forge.vault.sync import VaultError, VaultOutbox, http_sender
+    from forge.vault.sync import VaultError, VaultOutbox, sender_for
 
     st = get_settings()
     try:
-        sender = http_sender(st.vault_url, st.vault_token)
+        sender = sender_for(st.vault_url, st.vault_token, st.data_dir)
     except VaultError as exc:
         typer.secho(str(exc), fg=typer.colors.RED, err=True)
         raise typer.Exit(1) from exc

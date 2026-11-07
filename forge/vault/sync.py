@@ -60,6 +60,21 @@ def http_sender(base_url: str, token: str) -> Sender:
     return send
 
 
+def sender_for(url: str, token: str, data_dir: Path) -> Sender:
+    """`VAULT_URL=mock` (test env without a staging site): payloads are written to
+    <data>/vault_mock/<book_id>.json instead of being sent."""
+    if url.strip().lower() == "mock":
+        out = data_dir / "vault_mock"
+
+        def write(payload: dict[str, Any]) -> dict[str, Any]:
+            out.mkdir(parents=True, exist_ok=True)
+            (out / f"{payload['book_id']}.json").write_text(json.dumps(payload, indent=1))
+            return {"book_id": payload["book_id"], "mock": True}
+
+        return write
+    return http_sender(url, token)
+
+
 def _cover_png(out_dir: Path) -> str:
     pdf = out_dir / "cover.pdf"
     if not pdf.is_file():
