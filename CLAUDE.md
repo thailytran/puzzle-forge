@@ -149,6 +149,9 @@ uv run forge vault status [<book_id>]                      # registration queue
 uv run forge ai test [--call]                              # AI provider keys + model lists (+ one tiny paid call)
 uv run forge ai models anthropic|openai|gemini              # models offered by the provider API
 uv run forge ai usage [--by task|provider|model|book_id|day] [--days 30]   # AI cost report + budget
+uv run forge worker [--once]                               # run queued jobs (systemd forge-worker)
+uv run forge web set-password                              # owner password for the web UI
+uv run forge web run [--host 100.x.y.z] [--port 8710]      # web UI (localhost / Tailscale only; systemd forge-web)
 uv run pytest -q apps/casevault/tests                      # Case Vault website tests (E2E, providers mocked)
 uv run uvicorn casevault.web:app_factory --factory --reload   # run the website locally (apps/casevault/.env)
 ```

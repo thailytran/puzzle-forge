@@ -309,64 +309,28 @@ def review(
     note: str = typer.Option("", "--note"),
     by: str = typer.Option("owner", "--by"),
 ) -> None:
-    """Manual review (until the web UI): MANUAL_REVIEW -> APPROVED | REJECTED (+ note)."""
-    import json as _json
-
-    from forge.qa.gate import sync_state
-    from forge.qa.state import IllegalTransition, StateStore
+    """Manual review: MANUAL_REVIEW -> APPROVED | REJECTED (+ note). APPROVED -> Case Vault."""
+    from forge.book.review import ReviewError, review_book
 
     if approve == reject:
         typer.secho("choose exactly one of --approve / --reject", fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
-    book_id = _json.loads((out_dir / "manifest.json").read_text())["book_id"]
-    with StateStore(get_settings().db_path) as store:
-        state = sync_state(store, book_id, out_dir)
-        if state != "MANUAL_REVIEW":
-            typer.secho(
-                f"{book_id} is {state}; only MANUAL_REVIEW books can be reviewed "
-                "(QA_PASSED -> SKU -> metadata first, see docs/QA_SPEC.md)",
-                fg=typer.colors.RED,
-                err=True,
-            )
-            raise typer.Exit(1)
-        try:
-            store.transition(book_id, "APPROVED" if approve else "REJECTED", actor=by, note=note)
-            if reject:
-                store.transition(book_id, "DRAFT", actor=by, note="rejected: " + note)
-        except IllegalTransition as exc:
-            typer.secho(str(exc), fg=typer.colors.RED, err=True)
-            raise typer.Exit(1) from exc
-    typer.echo(f"{book_id}: {'APPROVED' if approve else 'REJECTED -> DRAFT'}")
+    try:
+        res = review_book(out_dir, approve, note, by, get_settings())
+    except ReviewError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    book_id = json.loads((out_dir / "manifest.json").read_text())["book_id"]
+    typer.echo(f"{book_id}: {res}")
     if approve:
         _vault_on_approved(out_dir)
 
 
 def _vault_on_approved(out_dir: Path) -> None:
     """APPROVED -> register on Case Vault (queued; offline = retried by `forge vault sync`)."""
-    from forge.vault.spec import load_vault_spec
-    from forge.vault.sync import VaultError, VaultOutbox, build_payload, sender_for
+    from forge.book.review import vault_on_approved
 
-    st = get_settings()
-    if load_vault_spec(out_dir) is None:
-        typer.echo("Case Vault: no vault.yaml (classic book) - not registered")
-        return
-    try:
-        payload = build_payload(out_dir, st.vault_answer_key)
-    except VaultError as exc:
-        typer.secho(f"Case Vault: {exc}", fg=typer.colors.YELLOW, err=True)
-        return
-    box = VaultOutbox(st.db_path)
-    try:
-        box.enqueue(payload["book_id"], payload)
-        if st.vault_url and (st.vault_token or st.vault_url == "mock"):
-            res = box.sync(sender_for(st.vault_url, st.vault_token, st.data_dir))
-            typer.echo(f"Case Vault: sent {res['sent']}, queued for retry {res['failed']}")
-        else:
-            typer.echo(
-                "Case Vault: queued (set VAULT_URL + VAULT_ADMIN_TOKEN, then `forge vault sync`)"
-            )
-    finally:
-        box.close()
+    typer.echo(vault_on_approved(out_dir, get_settings()))
 
 
 vault_app = typer.Typer(
@@ -529,6 +493,97 @@ def ai_usage(
         f"today ${day:.2f} / ${b.get('daily_usd', 0):.2f}   "
         f"month ${month:.2f} / ${b.get('monthly_usd', 0):.2f}   (FORGE_ENV={st.env})"
     )
+
+
+@app.command()
+def worker(
+    once: bool = typer.Option(False, "--once", help="Run the queue until empty, then exit"),
+    poll: float = typer.Option(5.0, help="Seconds between queue checks"),
+) -> None:
+    """Run queued jobs (build book + QA, QA re-run, Case Vault sync). systemd: forge-worker."""
+    import time
+
+    from forge.jobs import JobQueue, run_one
+    from forge.notify import notifier_from
+
+    st = get_settings()
+    q = JobQueue(st.db_path)
+    n = q.requeue_stale()
+    if n:
+        typer.echo(f"re-queued {n} job(s) left running by a restart")
+    notify = notifier_from(st).text
+    last_sync = 0.0
+    try:
+        while True:
+            job = run_one(q, st, notify)
+            if job is not None:
+                typer.echo(f"job #{job.id} {job.kind}: {job.status} {job.result[:200]}")
+                continue
+            if once:
+                break
+            if time.time() - last_sync > 600 and st.vault_url:  # retry Case Vault outbox
+                from forge.vault.sync import VaultOutbox, sender_for
+
+                box = VaultOutbox(st.db_path)
+                try:
+                    box.sync(sender_for(st.vault_url, st.vault_token, st.data_dir))
+                except Exception as exc:  # offline site: retried later
+                    typer.echo(f"vault sync: {exc}")
+                finally:
+                    box.close()
+                last_sync = time.time()
+            time.sleep(poll)
+    finally:
+        q.close()
+
+
+web_app = typer.Typer(help="Web UI + API (owner login; Tailscale / localhost only).")
+app.add_typer(web_app, name="web")
+
+
+@web_app.command("run")
+def web_run(
+    host: str = typer.Option("", help="Default FORGE_WEB_HOST (127.0.0.1 or the Tailscale IP)"),
+    port: int = typer.Option(0, help="Default FORGE_WEB_PORT (8710)"),
+) -> None:
+    """Serve the web UI. Refuses 0.0.0.0 / public addresses: use localhost or Tailscale (100.x)."""
+    import ipaddress
+
+    import uvicorn
+
+    st = get_settings()
+    h = host or st.web_host
+    try:
+        ip = ipaddress.ip_address(h)
+        tailscale = ip in ipaddress.ip_network("100.64.0.0/10")
+        if not (ip.is_loopback or tailscale):
+            typer.secho(
+                f"{h} is not localhost or a Tailscale address - refused",
+                err=True,
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(2)
+    except ValueError as exc:
+        if h != "localhost":
+            typer.secho(f"bad host {h}", err=True, fg=typer.colors.RED)
+            raise typer.Exit(2) from exc
+    from forge.web.app import create_app
+
+    uvicorn.run(create_app(st), host=h, port=port or st.web_port, log_level="info", access_log=True)
+
+
+@web_app.command("set-password")
+def web_set_password() -> None:
+    """Set the owner password for the web UI (stored as a scrypt hash, encrypted)."""
+    from forge.secrets import SecretStore
+    from forge.web.auth import hash_password
+
+    pw = typer.prompt("New password (min 12 chars)", hide_input=True, confirmation_prompt=True)
+    if len(pw) < 12:
+        typer.secho("too short", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
+    SecretStore(get_settings().config_dir).set("FORGE_WEB_PASSWORD_HASH", hash_password(pw))
+    typer.echo("password saved")
 
 
 sku_app = typer.Typer(help="SKU from the HALOSPARK Product Hub (configs/sku.yaml).")

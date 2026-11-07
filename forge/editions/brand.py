@@ -36,9 +36,22 @@ class Brand:
         return f"© {self.year} {self.name} • {self.website}"
 
 
-@lru_cache(maxsize=4)
-def load_brand(path: Path = BRAND_PATH) -> Brand:
-    raw: dict[str, Any] = yaml.safe_load(path.read_text(encoding="utf-8"))
+def brand_path() -> Path:
+    """<config_dir>/brand.yaml (edited in the web UI) wins over configs/brand.yaml."""
+    from forge.config import get_settings
+
+    override = get_settings().config_dir / "brand.yaml"
+    return override if override.is_file() else BRAND_PATH
+
+
+@lru_cache(maxsize=8)
+def _read(path: str, mtime: float) -> dict[str, Any]:
+    return dict(yaml.safe_load(Path(path).read_text(encoding="utf-8")))
+
+
+def load_brand(path: Path | None = None) -> Brand:
+    path = path or brand_path()
+    raw = _read(str(path), path.stat().st_mtime)
     wm = raw.get("watermark", {})
     return Brand(
         name=str(raw["brand_name"]),
