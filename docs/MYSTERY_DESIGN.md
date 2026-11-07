@@ -52,20 +52,26 @@ class ChapterPlan(BaseModel): n, title, story_beats, puzzles: list[PuzzleSpec], 
 class MysteryBook(BaseModel): bible, graph, chapters, meta_puzzle, page_plan
 ```
 
-## 5. Generation pipeline (each stage validated, cached, editable by the owner)
+## 5. Generation pipeline — stages S1–S10 (order learned from Artefactum, see docs/REFERENCES.md)
 
-1. **Brief** (owner): template or free text, audience, length, tone, single/series.
-2. **Case Bible** (AI → JSON) → validator: one culprit, consistent timeline, every character has motive/alibi.
-3. **Clue Graph** (AI proposes, code validates): DAG, every knot reachable, ≥2 evidence per knot, final knot
-   depends on all chapter keys, no evidence reveals the culprit alone.
-4. **Chapter plan** (code): 10 chapters × ~9 pages; assigns puzzle types by audience + difficulty curve.
-5. **Puzzle generation** (code): each puzzle built with constraints so it yields its token → verified.
-6. **Prose** (AI): chapter intros, case-file documents (letters, newspaper clippings, interrogation notes),
-   transitions; references only facts allowed up to that chapter (spoiler guard checked by code + AI).
-7. **Meta-puzzle** + final reveal + solutions with step-by-step reasoning.
-8. **Playtest** (AI agent sees only reader-visible text + its own puzzle answers from the solver) → reports
-   where it got stuck / could guess early. Fix loop.
-9. **Layout** → interior.pdf; **cover + listing**.
+Each stage: **AI proposes JSON → code validates (pydantic + rules) → saved as editable YAML** in
+`output/<book_id>/stages/Sx_<name>.yaml`. The owner may edit any YAML; re-run from any stage with
+`forge mystery build <case.yaml> --from-stage S4` (later stages are regenerated, earlier ones are read
+back from YAML and re-validated). A stage that fails validation is retried with the error message
+(max 2), then the build stops with the validation report. Tests use recorded fixtures (no real AI).
+
+| Stage | Output | Validation (code) |
+|---|---|---|
+| S1 Brief | genre, audience, tone, length, single/series, template | enums, length bounds, kid rules (no murder for kids) |
+| S2 Characters | 5–8 characters: name, role, look, secret, motive, alibi; exactly 1 culprit | unique names, no near-duplicates (edit distance ≤ 2 or same first letter+length), every character has a motive, exactly one `is_culprit` |
+| S3 Relationships | matrix for every pair: relation, attitude, known_secrets | symmetric relation types, consistent with secrets (A cannot "not know" a secret A appears in) |
+| S4 Truth Timeline | what REALLY happened: events `{t_start, t_end, who[], where, what}` | nobody in two places at once, culprit has opportunity (at scene in the crime window), every false alibi contradicts ≥ 1 event (QA L4.timeline) |
+| S5 Story Arc | 10 chapters (8 for kids): knots, climax, twist, ending | chapter count, every knot assigned to a chapter, twist after midpoint |
+| S6 Clue Graph | causal graph (§9) | DAG, reachability, ≥ 2 evidence per knot, final depends on all chapter keys |
+| S7 Evidence ↔ puzzles | each evidence: token + `PuzzleSpec` with constraint | every token producible by its puzzle type, generator + verify succeed |
+| S8 Prose + case documents | chapter intros, letters, clippings, interrogation transcripts | grounded: only facts from the graph unlocked up to that chapter (spoiler guard L4.spoilers); reveal rules respected |
+| S9 Hook / teaser / book_card | marketing text (QA_SPEC §5) | L5 (no spoilers, limits, names) |
+| S10 Render | Typst interior + solutions | QA L1–L4 |
 
 ## 6. Page plan (adult, ~100 pages)
 
