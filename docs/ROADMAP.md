@@ -17,8 +17,8 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [x] P1.3 Maze: generator + solver, sizes by level, SVG render, solution path; constraint `path_letters`.
 - [x] P1.4 Word scramble + Cryptogram: unique answers, quote source = own/public domain only.
 - [x] P1.5 Crossword (own filler, no GPL): grid templates by size, fill from word list, numbering, clue list render.
-- [ ] P1.6 Book builder: progressive / mixed / by_section modes, front matter, TOC, solutions section, `forge book build` + `forge book verify`.
-- [ ] P1.7 QA preflight + `qa_report.md` + preview PNGs.
+- [x] P1.6 Book builder: progressive / mixed / by_section modes, front matter, TOC, solutions section, `forge book build` + `forge book verify`.
+- [x] P1.7 QA preflight + report + preview PNGs → merged into PQ.3 (preflight, thumbnails) and PQ.5 (report).
 
 ## PQ — QA gate (before the P1 milestone; see docs/QA_SPEC.md)
 - [ ] PQ.1 QA framework: check registry (id, BLOCKER/MAJOR/MINOR, evidence), book state machine with history (SQLite), report hash lock (interior/cover/manifest sha256), waivers, auto-fix loop hook.

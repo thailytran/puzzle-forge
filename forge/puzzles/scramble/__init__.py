@@ -223,4 +223,5 @@ class Scramble:
                     "right": puzzle.solution["bonus"],
                 }
             )
-        return RenderedBlock(blocks=[{"kind": "answer_lines", "rows": rows, "font_pt": 11.0}])
+        size = 11.0 if ctx.width_in > 5 else 8.0
+        return RenderedBlock(blocks=[{"kind": "answer_lines", "rows": rows, "font_pt": size}])

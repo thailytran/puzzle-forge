@@ -201,6 +201,17 @@
     cryptogram(b)
   } else if k == "crossword_grid" {
     crossword-grid(b)
+  } else if k == "cells" {
+    grid(
+      columns: (1fr,) * b.columns,
+      column-gutter: 0.25in,
+      row-gutter: 0.2in,
+      ..b.items.map(it => block(breakable: false, {
+        text(font: L.fonts.sans, weight: "bold", size: 0.85 * base, it.title)
+        v(0.2em)
+        for x in it.blocks { render-block(x) }
+      })),
+    )
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {

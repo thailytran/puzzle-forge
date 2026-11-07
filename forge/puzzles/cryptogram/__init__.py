@@ -283,7 +283,7 @@ class Cryptogram:
         return {
             "kind": "cryptogram",
             "words": words,
-            "font_pt": 20.0 if ctx.large_print else 16.0,
+            "font_pt": (20.0 if ctx.large_print else 16.0) if ctx.width_in > 5 else 9.0,
             "source": puzzle.data.get("source", ""),
         }
 

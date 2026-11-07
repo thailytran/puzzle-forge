@@ -150,6 +150,44 @@ def puzzle(
         typer.secho(f"preview skipped: {exc}", fg=typer.colors.YELLOW, err=True)
 
 
+book_app = typer.Typer(help="Build and verify whole books.")
+app.add_typer(book_app, name="book")
+
+
+@book_app.command("build")
+def book_build(
+    spec_path: Path = typer.Argument(..., help="Book YAML (configs/books/...)"),
+    no_render: bool = typer.Option(False, "--no-render", help="Skip the PDF (plan + puzzles only)"),
+) -> None:
+    """Generate all puzzles (verified, catalog-unique) and render interior.pdf + manifest.json."""
+    from forge.book.builder import BuildError, build_book
+    from forge.core.book import load_book_spec
+    from forge.layout.typst_runner import TypstError
+
+    settings = get_settings()
+    try:
+        out = build_book(
+            load_book_spec(spec_path), settings.output_dir, settings.db_path, render=not no_render
+        )
+    except (BuildError, TypstError, FileNotFoundError, ValueError) as exc:
+        typer.secho(f"build failed: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"built {out}")
+
+
+@book_app.command("verify")
+def book_verify(out_dir: Path = typer.Argument(..., help="output/<book_id>")) -> None:
+    """Re-verify every puzzle of a built book with its independent solver."""
+    from forge.book.builder import verify_book
+
+    problems = verify_book(out_dir)
+    for p in problems:
+        typer.secho(p, fg=typer.colors.RED)
+    if problems:
+        raise typer.Exit(1)
+    typer.secho("all puzzles verified", fg=typer.colors.GREEN)
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 

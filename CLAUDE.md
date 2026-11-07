@@ -120,7 +120,8 @@ uv run forge puzzle maze --level medium --seed 4             # SVG maze; solutio
 uv run forge puzzle scramble --theme ocean --level medium      # unique anagrams (ENABLE dictionary)
 uv run forge puzzle cryptogram --level hard                     # PD quotes; hints added until unique
 uv run forge puzzle crossword --theme ocean --level medium      # fill-in criss-cross (clue mode after P2.3)
-uv run forge book build configs/books/example_wordsearch.yaml
+uv run forge book build configs/books/example_wordsearch.yaml   # also example_mixed / example_sudoku_large_print
+uv run forge book build <spec.yaml> --no-render                  # puzzles + manifest only
 uv run forge book verify output/<book_id>
 ```
 
