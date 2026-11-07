@@ -42,11 +42,11 @@ class CgParams:
 
 
 _BY_LEVEL: dict[Level, CgParams] = {
-    "very_easy": CgParams(3, 6, 5),
-    "easy": CgParams(4, 8, 3),
-    "medium": CgParams(5, 10, 1),
-    "hard": CgParams(6, 14, 0),
-    "expert": CgParams(9, 30, 0),
+    "very_easy": CgParams(3, 5, 5),
+    "easy": CgParams(4, 6, 3),
+    "medium": CgParams(6, 8, 1),
+    "hard": CgParams(8, 12, 0),
+    "expert": CgParams(11, 30, 0),
 }
 
 
@@ -257,13 +257,11 @@ class Cryptogram:
         total = sum(len(w) for w in plain_words(plain))
         f = {
             "hint_ratio": 1 - clamp01(hints / max(n_letters, 1) / 0.6),
-            "length": clamp01((total - 15) / (75 - 15)),
+            "length": clamp01((total - 12) / (45 - 12)),
             "distinct_letters": clamp01((n_letters - 8) / (20 - 8)),
         }
-        score = round(
-            5 + 90 * (0.45 * f["hint_ratio"] + 0.35 * f["length"] + 0.2 * f["distinct_letters"]),
-            1,
-        )
+        mix = 0.55 * f["length"] + 0.25 * f["distinct_letters"] + 0.2 * f["hint_ratio"]
+        score = round(5 + 95 * mix, 1)
         return DifficultyScore(score=score, label=level_from_score(score), features=f)
 
     def _block(self, puzzle: Puzzle, ctx: RenderCtx, solution: bool) -> dict[str, Any]:

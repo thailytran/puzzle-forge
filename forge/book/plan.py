@@ -11,6 +11,20 @@ from forge.core.seeds import derive_seed, make_rng
 from forge.wordlists import available_themes
 
 THEMED_TYPES = frozenset({"wordsearch", "scramble", "crossword"})
+# Highest level a type can honestly reach (measured difficulty) and per-audience ceilings
+# (SPEC §3: kids 6-8 use the very_easy/easy bands). Requests above are capped and recorded.
+TYPE_MAX_LEVEL: dict[str, Level] = {"scramble": "hard", "cryptogram": "hard"}
+AUDIENCE_MAX_LEVEL: dict[str, Level] = {"kids_6_8": "easy"}
+
+
+def cap_level(level: Level, type_: str, audience: str) -> Level:
+    caps = [c for c in (TYPE_MAX_LEVEL.get(type_), AUDIENCE_MAX_LEVEL.get(audience)) if c]
+    for c in caps:
+        if LEVELS.index(level) > LEVELS.index(c):
+            level = c
+    return level
+
+
 SECTION = 10
 
 
@@ -21,6 +35,7 @@ class Slot:
     level: Level
     theme: str | None
     options: dict[str, Any] = field(default_factory=dict)
+    requested_level: Level | None = None  # set when the level was capped
 
 
 def _type_sequence(spec: BookSpec, n: int) -> list[int]:
@@ -96,5 +111,7 @@ def plan_book(spec: BookSpec) -> list[Slot]:
             for k, v in entry.options.items()
             if not (k == "directions" and v == "auto_by_level")
         }
-        slots.append(Slot(i, entry.type, levels[i], theme, opts))
+        level = cap_level(levels[i], entry.type, spec.book.audience)
+        requested = levels[i] if level != levels[i] else None
+        slots.append(Slot(i, entry.type, level, theme, opts, requested))
     return slots

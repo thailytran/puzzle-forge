@@ -14,7 +14,7 @@ from forge import __version__
 from forge.book.plan import Slot, plan_book
 from forge.book.texts import ABOUT, COPYRIGHT, HOW_TO_PLAY, THANK_YOU
 from forge.core.book import BookSpec
-from forge.core.models import Puzzle, PuzzleSpec
+from forge.core.models import LEVELS, Puzzle, PuzzleSpec
 from forge.core.protocol import RenderCtx
 from forge.core.registry import Registry
 from forge.core.seeds import derive_seed
@@ -22,8 +22,9 @@ from forge.layout.document import LayoutDoc, Page, make_layout
 from forge.layout.trim import TRIMS, margins_for
 from forge.puzzles.base import GenerationError
 from forge.puzzles.registry import get_puzzle_type
+from forge.qa.l1 import band_ok
 
-MAX_SEED_TRIES = 8
+MAX_SEED_TRIES = 30
 TITLE_SPACE_IN = 0.9
 SOLUTION_TITLE_IN = 0.35
 
@@ -54,20 +55,32 @@ def generate_puzzles(spec: BookSpec, book_id: str, registry: Registry) -> list[P
             options=slot.options,
         )
         last: Exception | None = None
+        best: tuple[int, Puzzle] | None = None
         for attempt in range(MAX_SEED_TRIES):
             try:
                 pz = pt.generate(ps, puzzle_seed(spec, slot, attempt))
             except GenerationError as exc:
                 last = exc
                 continue
-            if pz.content_hash in seen or not registry.try_add(pz, book_id):
+            if pz.content_hash in seen or registry.owner(pz.content_hash) not in (None, book_id):
                 last = GenerationError(f"duplicate {pz.id}")
                 continue
-            seen.add(pz.content_hash)
-            out.append(pz)
-            break
-        else:
+            label = pz.difficulty.label if pz.difficulty else slot.level
+            dist = (
+                0
+                if band_ok(slot.level, label, ps.audience)
+                else abs(LEVELS.index(label) - LEVELS.index(slot.level))
+            )
+            if best is None or dist < best[0]:
+                best = (dist, pz)
+            if dist == 0:
+                break
+        if best is None:
             raise BuildError(f"puzzle #{slot.index + 1} ({slot.type}, {slot.level}): {last}")
+        pz = best[1]  # closest band if no exact match: QA L1.difficulty_band will report it
+        registry.add(pz, book_id)
+        seen.add(pz.content_hash)
+        out.append(pz)
     return out
 
 
@@ -198,6 +211,7 @@ def layout_book(spec: BookSpec, puzzles: list[Puzzle], est_pages: int = 150) -> 
 
 
 def manifest(spec: BookSpec, book_id: str, puzzles: list[Puzzle], built: Built) -> dict[str, Any]:
+    requested = {s.index: s.requested_level for s in plan_book(spec) if s.requested_level}
     return {
         "book_id": book_id,
         "forge_version": __version__,
@@ -210,6 +224,7 @@ def manifest(spec: BookSpec, book_id: str, puzzles: list[Puzzle], built: Built) 
                 "id": p.id,
                 "type": p.type,
                 "level": p.spec.level,
+                "requested_level": requested.get(n - 1),
                 "theme": p.spec.theme,
                 "seed": p.seed,
                 "content_hash": p.content_hash,

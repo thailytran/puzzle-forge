@@ -11,7 +11,7 @@ book:
   seed: 20261106
 puzzles:
   mode: progressive         # progressive | mixed | by_section
-  distribution: { easy: 30, medium: 40, hard: 30 }
+  distribution: { very_easy: 40, easy: 60 }   # kids 6-8 use the very_easy/easy bands (SPEC §3)
   types:
     - { type: wordsearch, weight: 1.0, options: { directions: auto_by_level } }
   themes: auto              # auto = AI picks 100 sub-themes from book theme; or explicit list

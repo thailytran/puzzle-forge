@@ -78,6 +78,10 @@ class Registry:
         ).fetchone()
         return None if row is None else str(row[0])
 
+    def owner(self, content_hash: str) -> str | None:
+        """Book that registered this puzzle, if any."""
+        return self._book_of(content_hash)
+
     def contains(self, content_hash: str) -> bool:
         return self._book_of(content_hash) is not None
 
