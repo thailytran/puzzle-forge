@@ -42,7 +42,11 @@ def puzzle_seed(spec: BookSpec, slot: Slot, attempt: int) -> int:
     return derive_seed(spec.book.seed, "puzzle", slot.index, attempt)
 
 
-def generate_puzzles(spec: BookSpec, book_id: str, registry: Registry) -> list[Puzzle]:
+def generate_puzzles(
+    spec: BookSpec, book_id: str, registry: Registry, offsets: dict[int, int] | None = None
+) -> list[Puzzle]:
+    """`offsets[slot]` shifts the seed attempts of a slot (used by the QA auto-fixer)."""
+    offsets = offsets or {}
     out: list[Puzzle] = []
     seen: set[str] = set()
     for slot in plan_book(spec):
@@ -58,7 +62,7 @@ def generate_puzzles(spec: BookSpec, book_id: str, registry: Registry) -> list[P
         best: tuple[int, Puzzle] | None = None
         for attempt in range(MAX_SEED_TRIES):
             try:
-                pz = pt.generate(ps, puzzle_seed(spec, slot, attempt))
+                pz = pt.generate(ps, puzzle_seed(spec, slot, attempt + offsets.get(slot.index, 0)))
             except GenerationError as exc:
                 last = exc
                 continue
@@ -238,12 +242,21 @@ def manifest(spec: BookSpec, book_id: str, puzzles: list[Puzzle], built: Built) 
     }
 
 
+FIX_OFFSETS = "qa/fix_offsets.json"
+
+
+def load_offsets(out_dir: Path) -> dict[int, int]:
+    p = out_dir / FIX_OFFSETS
+    return {int(k): int(v) for k, v in json.loads(p.read_text()).items()} if p.is_file() else {}
+
+
 def build_book(spec: BookSpec, out_root: Path, db_path: Path, render: bool = True) -> Path:
     book_id = book_id_for(spec)
     out = out_root / book_id
     out.mkdir(parents=True, exist_ok=True)
     with Registry(db_path) as reg:
-        puzzles = generate_puzzles(spec, book_id, reg)
+        reg.remove_book(book_id)  # rebuild = this book's puzzles are re-registered
+        puzzles = generate_puzzles(spec, book_id, reg, load_offsets(out))
     built = layout_book(spec, puzzles)
     built = layout_book(spec, puzzles, est_pages=len(built.doc.pages))  # gutter by real count
     (out / "puzzles.jsonl").write_text(

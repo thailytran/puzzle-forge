@@ -16,6 +16,7 @@ from forge.qa.checks import run_checks
 from forge.qa.state import StateStore
 
 CHECK_MODULES = ("forge.qa.l1", "forge.qa.l2", "forge.qa.l3")
+REVIEWABLE = "MANUAL_REVIEW"
 DEFAULT_MAX_FIX_ROUNDS = 3
 
 
@@ -86,6 +87,9 @@ def run_gate(
             results = run_checks(ctx, layers)
             report = rpt.score(book_id, out_dir, results, started, fix_rounds=rounds)
             rpt.save(report, out_dir)
+            from forge.qa.html import render_html
+
+            render_html(report, out_dir)
             if report.result == "PASSED":
                 store.transition(book_id, "QA_PASSED", note=report.run_id)
                 return report

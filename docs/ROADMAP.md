@@ -25,7 +25,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [x] PQ.2 L1 per-puzzle checks: dual solver, uniqueness, type rules, difficulty band, kid safety, catalog uniqueness.
 - [x] PQ.3 L2 per-page checks + data extraction from the rendered PDF ("printed = verified"), thumbnails.
 - [x] PQ.4 L3 book checks (counts, distribution, TOC, matter, placeholders) + proofread (dictionary now, AI after P2).
-- [ ] PQ.5 qa_report.json + qa_report.html, `forge qa run`, `forge book status`, `forge review --approve|--reject`.
+- [x] PQ.5 qa_report.json + qa_report.html, `forge qa run`, `forge book status`, `forge review --approve|--reject`.
 
 - [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku); done only when all 3 reach **QA_PASSED**; owner reviews PDFs + QA reports.
 

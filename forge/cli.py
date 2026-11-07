@@ -188,6 +188,128 @@ def book_verify(out_dir: Path = typer.Argument(..., help="output/<book_id>")) ->
     typer.secho("all puzzles verified", fg=typer.colors.GREEN)
 
 
+qa_app = typer.Typer(help="QA gate (docs/QA_SPEC.md).")
+app.add_typer(qa_app, name="qa")
+
+
+@qa_app.command("run")
+def qa_run(
+    out_dir: Path = typer.Argument(..., help="output/<book_id>"),
+    fix_rounds: int = typer.Option(3, help="Auto-fix rounds (regenerate failing puzzles)"),
+    layers: str = typer.Option("", help="Comma list, e.g. L1,L2 (default: all)"),
+) -> None:
+    """Run all QA checks; writes qa/qa_report.json + qa_report.html. Exit 1 unless PASSED."""
+    from forge.qa.fixer import regenerate_failing
+    from forge.qa.gate import run_gate
+
+    sel = {x.strip() for x in layers.split(",") if x.strip()} or None
+    report = run_gate(
+        out_dir,
+        get_settings().db_path,
+        fixer=regenerate_failing,
+        max_fix_rounds=fix_rounds,
+        layers=sel,
+    )
+    for c in report.checks:
+        if c.status == "fail":
+            mark = "WAIVED" if c.waived else "FAIL"
+            typer.secho(
+                f"{mark:6} {c.level:7} {c.id}: {c.message}",
+                fg=typer.colors.YELLOW if c.waived else typer.colors.RED,
+            )
+    color = typer.colors.GREEN if report.result == "PASSED" else typer.colors.RED
+    typer.secho(f"{report.result}  {report.counts}", fg=color)
+    typer.echo(f"report: {out_dir / 'qa' / 'qa_report.html'}")
+    if report.result != "PASSED":
+        raise typer.Exit(1)
+
+
+@qa_app.command("waive")
+def qa_waive(
+    out_dir: Path = typer.Argument(...),
+    check_id: str = typer.Argument(...),
+    reason: str = typer.Option(..., "--reason"),
+    by: str = typer.Option("owner", "--by"),
+) -> None:
+    """Waive a MINOR check for the current files (re-run `forge qa run` afterwards)."""
+    from forge.qa.checks import REGISTRY
+    from forge.qa.gate import load_check_modules
+    from forge.qa.report import add_waiver
+
+    load_check_modules()
+    if check_id not in REGISTRY:
+        typer.secho(f"unknown check {check_id}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
+    try:
+        add_waiver(out_dir, check_id, reason, by, REGISTRY[check_id].level)
+    except ValueError as exc:
+        typer.secho(str(exc), fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"waived {check_id}")
+
+
+@book_app.command("status")
+def book_status(out_dir: Path = typer.Argument(..., help="output/<book_id>")) -> None:
+    """Show the book state, history and whether the QA report still matches the files."""
+    import json as _json
+
+    from forge.qa.gate import sync_state
+    from forge.qa.report import load, report_valid
+    from forge.qa.state import StateStore
+
+    book_id = _json.loads((out_dir / "manifest.json").read_text())["book_id"]
+    with StateStore(get_settings().db_path) as store:
+        state = sync_state(store, book_id, out_dir)
+        history = store.history(book_id)
+    rep = load(out_dir)
+    typer.echo(f"{book_id}: {state}")
+    if rep:
+        valid = (
+            "valid" if report_valid(out_dir) else ("stale" if rep.result == "PASSED" else "failed")
+        )
+        typer.echo(f"QA report {rep.run_id}: {rep.result} ({valid})")
+    for ev in history[-10:]:
+        typer.echo(f"  {ev.at}  {ev.from_state or '-'} -> {ev.to_state}  [{ev.actor}] {ev.note}")
+
+
+@app.command()
+def review(
+    out_dir: Path = typer.Argument(..., help="output/<book_id>"),
+    approve: bool = typer.Option(False, "--approve"),
+    reject: bool = typer.Option(False, "--reject"),
+    note: str = typer.Option("", "--note"),
+    by: str = typer.Option("owner", "--by"),
+) -> None:
+    """Manual review (until the web UI): MANUAL_REVIEW -> APPROVED | REJECTED (+ note)."""
+    import json as _json
+
+    from forge.qa.gate import sync_state
+    from forge.qa.state import IllegalTransition, StateStore
+
+    if approve == reject:
+        typer.secho("choose exactly one of --approve / --reject", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    book_id = _json.loads((out_dir / "manifest.json").read_text())["book_id"]
+    with StateStore(get_settings().db_path) as store:
+        state = sync_state(store, book_id, out_dir)
+        if state != "MANUAL_REVIEW":
+            typer.secho(
+                f"{book_id} is {state}; only MANUAL_REVIEW books can be reviewed "
+                "(QA_PASSED -> SKU -> metadata first, see docs/QA_SPEC.md)",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(1)
+        try:
+            store.transition(book_id, "APPROVED" if approve else "REJECTED", actor=by, note=note)
+            if reject:
+                store.transition(book_id, "DRAFT", actor=by, note="rejected: " + note)
+        except IllegalTransition as exc:
+            typer.secho(str(exc), fg=typer.colors.RED, err=True)
+            raise typer.Exit(1) from exc
+    typer.echo(f"{book_id}: {'APPROVED' if approve else 'REJECTED -> DRAFT'}")
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 

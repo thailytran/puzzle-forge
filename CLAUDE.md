@@ -123,6 +123,10 @@ uv run forge puzzle crossword --theme ocean --level medium      # fill-in criss-
 uv run forge book build configs/books/example_wordsearch.yaml   # also example_mixed / example_sudoku_large_print
 uv run forge book build <spec.yaml> --no-render                  # puzzles + manifest only
 uv run forge book verify output/<book_id>
+uv run forge qa run output/<book_id>              # QA gate L1-L3 (+auto-fix) -> qa/qa_report.html
+uv run forge qa waive output/<book_id> <check> --reason "..."   # MINOR checks only
+uv run forge book status output/<book_id>         # state, history, report valid/stale
+uv run forge review output/<book_id> --approve | --reject --note "..."   # MANUAL_REVIEW only
 ```
 
 Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is
