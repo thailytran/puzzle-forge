@@ -126,3 +126,33 @@ Every node has `requires: [node_id]` (all must be unlocked first) and `unlocks: 
 **Reveal rules** for characters (interrogation pages): `{character, info: fact_id, when: [evidence_id]}`
 — a character only states `info` on a page placed after the reader holds every `when` evidence.
 S8 must respect them and QA L4.reader_sim checks them.
+
+## 10. Logic grid + dual solvers + case uniqueness (ideas from env-zebra, own code)
+
+`forge/puzzles/logicgrid`:
+- Seeded generator: random solution (N entities × K categories), candidate clue pool
+  (`same`, `not_same`, `neighbor`, `left_of`, `immediately_left`, `position`, plus `either_or` for hard
+  levels), add clues until solver 1 finds exactly one solution, then prune while still unique.
+- Levels: easy 3x3 → medium 4x4 → hard 5x5 → very_hard 6x6 → extreme 7x5+ (book levels map
+  `expert` → very_hard/extreme).
+- Constraint `grid_solution(facts)`: the solution is built **from** the case truth (who / where /
+  weapon / time) instead of random, so the solved grid states the facts of the case.
+- Clue text from English templates; AI may only *rephrase* for flow. Code re-parses the rephrased
+  sentence back to the same clue tuple (template matching on entity names + relation keywords); if
+  it does not round-trip, the template text is kept.
+- **Solver 1**: domain propagation + backtracking (own code). **Solver 2**: different algorithm —
+  brute force over permutations for ≤ 5x5, OR-Tools CP-SAT (Apache-2.0) above. Both must return the
+  same single solution (QA L1.dual_solver / L1.unique).
+- The same engine checks **case uniqueness** (QA L4.case_unique): suspects × {place, weapon, time,
+  motive} are the grid, the evidence the reader holds before the accusation page are the clues;
+  both solvers must yield exactly one culprit; adding red herrings must not create a second one.
+
+## 11. Reader simulation (`forge/qa/reader_sim.py`)
+
+Walks the **printed page order**. The simulated reader holds only evidence from pages already
+read; when it meets a puzzle it "solves" it using the verified solver output (never the stored
+answer directly), turns the token into a page number with the encoder and jumps there. Checks
+(QA L4.reader_sim): evidence before the knot that needs it; token → encoder → page lands on the
+right page; every dead-end page points back correctly; no orphan page (every page reachable);
+reveal rules respected; the meta-puzzle's verified answer equals `final_answer`. Output goes into
+`qa_report.json`.
