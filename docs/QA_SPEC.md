@@ -59,6 +59,13 @@ IDs are stable; the registry lives in `forge/qa/checks.py`.
 | L2.instructions | MAJOR | Each puzzle type has a "how to play" page or intro line. |
 | L2.no_unintended_blank | MAJOR | No blank page except declared `notes`/`blank` pages. |
 | L2.thumbnails | MINOR | PNG thumbnail of every page exported (`previews/`). |
+| L2.page_count_match | BLOCKER | PDF page count == planned layout (nothing overflowed onto extra pages). |
+
+Implementation notes: pages are rasterized at 72 dpi with pypdfium2; "ink" = gray < 200. Safe area uses the
+KDP minimums (0.25" + gutter by page count; recto pages have the gutter on the left). Running headers/footers
+(top/bottom 0.5") are exempt from minimum text sizes; solutions/title/notes pages are exempt from size checks.
+L1.print_roundtrip compares whitespace-free page text with the verified data (grid letters in reading order,
+givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-renders maze SVGs byte-for-byte.
 
 ### L3 — sections / whole book
 | ID | Level | Check |

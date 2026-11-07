@@ -8,6 +8,8 @@ Only MIT / BSD / Apache / Expat / OFL / public-domain material ships inside Puzz
 | rustoku (PyPI) | sudoku technique trace + cross-check | MIT | package metadata |
 | typst (PyPI, compiler fallback) / Typst CLI | PDF rendering | Apache-2.0 | package metadata |
 | pypdf | PDF inspection (QA) | BSD-3-Clause | package metadata |
+| pypdfium2 (+ PDFium) | QA: rasterize pages, text with positions/sizes, images | Apache-2.0 / BSD-3-Clause | package metadata |
+| Pillow | QA: ink bounding boxes, thumbnails | MIT-CMU (HPND) | package metadata |
 | pydantic, typer, rich, PyYAML, python-dotenv | core | MIT / BSD | package metadata |
 | OR-Tools (planned, PQ/P3) | CP-SAT second solver | Apache-2.0 | package metadata |
 | Atkinson Hyperlegible, Courier Prime | fonts | OFL-1.1 | `licenses/OFL-*.txt` |

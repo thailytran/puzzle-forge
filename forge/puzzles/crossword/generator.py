@@ -27,8 +27,8 @@ _BY_LEVEL: dict[Level, CwParams] = {
 
 def resolve_params(spec: PuzzleSpec) -> CwParams:
     p = _BY_LEVEL[spec.level]
-    if spec.audience == "kids_6_8":
-        p = replace(p, words=min(p.words, 9), max_size=min(p.max_size, 11))
+    if spec.audience in ("kids_6_8", "senior_large_print"):  # big cells (QA L2.min_sizes)
+        p = replace(p, words=min(p.words, 10), max_size=min(p.max_size, 11))
     if "words" in spec.options:
         p = replace(p, words=int(spec.options["words"]))
     return p

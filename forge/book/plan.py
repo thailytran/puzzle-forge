@@ -15,10 +15,22 @@ THEMED_TYPES = frozenset({"wordsearch", "scramble", "crossword"})
 # (SPEC §3: kids 6-8 use the very_easy/easy bands). Requests above are capped and recorded.
 TYPE_MAX_LEVEL: dict[str, Level] = {"scramble": "hard", "cryptogram": "hard"}
 AUDIENCE_MAX_LEVEL: dict[str, Level] = {"kids_6_8": "easy"}
+# large-print crosswords use an 11x11 grid (cells >= 0.4"), which measures as easy at most
+TYPE_AUDIENCE_MAX_LEVEL: dict[tuple[str, str], Level] = {
+    ("crossword", "senior_large_print"): "easy"
+}
 
 
 def cap_level(level: Level, type_: str, audience: str) -> Level:
-    caps = [c for c in (TYPE_MAX_LEVEL.get(type_), AUDIENCE_MAX_LEVEL.get(audience)) if c]
+    caps = [
+        c
+        for c in (
+            TYPE_MAX_LEVEL.get(type_),
+            AUDIENCE_MAX_LEVEL.get(audience),
+            TYPE_AUDIENCE_MAX_LEVEL.get((type_, audience)),
+        )
+        if c
+    ]
     for c in caps:
         if LEVELS.index(level) > LEVELS.index(c):
             level = c

@@ -23,7 +23,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 ## PQ — QA gate (before the P1 milestone; see docs/QA_SPEC.md)
 - [x] PQ.1 QA framework: check registry (id, BLOCKER/MAJOR/MINOR, evidence), book state machine with history (SQLite), report hash lock (interior/cover/manifest sha256), waivers, auto-fix loop hook.
 - [x] PQ.2 L1 per-puzzle checks: dual solver, uniqueness, type rules, difficulty band, kid safety, catalog uniqueness.
-- [ ] PQ.3 L2 per-page checks + data extraction from the rendered PDF ("printed = verified"), thumbnails.
+- [x] PQ.3 L2 per-page checks + data extraction from the rendered PDF ("printed = verified"), thumbnails.
 - [ ] PQ.4 L3 book checks (counts, distribution, TOC, matter, placeholders) + proofread (dictionary now, AI after P2).
 - [ ] PQ.5 qa_report.json + qa_report.html, `forge qa run`, `forge book status`, `forge review --approve|--reject`.
 

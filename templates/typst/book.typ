@@ -9,7 +9,7 @@
 #set par(leading: 0.6em)
 
 #let running-header = context {
-  set text(font: L.fonts.sans, size: 0.75 * base, fill: luma(90))
+  set text(font: L.fonts.sans, size: 8.5pt, fill: luma(90))
   align(center, L.title)
 }
 #let page-footer = context {
@@ -98,9 +98,9 @@
   align(center, box(width: w, height: unit * (b.rows + 2 * b.pad), {
     place(top + left, image(b.path, width: w))
     place(top + left, dx: unit * 1.1, dy: 0pt,
-      text(font: L.fonts.sans, size: 8pt, weight: "bold", "START"))
+      text(font: L.fonts.sans, size: if L.base_size_pt >= 16 { base } else { 8pt }, weight: "bold", "START"))
     place(bottom + right, dx: -unit * 1.1, dy: 0pt,
-      text(font: L.fonts.sans, size: 8pt, weight: "bold", "FINISH"))
+      text(font: L.fonts.sans, size: if L.base_size_pt >= 16 { base } else { 8pt }, weight: "bold", "FINISH"))
     for l in b.at("letters", default: ()) {
       place(top + left, dx: (l.c + b.pad) * unit, dy: (l.r + b.pad) * unit,
         box(width: unit, height: unit, align(center + horizon,
@@ -128,7 +128,7 @@
   let cell(x) = box(width: 1.25 * fpt, stack(dir: ttb, spacing: 0.25em,
     box(width: 100%, height: 1.3 * fpt, stroke: if x.c != "" { (bottom: 0.6pt) } else { none },
       align(center + bottom, strong(x.p))),
-    box(width: 100%, height: 1em, align(center, text(size: 0.75 * fpt, fill: luma(60), x.c))),
+    box(width: 100%, height: 1em, align(center, text(size: 0.8 * fpt, fill: luma(60), x.c))),
   ))
   par(leading: 1.6em, justify: false, b.words.map(w => box(w.map(cell).join())).join(h(1.1em)))
   if b.at("source", default: "") != "" {
