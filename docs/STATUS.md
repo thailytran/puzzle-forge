@@ -7,7 +7,8 @@
 - Known issues: crosswords are fill-in until AI clues (P2.3); `themes: auto` rotates all built-in themes
   until AI sub-themes (P2.4); proofread is dictionary-only until P2; cryptograms need ~5 given letters for
   provable uniqueness.
-- Next: owner approval of the content-rules table + LLM key decision → PC.1/PC.2/PC.5 → P2.1 + PC.4 → PC.6 (P1.8-v2).
+- Editions: digital (Letter/A4) + spiral (colour/gray, duplex/simplex, bleed) with watermark, stamp/trace done; review/PE.md waiting; brand is a placeholder.
+- Next: owner approval of brand + review/PE.md + the content-rules table + LLM key decision → PC.1/PC.2/PC.5 → P2.1 + PC.4 → PC.6 (P1.8-v2).
 
 ## Coverage of the "QA gate + SKU/Marketing + references" request (2026-11-07)
 
