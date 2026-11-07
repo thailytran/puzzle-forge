@@ -149,8 +149,12 @@ upload, manual approve/reject of pending), coupon stock (+ Etsy pool CSV import)
 
 API keys (Klaviyo, Shopify, Etsy, Turnstile, Telegram, VAULT_ADMIN_TOKEN, VAULT_ANSWER_KEY,
 SECRET_KEY) live only in `apps/casevault/.env` on the server (template `.env.example`), never committed.
-Deploy guide (Vietnamese): `docs/DEPLOY_CASEVAULT.md` — Docker Compose + Caddy (auto HTTPS) on an
-Oracle Cloud VM, or Cloudflare Tunnel from the home VM; daily Postgres backup.
+Packaging (P10.6): image `ghcr.io/<owner>/casevault:X.Y.Z` (amd64 + arm64) built on tag
+`casevault-vX.Y.Z`; `deploy/casevault/` = one compose file for two instances (prod + staging, each with
+app, worker, Postgres, daily pg_dump), one Caddy for both domains (Let's Encrypt, or Cloudflare origin
+certificate), `scripts/casevault/install_oracle.sh` (Docker, deploy user, iptables 80/443, fail2ban,
+GHCR login) and the `casevault` admin command (init / up / update / backup / restore / logs / admin).
+Guide (Vietnamese): `docs/DEPLOY_CASEVAULT.md`.
 
 ## 10. Data model (site DB; merge plan in INTEGRATION_HALOSPARK.md §7)
 

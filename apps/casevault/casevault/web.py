@@ -95,14 +95,51 @@ def create_app(
         return TEMPLATES.TemplateResponse(req, name, {**base, **ctx}, status_code=status)
 
     def client_ip(req: Request) -> str:
-        for h in ("cf-connecting-ip", "x-real-ip"):
-            if req.headers.get(h):
-                return req.headers[h]
+        # CF-Connecting-IP only behind the Cloudflare proxy (else anyone could spoof it);
+        # otherwise uvicorn --proxy-headers already put the Caddy X-Forwarded-For in client.host
+        if s.trust_cloudflare and req.headers.get("cf-connecting-ip"):
+            return req.headers["cf-connecting-ip"]
         return req.client.host if req.client else ""
+
+    last_alert: dict[str, float] = {}
+
+    def alert(kind: str, text: str) -> None:
+        """Telegram, at most one message per kind every 10 minutes."""
+        import time
+
+        if time.time() - last_alert.get(kind, 0) < 600:
+            return
+        last_alert[kind] = time.time()
+        with eng.begin() as c:
+            vault._enqueue(c, "telegram", {"text": f"Case Vault {s.site_name}: {text}"[:3500]})
+
+    @app.middleware("http")
+    async def security(req: Request, call_next: Any) -> Response:
+        try:
+            resp: Response = await call_next(req)
+        except Exception as exc:  # unexpected error: log, alert, plain 500
+            import logging
+
+            logging.getLogger("casevault").exception("unhandled error on %s", req.url.path)
+            alert("error", f"HTTP 500 on {req.method} {req.url.path}: {type(exc).__name__}")
+            resp = PlainTextResponse("Internal error", status_code=500)
+        if resp.status_code >= 500:
+            alert("error", f"HTTP {resp.status_code} on {req.method} {req.url.path}")
+        h = resp.headers
+        h.setdefault("X-Content-Type-Options", "nosniff")
+        h.setdefault("X-Frame-Options", "DENY")
+        h.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        if s.public_url.startswith("https://"):
+            h.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        if req.url.path.startswith(("/admin", "/account", "/api/")):
+            h.setdefault("Cache-Control", "no-store")
+        return resp
 
     # ----------------------------------------------------------------- public
     @app.get("/healthz")
     def healthz() -> dict[str, Any]:
+        from casevault import GIT_SHA, __version__
+
         missing = [
             k
             for k, v in {
@@ -115,7 +152,7 @@ def create_app(
         ]
         if s.secret_key == "dev-secret-change-me":
             missing.append("SECRET_KEY")
-        return {"ok": True, "missing_config": missing}
+        return {"ok": True, "version": __version__, "sha": GIT_SHA, "missing_config": missing}
 
     @app.get("/", response_class=HTMLResponse)
     def home(req: Request) -> HTMLResponse:

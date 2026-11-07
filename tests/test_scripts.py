@@ -41,13 +41,20 @@ def test_no_cloud_paths_in_scripts() -> None:
 
 
 def test_casevault_deploy_files() -> None:
-
     import yaml
 
-    root = REPO_ROOT / "apps" / "casevault"
+    root = REPO_ROOT / "deploy" / "casevault"
     compose = yaml.safe_load((root / "docker-compose.yml").read_text())
-    assert {"db", "web", "worker", "caddy", "tunnel"} <= set(compose["services"])
-    assert subprocess.run(["bash", "-n", str(root / "scripts" / "backup.sh")]).returncode == 0
+    assert {"app", "worker", "db", "backup", "backup-upload", "caddy"} <= set(compose["services"])
+    assert compose["services"]["caddy"]["profiles"] == ["edge"]
+    for name in ("casevault.sh", "backup-loop.sh"):
+        assert subprocess.run(["bash", "-n", str(root / name)]).returncode == 0
+    assert (
+        subprocess.run(
+            ["bash", "-n", str(REPO_ROOT / "scripts" / "casevault" / "install_oracle.sh")]
+        ).returncode
+        == 0
+    )
     secrets = (
         "SECRET_KEY",
         "VAULT_ADMIN_TOKEN",
@@ -58,10 +65,13 @@ def test_casevault_deploy_files() -> None:
         "TURNSTILE_SECRET",
         "POSTGRES_PASSWORD",
         "TELEGRAM_BOT_TOKEN",
-        "CLOUDFLARE_TUNNEL_TOKEN",
     )
-    for line in (root / ".env.example").read_text().splitlines():
+    for line in (root / "env.example").read_text().splitlines():
         key, _, value = line.partition("=")
         if key in secrets:
-            assert value.split("#")[0].strip() == "", f"{key} must be empty in .env.example"
-    assert "CASEVAULT_CONFIG" in (root / "Dockerfile").read_text()
+            assert value.split("#")[0].strip() == "", f"{key} must be empty in env.example"
+    for caddy in ("Caddyfile", "Caddyfile.cloudflare-origin"):
+        text = (root / caddy).read_text()
+        assert "Strict-Transport-Security" in text and "prod-app:8000" in text
+        assert "staging-app:8000" in text
+    assert "HEALTHCHECK" in (REPO_ROOT / "apps" / "casevault" / "Dockerfile").read_text()

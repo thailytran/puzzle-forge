@@ -346,3 +346,28 @@ def test_account_magic_link(env):
     r = env.client.get(link.removeprefix("https://cv.test"))
     assert r.status_code == 200 and "The Lighthouse Case" in r.text and "CV-" in r.text
     assert env.client.get("/account?t=forged.token").status_code == 400
+
+
+def test_security_headers_errors_and_migrate(env, tmp_path):
+    r = env.client.get("/healthz")
+    assert r.headers["X-Frame-Options"] == "DENY" and "Strict-Transport-Security" in r.headers
+    assert r.json()["version"]
+    assert env.client.get("/admin/login").headers["Cache-Control"] == "no-store"
+    # spoofed CF-Connecting-IP is ignored unless TRUST_CLOUDFLARE=1
+    env.register()
+    env.solve(culprit_name="wrong", **{"cf-turnstile-response": "ok"})
+    with env.vault.e.connect() as c:
+        ip = c.execute(select(T.solves.c.ip)).scalar_one()
+    assert ip == "testclient"
+    from casevault.migrations import migrate
+
+    assert migrate(env.vault.e) == 1 and migrate(env.vault.e) == 1
+
+
+def test_fraud_alert_goes_to_telegram(env):
+    code = bookcode.new_code()
+    env.register(codes=[code])
+    env.solve(purchase_place="gift", proof=code, email="first@example.com")
+    env.solve(purchase_place="gift", proof=code, email="second@example.com")
+    env.vault.process_outbox()
+    assert any("proof_reuse" in m for m in env.telegram.messages)

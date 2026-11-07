@@ -156,7 +156,9 @@ uv run forge migrate | backup [--no-upload] | restore --data X --config Y   # ma
 sudo bash scripts/install.sh [--env test|prod] [--ref vX.Y.Z]   # VM system install (docs/INSTALL_VM.md)
 sudo forge update [--ref vX.Y.Z] | forge logs [web|worker] | forge status | sudo forge restart | sudo forge smoke
 uv run pytest -q apps/casevault/tests                      # Case Vault website tests (E2E, providers mocked)
-uv run uvicorn casevault.web:app_factory --factory --reload   # run the website locally (apps/casevault/.env)
+uv run uvicorn casevault.web:app_factory --factory --reload   # run the website locally (dev, SQLite)
+sudo bash scripts/casevault/install_oracle.sh --ghcr-user <user>   # Case Vault server (docs/DEPLOY_CASEVAULT.md)
+casevault init | up | update X.Y.Z [--staging] | backup | restore F | logs app | admin create owner   # on the server
 ```
 
 Typst must be installed on the machine (`typst --version`, pinned in `scripts/setup_vm.sh`). If the CLI is

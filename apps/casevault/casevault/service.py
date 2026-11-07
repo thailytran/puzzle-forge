@@ -65,6 +65,7 @@ class Vault:
     def __init__(self, settings: Settings, engine: Engine, providers: Providers) -> None:
         self.s, self.e, self.p = settings, engine, providers
         self.rules = settings.rules
+        self._alerted = {}
 
     # ------------------------------------------------------------------ books (admin API)
     def register_book(self, data: dict[str, Any]) -> dict[str, Any]:
@@ -134,8 +135,24 @@ class Vault:
     def _hit(self, c: Connection, key: str) -> None:
         c.execute(insert(T.attempts).values(key=key))
 
+    ALERT_KINDS = ("proof_reuse", "locked_out", "admin_login_failed", "rate_limited")
+
+    _alerted: dict[str, float]
+
     def _fraud(self, c: Connection, kind: str, email: str, ip: str, **detail: Any) -> None:
+        import time
+
         c.execute(insert(T.fraud_log).values(kind=kind, email=email, ip=ip, detail=detail))
+        if kind in self.ALERT_KINDS and time.time() - self._alerted.get(kind, 0) > 600:
+            self._alerted[kind] = time.time()  # at most one Telegram per kind per 10 minutes
+            self._enqueue(
+                c,
+                "telegram",
+                {
+                    "text": f"Case Vault: suspicious activity {kind} "
+                    f"({email or ip}) - see /admin/fraud"
+                },
+            )
 
     # ------------------------------------------------------------------ validation
     def _validate(self, sub: Submission, book: dict[str, Any] | None) -> dict[str, str]:

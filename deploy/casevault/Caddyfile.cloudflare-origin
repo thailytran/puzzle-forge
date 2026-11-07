@@ -1,0 +1,39 @@
+# Cloudflare proxied (orange cloud) + SSL/TLS mode "Full (strict)".
+# Cloudflare dashboard -> SSL/TLS -> Origin Server -> Create certificate; save the files on the VM as
+# /opt/casevault/prod/certs/origin.pem and origin.key (mode 600). Set TRUST_CLOUDFLARE=1 in both
+# .env files so the app takes the visitor IP from CF-Connecting-IP (rate limits, fraud log).
+# Also enable "Authenticated Origin Pulls" or restrict ports 80/443 to Cloudflare IP ranges.
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22
+	}
+}
+
+(common) {
+	tls /certs/origin.pem /certs/origin.key
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'"
+		-Server
+	}
+	log {
+		output stdout
+		format json
+	}
+}
+
+{$DOMAIN} {
+	import common
+	reverse_proxy prod-app:8000
+}
+
+{$STAGING_DOMAIN} {
+	import common
+	header X-Robots-Tag "noindex, nofollow"
+	reverse_proxy staging-app:8000
+}

@@ -57,9 +57,11 @@ def test_migrate_backup_restore_roundtrip(tmp_path, monkeypatch):
     SecretStore(st.config_dir).set("OPENAI_API_KEY", "sk-keep-me-123456")
     data_tar, cfg_tar = backup(st, upload=False)
     assert oct(data_tar.stat().st_mode & 0o777) == "0o600"
-    names = tarfile.open(data_tar).getnames()
+    with tarfile.open(data_tar) as t:
+        names = t.getnames()
     assert "data/forge.db" in names and "output/bk-1/interior.pdf" in names
-    assert "config/secret.key" in tarfile.open(cfg_tar).getnames()
+    with tarfile.open(cfg_tar) as t:
+        assert "config/secret.key" in t.getnames()
     assert "secret" not in " ".join(names)  # the data archive never holds secrets
     # disaster: everything gone
     import shutil

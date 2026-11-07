@@ -1,121 +1,193 @@
-# Triển khai website Case Vault (tiếng Việt)
+# Triển khai Case Vault trên Oracle Cloud (tiếng Việt)
 
-Website nằm trong `apps/casevault/`. Có hai cách chạy:
+Website: **https://casevault.halosparkinc.com** (prod) và **https://staging.casevault.halosparkinc.com** (staging, để thử trước khi lên prod). Hai tên miền này đổi được qua `DOMAIN` / `STAGING_DOMAIN` trong `.env`.
 
-- **A. Oracle Cloud VM + Caddy (khuyên dùng).** Có IP công khai và HTTPS tự động. Website vẫn chạy khi máy nhà tắt.
-- **B. Cloudflare Tunnel từ VM ở nhà.** Không mở port, không cần IP tĩnh, nhưng website tắt khi VM nhà tắt.
+Kiến trúc trên **một** VM:
+- Docker Compose chạy hai bản độc lập là `prod` và `staging`. Mỗi bản có app, worker, Postgres riêng và một container backup chạy `pg_dump` hằng ngày, giữ 14 bản.
+- Một **Caddy** dùng chung lo HTTPS Let's Encrypt tự động cho cả hai tên miền.
+- Image app lấy từ **GHCR (private)**. Image được build tự động khi gắn tag `casevault-vX.Y.Z` trên GitHub.
 
-Mọi khoá bí mật chỉ nằm trong `apps/casevault/.env` **trên server**, không bao giờ commit.
+Mọi khoá bí mật chỉ nằm trong `/opt/casevault/<prod|staging>/.env` **trên server** (quyền 600), không bao giờ commit.
 
-## 0. Chuẩn bị
+---
 
-1. Tên miền: ví dụ `casevault.tenmien.com`. Anh cần chốt tên miền và tên website chính thức.
-2. Tạo hai chuỗi ngẫu nhiên. Chạy `openssl rand -hex 32` hai lần để lấy:
-   - `VAULT_ADMIN_TOKEN`
-   - `VAULT_ANSWER_KEY`
+## 1. Tạo VM Oracle Cloud
 
-   Đặt **cùng một giá trị** cho mỗi biến ở cả hai nơi:
-   - `.env` của Puzzle Forge (VM)
-   - `apps/casevault/.env` (server)
+1. Oracle Cloud Console → **Compute → Instances → Create instance**.
+2. **Image**: Canonical **Ubuntu 24.04**.
+3. **Shape** gợi ý: `VM.Standard.A1.Flex` (Ampere ARM, nằm trong gói Always Free), **1 OCPU + 6 GB RAM**, ổ boot 50 GB. Image Case Vault build cho cả amd64 lẫn arm64.
+   Nếu hết slot A1: chọn `VM.Standard.E2.1.Micro` (1 GB RAM) và tạo thêm swap 2 GB, chỉ đủ khi lưu lượng nhỏ.
+4. **Networking**: chọn VCN có subnet **public**, tick **Assign a public IPv4 address**.
+5. **SSH keys**: dán public key của anh. Bấm **Create**, rồi ghi lại **Public IP**.
+6. Đổi IP thành **Reserved public IP** để IP không đổi khi tạo lại VM: Instance → Attached VNICs → IPv4 addresses → Edit → *Reserved public IP*.
 
-   Thêm `SECRET_KEY` và `POSTGRES_PASSWORD`, tạo cũng bằng `openssl rand -hex 32`.
+## 2. Mở cổng 80/443 ở tầng mạng Oracle (VCN)
 
-> ⚠️ Nếu đổi `VAULT_ANSWER_KEY` sau khi đã đăng ký sách, phải chạy lại `forge vault sync` cho mọi sách. Hash đáp án và Book Code phụ thuộc khoá này.
+Networking → **Virtual cloud networks** → VCN của VM → **Security Lists** → `Default Security List` → **Add Ingress Rules**, thêm 3 rule:
 
-## A. Oracle Cloud VM (Always Free) + Caddy
+| Source CIDR | Protocol | Destination port |
+|---|---|---|
+| `0.0.0.0/0` | TCP | `80` |
+| `0.0.0.0/0` | TCP | `443` |
+| `0.0.0.0/0` | UDP | `443` (HTTP/3, tuỳ chọn) |
 
-1. Tạo VM Ubuntu 24.04 (Ampere A1 hoặc AMD micro).
-   - Trong *Security List*, mở cổng 80 và 443.
-   - Trên VM, mở firewall:
-     ```bash
-     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
-     sudo netfilter-persistent save
-     ```
-2. Trỏ DNS: bản ghi `A` của tên miền → IP công khai của VM.
-3. Cài Docker:
-   ```bash
-   curl -fsSL https://get.docker.com | sudo sh
-   sudo usermod -aG docker $USER
-   ```
-   Đăng xuất rồi đăng nhập lại.
-4. Lấy code (repo private: dùng `gh auth login` như trong INSTALL_VM.md):
-   ```bash
-   git clone https://github.com/thailytran/puzzle-forge.git /opt/puzzle-forge
-   cd /opt/puzzle-forge/apps/casevault
-   cp .env.example .env && nano .env      # điền DOMAIN, PUBLIC_URL, các khoá
-   mkdir -p data && sudo chown 10001 data  # thư mục token Etsy (user trong container)
-   docker compose --profile caddy up -d --build
-   ```
-5. Tạo tài khoản admin có 2FA:
-   ```bash
-   docker compose exec web python -m casevault create-admin owner
-   ```
-   Lệnh in ra `secret` và `otpauth://…`. Thêm vào Google Authenticator, Authy hoặc 1Password, rồi đăng nhập `https://<DOMAIN>/admin`.
-6. Kiểm tra: mở `https://<DOMAIN>/healthz`. Danh sách `missing_config` phải rỗng trước khi mở cho khách.
+Nếu VCN dùng **Network Security Group**, thêm các rule tương tự vào NSG gắn với VNIC của VM. Riêng tường lửa **trong máy** (iptables) thì script ở bước 4 tự mở.
 
-## B. Cloudflare Tunnel từ VM ở nhà
+## 3. DNS cho `casevault` và `staging.casevault`
 
-1. Vào Cloudflare → Zero Trust → Networks → Tunnels → *Create tunnel*. Copy token.
-2. Thêm *Public hostname*: `casevault.tenmien.com` → `http://web:8000`.
-3. Trong `.env`, đặt `CLOUDFLARE_TUNNEL_TOKEN=…`, rồi chạy:
-   ```bash
-   docker compose --profile tunnel up -d --build
-   ```
-   Không cần mở port 80/443.
+Tại nơi quản lý DNS của `halosparkinc.com`:
 
-## Sao lưu hằng ngày
+| Type | Name | Value |
+|---|---|---|
+| A | `casevault` | Public IP của VM |
+| A | `staging.casevault` | Public IP của VM |
+
+**Nếu DNS ở Cloudflare**, chọn một trong hai cách:
+- **Cách 1 (đơn giản nhất)**: để hai bản ghi ở chế độ **DNS only** (mây xám). Caddy tự lấy chứng chỉ Let's Encrypt.
+- **Cách 2 (có proxy Cloudflare, mây cam)**:
+  1. SSL/TLS → Overview → **Full (strict)**.
+  2. SSL/TLS → Origin Server → **Create certificate** cho `casevault.halosparkinc.com` và `*.casevault.halosparkinc.com`. Lưu thành `/opt/casevault/prod/certs/origin.pem` và `origin.key` (chmod 600).
+  3. Trong `/opt/casevault/prod/.env`: đặt `CADDYFILE=Caddyfile.cloudflare-origin` và `TRUST_CLOUDFLARE=1`.
+  4. Đặt `TRUST_CLOUDFLARE=1` cả trong `/opt/casevault/staging/.env`.
+
+  Lưu ý: chứng chỉ Universal SSL miễn phí của Cloudflare chỉ phủ một cấp subdomain. Tên `staging.casevault…` là cấp hai, nên với Cách 2 hãy để `staging.casevault` ở **DNS only**, hoặc dùng `casevault-staging.halosparkinc.com` cho staging.
+
+Kiểm tra DNS: `dig +short casevault.halosparkinc.com` phải ra IP của VM.
+
+## 4. Cài đặt server (một lệnh)
+
+SSH vào VM bằng user `ubuntu`, clone repo (private: dùng deploy key chỉ đọc, như mục 1 Cách B trong `docs/INSTALL_VM.md`), rồi chạy:
 
 ```bash
-crontab -e
-15 3 * * * /opt/puzzle-forge/apps/casevault/scripts/backup.sh >> /var/log/casevault-backup.log 2>&1
+sudo bash ~/puzzle-forge/scripts/casevault/install_oracle.sh --ghcr-user <tên-github-của-anh>
 ```
 
-Script giữ 14 bản gần nhất trong `apps/casevault/backups/`. Nên chép thêm ra ngoài server (rclone sang Google Drive/R2).
+Script hỏi một **GitHub token** có quyền `read:packages`: GitHub → Settings → Developer settings → Personal access tokens → *Tokens (classic)* → tick **read:packages**.
 
-Khôi phục:
+Script tự làm các việc sau:
+- Cài Docker.
+- Tạo user `deploy` (thuộc nhóm docker, dùng lại SSH key của anh).
+- Mở cổng 80/443 trong iptables và lưu lại.
+- Bật fail2ban cho SSH và tự động cập nhật bảo mật.
+- Đăng nhập GHCR.
+- Cài lệnh `casevault` và thư mục `/opt/casevault`.
+
+> Không bật `ufw` trên Oracle: image Oracle tự quản lý iptables, bật ufw sẽ xung đột và có thể khoá luôn SSH.
+
+## 5. Điền `.env` và khởi động
+
 ```bash
-gunzip -c backups/<file>.sql.gz | docker compose exec -T db psql -U casevault casevault
+sudo -iu deploy
+```
+```bash
+casevault init
 ```
 
-## Cập nhật phiên bản
+`init` tạo `/opt/casevault/prod/.env` và `/opt/casevault/staging/.env`, sinh sẵn ngẫu nhiên `SECRET_KEY`, `POSTGRES_PASSWORD`, `VAULT_ADMIN_TOKEN` và `VAULT_ANSWER_KEY`.
 
 ```bash
-cd /opt/puzzle-forge && git pull && cd apps/casevault && docker compose up -d --build
+nano /opt/casevault/prod/.env
 ```
 
-## Kết nối Puzzle Forge (VM) → website
+Cần điền:
+- `ACME_EMAIL`: email của anh.
+- `CASEVAULT_VERSION`: ví dụ `0.2.0`.
+- `TURNSTILE_SITE_KEY` và `TURNSTILE_SECRET`: Cloudflare → Turnstile → Add site, thêm cả hai tên miền.
+- Klaviyo: `KLAVIYO_API_KEY`, `KLAVIYO_LIST_ID` (xem `docs/KLAVIYO_SETUP.md`).
+- Shopify: `SHOPIFY_SHOP`, `SHOPIFY_ADMIN_TOKEN`, `SHOPIFY_STORE_URL`.
+- Etsy (nếu đã có app key): `ETSY_API_KEY`, `ETSY_SHOP_ID`, `ETSY_SHOP_URL`.
+- Telegram: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
 
-Trong `.env` của Puzzle Forge:
+Staging nên dùng key **test**: Klaviyo list riêng (hoặc để trống để không gửi mail), Shopify development store, không có Etsy, Turnstile *test key* hoặc để trống.
+
+```bash
+casevault up --staging
 ```
-VAULT_URL=https://<DOMAIN>
-VAULT_DOMAIN=<DOMAIN>
-VAULT_ADMIN_TOKEN=<giống server>
-VAULT_ANSWER_KEY=<giống server>
+```bash
+casevault up
 ```
 
-Quy trình cho mỗi sách:
-1. Chạy `forge vault init output/<book_id>` rồi điền đáp án và listing.
-2. Duyệt: `forge review output/<book_id> --approve`. Sách tự đăng ký lên website. Nếu mất mạng thì vào hàng đợi.
-3. Gửi lại hàng đợi bằng `forge vault sync`; xem trạng thái bằng `forge vault status`.
+## 6. Kiểm tra HTTPS
 
-## Etsy, Shopify, Turnstile, Telegram
+```bash
+curl -I https://casevault.halosparkinc.com/healthz
+```
+```bash
+casevault status
+```
 
-- **Turnstile:** dash.cloudflare.com → Turnstile → Add site (tên miền) → Site key + Secret key → `.env`.
-- **Shopify:** tạo app (Shopify admin → Settings → Apps → Develop apps, hoặc Dev Dashboard).
-  - Scope: `read_orders`, `read_all_orders` (đơn cũ hơn 60 ngày) và `write_discounts`.
-  - Lấy Admin API access token → `SHOPIFY_ADMIN_TOKEN`.
-- **Etsy:**
-  - Nếu chưa có API: dùng CSV. Etsy Shop Manager → Settings → Options → Download Data → **Orders – Order Items** → upload ở trang Admin, hoặc chạy:
-    ```bash
-    docker compose exec web python -m casevault import-etsy file.csv
-    ```
-    Đơn đang *pending* được duyệt tự động, khách nhận email.
-  - Mã giảm giá Etsy (10/20/30/40 %):
-    - Tạo trong Shop Manager → Marketing → Sales and discounts.
-    - Xuất thành CSV `percent,code,expires`, rồi upload ở trang Admin.
-    - Telegram báo khi mỗi mức còn dưới 20 mã.
-  - Khi có app key Etsy: điền `ETSY_API_KEY`, `ETSY_SHOP_ID`. Đặt token OAuth vào `data/etsy_token.json` (hướng dẫn cấp token sẽ bổ sung khi anh có app key).
-- **Telegram:**
-  - Tạo bot với @BotFather → `TELEGRAM_BOT_TOKEN`.
-  - Nhắn bot một tin, lấy `chat_id` qua `https://api.telegram.org/bot<TOKEN>/getUpdates`.
+`/healthz` phải trả `"missing_config": []` trước khi mở cho khách.
+
+Kiểm tra header bảo mật (`Strict-Transport-Security`, `Content-Security-Policy`…) trên https://securityheaders.com.
+
+## 7. Tạo tài khoản admin + 2FA
+
+```bash
+casevault admin create owner
+```
+
+Nhập mật khẩu (tối thiểu 12 ký tự). Lệnh in ra `secret` và `otpauth://…`: thêm vào Google Authenticator / Authy / 1Password. Sau đó đăng nhập `https://casevault.halosparkinc.com/admin`.
+
+Làm tương tự cho staging với `--staging`.
+
+## 8. Kết nối Puzzle Forge (VM ở nhà) → Case Vault
+
+Copy hai token **của từng môi trường** từ `.env` trên server sang Puzzle Forge. Cách nhanh nhất là qua web Forge: **Cài đặt**, nhập vào ô token đã mã hoá.
+
+| Puzzle Forge | Giá trị lấy từ |
+|---|---|
+| `VAULT_URL=https://casevault.halosparkinc.com`, `VAULT_DOMAIN=casevault.halosparkinc.com` | — |
+| `VAULT_ADMIN_TOKEN`, `VAULT_ANSWER_KEY` | `/opt/casevault/prod/.env` |
+| `VAULT_STAGING_URL=https://staging.casevault.halosparkinc.com`, `VAULT_STAGING_DOMAIN=…` | — |
+| `VAULT_STAGING_ADMIN_TOKEN`, `VAULT_STAGING_ANSWER_KEY` | `/opt/casevault/staging/.env` |
+
+- Forge ở `FORGE_ENV=test` đẩy lên **staging**; `FORGE_ENV=prod` đẩy lên **prod**.
+- Website tạm offline thì Forge giữ trong hàng đợi và tự gửi lại; xem bằng `forge vault status`.
+
+## 9. Thử redeem bằng sách mẫu (staging)
+
+Trên VM Forge (chế độ test):
+
+```bash
+sudo forge smoke
+```
+
+Lệnh này build sách mẫu, chạy QA, đẩy sách lên staging, tạo một Book Code rồi gửi đáp án qua form staging. Kết quả phải là "Case solved".
+
+Kiểm tra thêm trên staging:
+- Trang admin hiện cuốn sách và lượt giải.
+- Klaviyo (list test) có sự kiện **Case Solved**.
+
+## 10. Bảo trì
+
+| Việc | Lệnh (user `deploy`) |
+|---|---|
+| Cập nhật phiên bản (thử staging trước) | `casevault update 0.2.1 --staging`, kiểm tra, rồi `casevault update 0.2.1` |
+| Xem log | `casevault logs app` / `casevault logs caddy` (access log JSON) |
+| Trạng thái | `casevault status` |
+| Sao lưu ngay | `casevault backup` |
+| Khôi phục | `casevault restore /opt/casevault/prod/backups/casevault-YYYYMMDD-HHMM.sql.gz` |
+| Đẩy backup ra ngoài (Object Storage / Google Drive) | `docker run --rm -it -v /opt/casevault/prod/rclone:/config/rclone rclone/rclone:1.68 config`, đặt `BACKUP_REMOTE=tên:thư-mục` trong `.env`, rồi `casevault upload on` |
+| Nhập đơn Etsy / mã coupon Etsy | `casevault import-etsy file.csv` / `casevault import-coupons file.csv` (hoặc upload trên trang admin) |
+| Sửa luật thưởng / consent | `nano /opt/casevault/prod/config/casevault.yaml` rồi `casevault restart` |
+
+**Bảo mật đã có sẵn:**
+- HTTPS bắt buộc, kèm HSTS, CSP, X-Frame-Options, nosniff và Referrer-Policy.
+- Giới hạn tần suất theo IP, email và bằng chứng mua, tạm khoá khi sai nhiều lần.
+- Turnstile chống bot; admin đăng nhập mật khẩu + 2FA.
+- Log truy cập JSON (Caddy) và log ứng dụng.
+- Telegram báo khi ứng dụng lỗi (HTTP 500), khi có dấu hiệu gian lận (dùng lại bằng chứng, bị khoá, admin đăng nhập sai) và khi một tác vụ gửi lỗi 3 lần.
+- fail2ban cho SSH, tự động cập nhật bảo mật.
+
+## 11. Chạy từ VM ở nhà thay cho Oracle (tuỳ chọn)
+
+Có thể chạy cùng stack trên VM ở nhà, đi qua **Cloudflare Tunnel** thay cho mở cổng.
+1. Tạo tunnel: Cloudflare → Zero Trust → Networks → Tunnels → Create.
+2. Thêm *Public hostname* `casevault.halosparkinc.com` → `http://prod-app:8000`.
+3. Chạy `cloudflared` trong network `edge`:
+   ```bash
+   docker run -d --name tunnel --restart unless-stopped --network edge cloudflare/cloudflared:latest tunnel --no-autoupdate run --token <TOKEN>
+   ```
+4. Không bật profile `edge` (không cần Caddy).
+
+Nhược điểm: website tắt khi VM ở nhà tắt.

@@ -5,6 +5,8 @@ import-etsy <orders.csv>         Etsy "Order Items" CSV -> known orders, re-chec
 import-coupons <coupons.csv>     Etsy coupon pool (percent,code,expires)
 recheck                          re-check pending Etsy/Shopify orders once
 worker                           loop: outbox every minute, pending re-check every 30 minutes
+migrate                          create / upgrade tables (runs on every container start)
+--version
 """
 
 from __future__ import annotations
@@ -33,6 +35,17 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     cmd, args = argv[0], argv[1:]
+    if cmd in ("--version", "version"):
+        from casevault import GIT_SHA, __version__
+
+        print(f"casevault {__version__} {GIT_SHA}".strip())
+        return 0
+    if cmd == "migrate":
+        from casevault.migrations import migrate
+
+        s = Settings.from_env()
+        print(f"schema version {migrate(T.make_engine(s.database_url))}")
+        return 0
     v = _vault()
     if cmd == "create-admin":
         user = args[0]

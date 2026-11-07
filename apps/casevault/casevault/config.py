@@ -44,6 +44,7 @@ class Settings:
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
     secure_cookies: bool = True
+    trust_cloudflare: bool = False
     rules: dict[str, Any] = field(default_factory=load_rules)
 
     @classmethod
@@ -69,6 +70,7 @@ class Settings:
             telegram_bot_token=_env("TELEGRAM_BOT_TOKEN"),
             telegram_chat_id=_env("TELEGRAM_CHAT_ID"),
             secure_cookies=_env("SECURE_COOKIES", "1") != "0",
+            trust_cloudflare=_env("TRUST_CLOUDFLARE", "0") == "1",
         )
 
     @property
