@@ -1,6 +1,6 @@
 # ROADMAP — Puzzle Forge
 
-Tick `[x]` when a task is merged. Each task ≈ one Claude Code session = one PR.
+Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code session = one PR.
 **Done means**: tests pass, ruff clean, docs/commands updated, owner can run it on the VM.
 
 ## P0 — Foundation (≈1 week)
@@ -19,7 +19,15 @@ Tick `[x]` when a task is merged. Each task ≈ one Claude Code session = one PR
 - [x] P1.5 Crossword (own filler, no GPL): grid templates by size, fill from word list, numbering, clue list render.
 - [ ] P1.6 Book builder: progressive / mixed / by_section modes, front matter, TOC, solutions section, `forge book build` + `forge book verify`.
 - [ ] P1.7 QA preflight + `qa_report.md` + preview PNGs.
-- [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku) and review PDFs.
+
+## PQ — QA gate (before the P1 milestone; see docs/QA_SPEC.md)
+- [ ] PQ.1 QA framework: check registry (id, BLOCKER/MAJOR/MINOR, evidence), book state machine with history (SQLite), report hash lock (interior/cover/manifest sha256), waivers, auto-fix loop hook.
+- [ ] PQ.2 L1 per-puzzle checks: dual solver, uniqueness, type rules, difficulty band, kid safety, catalog uniqueness.
+- [ ] PQ.3 L2 per-page checks + data extraction from the rendered PDF ("printed = verified"), thumbnails.
+- [ ] PQ.4 L3 book checks (counts, distribution, TOC, matter, placeholders) + proofread (dictionary now, AI after P2).
+- [ ] PQ.5 qa_report.json + qa_report.html, `forge qa run`, `forge book status`, `forge review --approve|--reject`.
+
+- [ ] P1.8 **Milestone**: build 3 sample books (kids word search, adult mixed, large-print sudoku); done only when all 3 reach **QA_PASSED**; owner reviews PDFs + QA reports.
 
 ## P2 — AI content layer (≈2 weeks)
 - [ ] P2.1 LLM client (Anthropic default, OpenAI optional), prompt files, JSON-schema validation + retry, SQLite cache, cost tracking.
@@ -28,21 +36,26 @@ Tick `[x]` when a task is merged. Each task ≈ one Claude Code session = one PR
 - [ ] P2.4 Book ideation: niche + title/subtitle + 100 puzzle themes from one prompt; `listing.json` copy.
 - [ ] P2.5 Batch: build N books from a CSV of briefs.
 
-## P3 — Mystery engine (≈3–4 weeks) → first mystery book
-- [ ] P3.1 Logic grid generator + solver (3x3 → 6x6), unique solution, strategy-based difficulty, constraint `grid_solution`.
-- [ ] P3.2 Case Bible + Clue Graph models, validators (DAG, fair play, ≥2 evidence/knot).
-- [ ] P3.3 AI stages: brief → bible → clue graph (with validation loops), editable YAML between stages.
-- [ ] P3.4 Encoders (token → page number etc.) + chapter planner + page planner with dead-end pages.
-- [ ] P3.5 Constrained puzzle generation for every evidence token.
-- [ ] P3.6 Prose + case documents (letters, clippings, interrogations) with spoiler guard; Typst mystery templates (case-file look, evidence board).
-- [ ] P3.7 Meta-puzzle + finale + solutions with reasoning.
-- [ ] P3.8 AI playtest agent + report; fix loop.
-- [ ] P3.9 **Milestone**: `lighthouse` (adult) and `museum_kids` (kids) books built and reviewed.
+## P3 — Mystery engine (≈4–5 weeks) → first mystery book (docs/MYSTERY_DESIGN.md §5, §9–§12)
+- [ ] P3.1 Logic grid: seeded generator (easy → extreme), propagation solver 1, brute-force / CP-SAT solver 2, unique solution, English clue templates + AI rephrase round-trip check, constraint `grid_solution`; property test 200 seeds.
+- [ ] P3.2 Causal graph (`forge/mystery/causal_graph.py`): nodes fact/evidence/knot/puzzle/chapter/final, requires/unlocks, state filtering, closure, DAG + reachability + ≥2 evidence checks, reveal rules.
+- [ ] P3.3 Stage framework: S1–S10 runner, YAML between stages, `--from-stage`, validation + retry, recorded-fixture AI client for tests.
+- [ ] P3.4 Stages S1–S4: brief, characters, relationships, truth timeline + validators (QA L4.timeline, L4.relations).
+- [ ] P3.5 Stages S5–S7: story arc, clue graph, evidence ↔ constrained puzzles (tokens for every evidence).
+- [ ] P3.6 Encoders (token → page number) + chapter/page planner with dead-end pages; Typst mystery templates (case file, evidence board).
+- [ ] P3.7 Stage S8: grounded prose + case documents with spoiler guard and reveal rules.
+- [ ] P3.8 `forge/qa/reader_sim.py` + L4 checks (graph, reader sim, case uniqueness via logic engine, spoilers, solution text); 3-chapter hand-written fixture case.
+- [ ] P3.9 Meta-puzzle + finale + solutions with step-by-step reasoning; `mystery_book.json` + `forge mystery export-play` (html / escaperoom).
+- [ ] P3.10 AI play-test: 2 agents, different models (Claude + GPT), on the export; L4.playtest in the report.
+- [ ] P3.11 **Milestone**: `lighthouse` (adult) and `museum_kids` (kids) built, **QA_PASSED**, reviewed.
 
 ## P4 — Series & publishing (≈2 weeks)
 - [ ] P4.1 Series bible, `forge series new/next`, continuity checks, cross-volume dedupe.
 - [ ] P4.2 Cover generator (Typst: front/spine/back from KDP page count + paper type; image slot for art).
 - [ ] P4.3 Export package + checklist for KDP upload.
+- [ ] P4.4 SKU: Portal format `BRAND-AUD-LINE-FMT-NNNN-SGL|SERnnn-vv` (`configs/sku.yaml`), Product Hub API when reachable, local unique counter fallback; state SKU_ASSIGNED.
+- [ ] P4.5 book_card.json (AI text + code facts, spine width, sample pages 300 DPI) + L5 checks → METADATA_READY.
+- [ ] P4.6 Marketing handoff: marketing_brief.json in the Portal (Coloring Page) schema, `forge marketing prompt <book_id>` (OpenAI master prompt), image set plan; code composites real pages/text, AI only backgrounds.
 
 ## P5 — Web UI & API (≈2 weeks)
 - [ ] P5.1 FastAPI: jobs queue (SQLite), build/verify endpoints, download outputs.

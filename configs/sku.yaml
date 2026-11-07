@@ -1,0 +1,15 @@
+# SKU format = HALOSPARK Portal / Product Hub (halospark-suite tools/product-hub/app/db.py: next_sku)
+#   single book : BRAND-AUD-LINE-FMT-NNNN-SGL          e.g. HSP-ADU-PZL-PBK-0007-SGL
+#   series      : BRAND-AUD-LINE-FMT-NNNN-SERnnn-vv    e.g. HSP-KID-PZL-PBK-0012-SER003-02
+# Counter is per prefix BRAND-AUD-LINE-FMT and never reuses a number.
+brand: HSP
+line: PZL            # Hub line "Puzzle / game book"
+format: PBK          # Hub format "Sách in" (printed book, physical_supplier)
+audience_codes:      # forge audience -> Hub audience code (Hub has ADU, KID 4-8, TOD, TEE, ALL)
+  kids_6_8: KID
+  kids_9_12: KID     # assumption: Hub has no 9-12 code; confirm with owner (TEE = teen/tween?)
+  teen: TEE
+  adult: ADU
+  senior_large_print: ADU
+source: local        # local = counter in data/forge.db ; hub = POST api/products on Product Hub
+hub_url: ""          # e.g. https://<portal-domain>/hooks/product-hub/  (token in .env: HUB_TOKEN)

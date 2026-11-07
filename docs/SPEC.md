@@ -94,7 +94,7 @@ Senior large print: font ≥ 16pt in grid, cell ≥ 0.4", fewer puzzles per page
 - Page count must be **even**; pad with "Notes" / "Doodle" pages.
 - Fonts: bundle OFL fonts in `assets/fonts/` (e.g. Atkinson Hyperlegible for large print, a clean
   sans for grids, a serif for mystery prose, a typewriter face for case files).
-- Preflight (`forge/qa/preflight.py`): page size, all fonts embedded, no content inside margins, images
+- Preflight (part of QA L2, `forge/qa/`): page size, all fonts embedded, no content inside margins, images
   ≥ 300 DPI, even page count, PDF/X-friendly (no transparency issues).
 
 ## 5. Constraints for mystery puzzles (answer → token)
@@ -131,6 +131,13 @@ forge mystery new --template lighthouse --audience adult      # create case bibl
 forge mystery build <case.yaml>                               # full mystery book
 forge mystery playtest <output_dir>                           # AI reader playtest report
 forge series new / forge series next                          # series bible + next volume
+forge qa run <output_dir>                                     # QA gate L1–L5 (docs/QA_SPEC.md)
+forge book status <book_id>                                   # state machine + hash-lock validity
+forge review <book_id> --approve|--reject --note "..."        # manual review (before the web UI)
+forge mystery build <case.yaml> [--from-stage S4]             # staged pipeline S1–S10
+forge mystery export-play <book_id> [--format html|escaperoom]
+forge sku assign <book_id> / forge book card <book_id>        # after QA_PASSED
+forge marketing prompt <book_id>                              # OpenAI master prompt (fallback)
 forge serve                                                   # web UI + API (later)
 ```
 
@@ -138,5 +145,11 @@ forge serve                                                   # web UI + API (la
 
 ```
 output/<book_id>/
-  interior.pdf  cover.pdf  listing.json  manifest.json  qa_report.md  previews/*.png
+  interior.pdf  cover.pdf  listing.json  manifest.json  book_card.json  marketing_brief.json
+  qa/qa_report.json  qa/qa_report.html  previews/*.png  stages/S*.yaml (mystery)  mystery_book.json
 ```
+
+## 9. QA gate, SKU, marketing
+
+See `docs/QA_SPEC.md` (golden rule 9): state machine DRAFT → … → MARKETING_READY, check catalog
+L1–L5 (BLOCKER/MAJOR/MINOR), hash-locked reports, SKU in the Portal format, book_card, marketing brief.
