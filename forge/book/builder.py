@@ -11,6 +11,15 @@ from pathlib import Path
 from typing import Any
 
 from forge import __version__
+from forge.book.content_plan import (
+    ILLUSTRATIONS_FILE,
+    PLAN_FILE,
+    ContentPlan,
+    illustration_requests,
+    load_plan,
+    save_plan,
+    validate_plan,
+)
 from forge.book.plan import Slot, plan_book, theme_rotation
 from forge.book.texts import ABOUT, COPYRIGHT, HOW_TO_PLAY, THANK_YOU
 from forge.core.book import BookSpec
@@ -44,7 +53,11 @@ def puzzle_seed(spec: BookSpec, slot: Slot, attempt: int) -> int:
 
 
 def generate_puzzles(
-    spec: BookSpec, book_id: str, registry: Registry, offsets: dict[int, int] | None = None
+    spec: BookSpec,
+    book_id: str,
+    registry: Registry,
+    offsets: dict[int, int] | None = None,
+    plan: ContentPlan | None = None,
 ) -> list[Puzzle]:
     """`offsets[slot]` shifts the seed attempts of a slot (used by the QA auto-fixer)."""
     offsets = offsets or {}
@@ -57,17 +70,26 @@ def generate_puzzles(
         opts = dict(slot.options)
         if slot.type == "cryptogram" and used_quotes:
             opts["exclude"] = sorted(used_quotes)  # no quote twice in one book
+        page = plan.page(slot.index + 1) if plan else None
+        page_words: list[str] | None = None
+        theme = slot.theme
+        if page is not None:  # content plan: the page's own sub-theme, words and quotes
+            theme = page.subtheme
+            page_words = list(page.words) or None
+            if page.quotes:
+                opts["quotes"] = [q.model_dump() for q in page.quotes]
         ps = PuzzleSpec(
             type=slot.type,
             level=slot.level,
             audience=spec.book.audience,
-            theme=slot.theme,
+            theme=theme,
+            words=page_words,
             options=opts,
         )
         last: Exception | None = None
         best: tuple[int, Puzzle] | None = None
         candidates = [ps]
-        if slot.theme is not None:  # themes that cannot reach the level: try the next ones
+        if slot.theme is not None and page is None:  # no plan: other themes may reach the level
             rot = [t for t in themes if t != slot.theme]
             candidates += [ps.model_copy(update={"theme": t}) for t in rot[:MAX_ALT_THEMES]]
         tries = [(c, a) for c in candidates for a in range(MAX_SEED_TRIES)]
@@ -270,13 +292,29 @@ def load_offsets(out_dir: Path) -> dict[int, int]:
     return {int(k): int(v) for k, v in json.loads(p.read_text()).items()} if p.is_file() else {}
 
 
-def build_book(spec: BookSpec, out_root: Path, db_path: Path, render: bool = True) -> Path:
+def build_book(
+    spec: BookSpec,
+    out_root: Path,
+    db_path: Path,
+    render: bool = True,
+    plan: ContentPlan | None = None,
+) -> Path:
     book_id = book_id_for(spec)
     out = out_root / book_id
     out.mkdir(parents=True, exist_ok=True)
+    if plan is None and (out / PLAN_FILE).is_file():
+        plan = load_plan(out / PLAN_FILE)  # --from-stage puzzles: reuse the (edited) plan
+    if plan is not None:
+        problems = validate_plan(plan, plan_book(spec), spec.book.audience)
+        if problems:
+            raise BuildError("content plan invalid:\n  " + "\n  ".join(problems[:30]))
+        save_plan(plan, out / PLAN_FILE)
+        (out / ILLUSTRATIONS_FILE).write_text(
+            json.dumps(illustration_requests(plan), indent=1), encoding="utf-8"
+        )
     with Registry(db_path) as reg:
         reg.remove_book(book_id)  # rebuild = this book's puzzles are re-registered
-        puzzles = generate_puzzles(spec, book_id, reg, load_offsets(out))
+        puzzles = generate_puzzles(spec, book_id, reg, load_offsets(out), plan)
     built = layout_book(spec, puzzles)
     built = layout_book(spec, puzzles, est_pages=len(built.doc.pages))  # gutter by real count
     (out / "puzzles.jsonl").write_text(

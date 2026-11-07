@@ -104,7 +104,7 @@ def quote_id(text: str) -> str:
 
 def show_source(source: str) -> bool:
     """Proverbs are anonymous: print a source line only for a named author."""
-    return bool(source) and source != "Proverb"
+    return bool(source) and source not in ("Proverb", "Original")
 
 
 def lines_needed(text: str, large: bool) -> int:
@@ -258,7 +258,13 @@ class Cryptogram:
         if ans is not None:
             return [(f"THE ANSWER IS {normalize_word(ans.word)}.", "")]
         exclude = set(spec.options.get("exclude", []))
-        pool = [(t, src) for t, src in quotes() if quote_id(t) not in exclude]
+        if spec.options.get("quotes"):  # content plan: this page's quotes (PD or original)
+            pool = [
+                (str(q["text"]), str(q.get("source", "Original"))) for q in spec.options["quotes"]
+            ]
+        else:
+            pool = list(quotes())
+        pool = [(t, src) for t, src in pool if quote_id(t) not in exclude]
         rng.shuffle(pool)
         target = TARGET_LETTERS[spec.level]
 

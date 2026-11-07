@@ -128,6 +128,7 @@ uv run forge puzzle cryptogram --level hard                     # PD quotes; hin
 uv run forge puzzle crossword --theme ocean --level medium      # fill-in criss-cross (clue mode after P2.3)
 uv run forge book build configs/books/example_wordsearch.yaml   # also example_mixed / example_sudoku_large_print
 uv run forge book build <spec.yaml> --no-render                  # puzzles + manifest only
+uv run forge book build <spec.yaml> --plan content_plan.yaml     # per-page sub-themes/words/quotes (edit + rebuild)
 uv run forge book verify output/<book_id>
 uv run forge qa run output/<book_id>              # QA gate L1-L3 (+auto-fix) -> qa/qa_report.html
 uv run forge qa waive output/<book_id> <check> --reason "..."   # MINOR checks only

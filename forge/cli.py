@@ -158,16 +158,29 @@ app.add_typer(book_app, name="book")
 def book_build(
     spec_path: Path = typer.Argument(..., help="Book YAML (configs/books/...)"),
     no_render: bool = typer.Option(False, "--no-render", help="Skip the PDF (plan + puzzles only)"),
+    plan_path: Path | None = typer.Option(
+        None, "--plan", help="content_plan.yaml (sub-themes, words)"
+    ),
 ) -> None:
-    """Generate all puzzles (verified, catalog-unique) and render interior.pdf + manifest.json."""
+    """Generate all puzzles (verified, catalog-unique) and render interior.pdf + manifest.json.
+
+    With --plan (or an existing output/<book>/content_plan.yaml) every page uses its own sub-theme,
+    words and quotes from the plan; edit the YAML and rebuild to regenerate the puzzles."""
     from forge.book.builder import BuildError, build_book
     from forge.core.book import load_book_spec
     from forge.layout.typst_runner import TypstError
 
     settings = get_settings()
     try:
+        from forge.book.content_plan import load_plan
+
+        plan = load_plan(plan_path) if plan_path else None
         out = build_book(
-            load_book_spec(spec_path), settings.output_dir, settings.db_path, render=not no_render
+            load_book_spec(spec_path),
+            settings.output_dir,
+            settings.db_path,
+            render=not no_render,
+            plan=plan,
         )
     except (BuildError, TypstError, FileNotFoundError, ValueError) as exc:
         typer.secho(f"build failed: {exc}", fg=typer.colors.RED, err=True)
