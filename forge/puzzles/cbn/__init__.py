@@ -1,4 +1,8 @@
-"""Colour-by-number reveal, level 1: code-generated square mosaic with an embedded code glyph.
+"""Colour-by-number reveal, level 1: code-generated mosaic with an embedded code glyph.
+
+Cell shapes: square (default, legacy layout), hexagon, triangle and circle (dots) — see
+`tiling.py`. Every shape is verified the same way: the solution is painted to a raster and the
+code is read back from the picture.
 
 Type A "colour reveal": each cell shows a colour number. Type B "colour by answer": each cell
 shows a mini sum whose answer selects the colour. Colouring every cell reveals the code
@@ -26,9 +30,19 @@ from forge.core.models import (
 from forge.core.protocol import RenderCtx, RenderedBlock
 from forge.core.seeds import derive_seed, make_rng
 from forge.puzzles.base import GenerationError, find_constraint
+from forge.puzzles.cbn import tiling
 from forge.puzzles.cbn.font import GLYPHS, H, W, bitmap, match
 
 SOLVER = "cbn-block-read-v1"
+SOLVER_RASTER = "cbn-raster-read-v1"
+# Smallest cell (inscribed-circle diameter, mm) a reader is asked to colour, and smallest label.
+MIN_CELL_MM = {"kids_6_8": 8.0, "kids_9_12": 8.0}
+MIN_CELL_MM_DEFAULT = 5.0
+MIN_LABEL_PT = 6.0
+PAGE_MM = (162.0, 158.0)  # mosaic area the cell count is planned for (fits Letter and A4)
+MODE_B_MIN_MM = 7.2  # a mini sum needs a cell this big to stay at MIN_LABEL_PT
+LEVEL_CELL_FACTOR = {"very_easy": 1.6, "easy": 1.35, "medium": 1.15, "hard": 1.0, "expert": 1.0}
+MODE_B_SHAPES = ("square", "hex")  # shapes with room for a mini sum in every cell
 PALETTES: dict[str, list[tuple[str, str, int]]] = {  # (name, hex, answer for type B)
     "adult": [
         ("Navy", "#1f3a5f", 7),
@@ -63,6 +77,52 @@ def resolve_params(spec: PuzzleSpec) -> CbnParams:
     else:
         size = 10 if kids else 16
     return CbnParams(size, size, mode)
+
+
+def min_cell_mm(audience: str) -> float:
+    return MIN_CELL_MM.get(audience, MIN_CELL_MM_DEFAULT)
+
+
+def plan_tiling(shape: str, code: str, spec: PuzzleSpec, mode: str = "A") -> tiling.Tiling:
+    """Largest-celled tiling of `shape` that fits the page and still holds the code.
+    Cells never go below the audience minimum (and below MODE_B_MIN_MM for mini sums)."""
+    base = max(min_cell_mm(spec.audience), MODE_B_MIN_MM if mode == "B" else 0.0)
+    want = LEVEL_CELL_FACTOR.get(spec.level, 1.0)
+    one = tiling.make(shape, 1, 1)
+    dx = tiling.make(shape, 1, 2).width - one.width
+    dy = tiling.make(shape, 2, 1).height - one.height
+    last: GenerationError | None = None
+    for factor in [f for f in (1.6, 1.35, 1.15, 1.0) if f <= want]:
+        unit_mm = base * factor / one.min_dim
+        cols = 1 + int((PAGE_MM[0] / unit_mm - one.width) / dx)
+        rows = 1 + int((PAGE_MM[1] / unit_mm - one.height) / dy)
+        try:
+            t = tiling.make(shape, max(rows, 2), max(cols, 2))
+            tiling.frame(len(code), t)
+            return t
+        except GenerationError as e:
+            last = e
+    raise GenerationError(
+        f"cbn: code {code!r} does not fit {shape} cells of at least {base:g} mm ({last})"
+    )
+
+
+def paint_tiling(code: str, t: tiling.Tiling, n_colors: int, rng: random.Random) -> list[int]:
+    """Colour index per cell of a tiling (1 = code colour, 2..n = background rings)."""
+    on = tiling.code_cells(code, t)
+    band = max(0.12, 1 / 7)
+    out = []
+    for cell, is_code in zip(t.cells, on, strict=True):
+        d = int(max(abs(cell.cx / t.width - 0.5), abs(cell.cy / t.height - 0.5)) * 2 / band)
+        shift = 1 if rng.random() < 0.15 else 0
+        out.append(1 if is_code else 2 + (d + shift) % (n_colors - 1))
+    return out
+
+
+def tiling_of(puzzle: Puzzle) -> tiling.Tiling:
+    """The tiling a puzzle was built on (square mosaics included)."""
+    shape = puzzle.data.get("shape", "square")
+    return tiling.make(shape, puzzle.data["rows"], puzzle.data["cols"])
 
 
 def palette(audience: str) -> list[tuple[str, str, int]]:
@@ -187,6 +247,9 @@ class ColorByNumber:
             raise GenerationError(f"cbn: unsupported characters in code {code!r}")
         if kids and len(code) > 1 and not ans:
             code = code[0]
+        shape = str(spec.options.get("shape") or "")
+        if shape:  # explicit shape (square included): planned tiling with the minimum cell size
+            return self._generate_tiling(spec, seed, shape, code, p.mode, rng)
         width_px = len(code) * (W + 1) - 1
         if p.cols < width_px + 2:  # widen the mosaic for long codes
             p = CbnParams(max(p.rows, H + 2), width_px + 2, p.mode)
@@ -209,6 +272,47 @@ class ColorByNumber:
                 ],
             },
             solution={"colors": colors, "code": code},
+            token=code,
+        )
+        rep = self.verify(puzzle)
+        if not rep.ok:
+            raise GenerationError(f"cbn failed verification: {rep.messages}")
+        return puzzle.model_copy(update={"verify": rep, "difficulty": self.difficulty(puzzle)})
+
+    def _generate_tiling(
+        self, spec: PuzzleSpec, seed: int, shape: str, code: str, mode: str, rng: random.Random
+    ) -> Puzzle:
+        pal = palette(spec.audience)
+        kids = spec.audience in ("kids_6_8", "kids_9_12")
+        if mode == "B" and shape not in MODE_B_SHAPES:
+            mode = "A"
+        try:
+            t = plan_tiling(shape, code, spec, mode)
+        except GenerationError:
+            if mode != "B":
+                raise
+            mode = "A"  # the sums need bigger cells than the code leaves room for
+            t = plan_tiling(shape, code, spec, mode)
+        colors = paint_tiling(code, t, len(pal), rng)
+        if mode == "A":
+            labels = [str(v) for v in colors]
+        else:
+            labels = [_expr(pal[v - 1][2], kids, rng) for v in colors]
+        puzzle = build_puzzle(
+            spec,
+            seed,
+            data={
+                "mode": mode,
+                "shape": shape,
+                "rows": t.rows,
+                "cols": t.cols,
+                "cells": [labels],  # one row: cell order of the tiling
+                "palette": [
+                    {"n": i + 1, "name": n, "hex": h, "answer": a}
+                    for i, (n, h, a) in enumerate(pal)
+                ],
+            },
+            solution={"colors": [colors], "code": code},
             token=code,
         )
         rep = self.verify(puzzle)
@@ -239,8 +343,12 @@ class ColorByNumber:
         colors = self.colours_from_cells(puzzle)
         if colors is None:
             return SolveResult(solved=False)
+        if "shape" in puzzle.data:
+            code = tiling.read_raster(tiling_of(puzzle), colors[0])
+        else:
+            code = read_code(colors)
         return SolveResult(
-            solved=True, solution={"colors": colors, "code": read_code(colors)}, solutions_found=1
+            solved=True, solution={"colors": colors, "code": code}, solutions_found=1
         )
 
     def verify(self, puzzle: Puzzle) -> VerifyReport:
@@ -260,6 +368,11 @@ class ColorByNumber:
                 f"revealed code reads {res.solution['code']!r}, expected "
                 f"{puzzle.solution['code']!r}"
             )
+        flat = [v for row in res.solution["colors"] for v in row]
+        if len(flat) != len(tiling_of(puzzle).cells):
+            msgs.append("number of labelled cells differs from the tiling")
+        elif tiling.read_raster(tiling_of(puzzle), flat) != puzzle.solution["code"]:
+            msgs.append("the painted picture does not show the code clearly (raster read)")
         pal = puzzle.data["palette"]
         dark = _lum(pal[0]["hex"])
         lightest_bg = min(_lum(e["hex"]) for e in pal[1:])
@@ -270,12 +383,14 @@ class ColorByNumber:
         ans = find_constraint(puzzle.spec, AnswerIs)
         if ans and ans.word.upper() != puzzle.solution["code"]:
             msgs.append("code differs from answer_is constraint")
-        return VerifyReport(ok=not msgs, unique=True, solver=SOLVER, messages=msgs)
+        solver = SOLVER_RASTER if "shape" in puzzle.data else SOLVER
+        return VerifyReport(ok=not msgs, unique=True, solver=solver, messages=msgs)
 
     def difficulty(self, puzzle: Puzzle) -> DifficultyScore:
-        cells = puzzle.data["rows"] * puzzle.data["cols"]
+        cells = sum(len(row) for row in puzzle.data["cells"])
         b = puzzle.data["mode"] == "B"
-        score = round(min(95.0, 8 + cells / 676 * 40 + (35 if b else 0)), 1)
+        shape_bonus = {"hex": 6, "circle": 3, "triangle": 12}.get(puzzle.data.get("shape", ""), 0)
+        score = round(min(95.0, 8 + cells / 676 * 40 + (35 if b else 0) + shape_bonus), 1)
         f = {
             "cells": float(cells),
             "type_b": float(b),
@@ -286,6 +401,8 @@ class ColorByNumber:
     def _block(
         self, puzzle: Puzzle, ctx: RenderCtx, solution: bool, share: float
     ) -> dict[str, Any]:
+        if "shape" in puzzle.data:
+            return self._poly_block(puzzle, ctx, solution, share)
         rows, cols = puzzle.data["rows"], puzzle.data["cols"]
         cell = round(min(ctx.width_in / cols, ctx.height_in * share / rows, 0.6), 3)
         b = puzzle.data["mode"] == "B"
@@ -299,15 +416,53 @@ class ColorByNumber:
             "palette": puzzle.data["palette"],
             "mode": puzzle.data["mode"],
             "cell_in": cell,
+            "cell_mm": round(cell * 25.4, 2),
+            "font_pt": round(font, 1),
+            "legend": not solution,
+        }
+
+    def _poly_block(
+        self, puzzle: Puzzle, ctx: RenderCtx, solution: bool, share: float
+    ) -> dict[str, Any]:
+        """Polygon mosaic: every cell is drawn from its outline, sizes in inches."""
+        t = tiling_of(puzzle)
+        cap = 0.6 / t.min_dim  # same upper cell size as square mosaics
+        k = min(ctx.width_in / t.width, ctx.height_in * share / t.height, cap)
+        b = puzzle.data["mode"] == "B"
+        font = t.min_dim * k * 72 * (0.3 if b else 0.5)
+        colors = puzzle.solution["colors"][0]
+        labels = puzzle.data["cells"][0]
+        return {
+            "kind": "cbn_poly",
+            "shape": t.shape,
+            "w_in": round(t.width * k, 3),
+            "h_in": round(t.height * k, 3),
+            "cells": [
+                {
+                    "p": [[round(x * k, 4), round(y * k, 4)] for x, y in c.pts],
+                    "c": [round(c.cx * k, 4), round(c.cy * k, 4)],
+                    "l": lab,
+                    "f": colors[i] if solution else 0,
+                }
+                for i, (c, lab) in enumerate(zip(t.cells, labels, strict=True))
+            ],
+            "palette": puzzle.data["palette"],
+            "mode": puzzle.data["mode"],
+            "cell_mm": round(t.min_dim * k * 25.4, 2),
+            "min_mm": min_cell_mm(puzzle.spec.audience),
+            "label_in": round(t.min_dim * k, 4),
             "font_pt": round(font, 1),
             "legend": not solution,
         }
 
     def render(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
+        cell = {"hex": "hexagon", "triangle": "triangle", "circle": "dot"}.get(
+            puzzle.data.get("shape", "square"), "square"
+        )
         how = (
-            "Colour each square with the colour of its number."
+            f"Colour each {cell} with the colour of its number."
             if puzzle.data["mode"] == "A"
-            else "Solve the sum in each square, then colour it with the colour of the answer."
+            else f"Solve the sum in each {cell}, then colour it with the colour of the answer."
         )
         return RenderedBlock(
             blocks=[
@@ -323,4 +478,4 @@ class ColorByNumber:
         )
 
 
-__all__ = ["ColorByNumber", "Level", "read_code"]
+__all__ = ["ColorByNumber", "Level", "min_cell_mm", "read_code", "tiling_of"]

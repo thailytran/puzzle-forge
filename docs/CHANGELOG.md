@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 
 ## [Unreleased]
 
+- P8.1b: colour-by-number cell shapes on one polygon core: square, hexagon, triangle, circle (`forge puzzle cbn -o shape=hex`); verifier independent of the cell shape (solution painted to a raster, code read back) + second solver by point-in-cell lookup; cells planned at ≥ 5 mm (adult) / ≥ 8 mm (kids) with labels ≥ 6 pt; QA check L2.cbn_cell_size; Typst block `cbn_poly`. Default mosaics without `shape` keep the previous layout.
+
 ## [0.2.0] - 2026-11-07 — packaging & deploy (P10.1–P10.7); Case Vault P8.1/P9 are listed under 0.1.0
 
 - P10.1: versioning: single semver source (pyproject), forge --version with git sha + env, CHANGELOG Unreleased/version sections, release workflow (tag v* -> tests -> wheel + source tarball + SHA256SUMS -> GitHub Release), Case Vault image workflow (tag casevault-v* -> GHCR)

@@ -53,6 +53,7 @@ IDs are stable; the registry lives in `forge/qa/checks.py`.
 | L2.safe_area | BLOCKER | All text/graphics inside the margins (gutter by page count); nothing clipped or overflowing. |
 | L2.fonts_embedded | BLOCKER | Every font embedded (subset ok). |
 | L2.min_sizes | MAJOR | Min font size / cell size by audience (kids_6_8 cell ≥ 0.45", large print text ≥ 16 pt, grid ≥ 0.4"). |
+| L2.cbn_cell_size | MAJOR | Colour-by-number mosaics built with an explicit cell shape (square, hex, triangle, circle): smallest cell (inscribed-circle diameter) ≥ 5 mm, ≥ 8 mm for kids; cell label ≥ 6 pt. Same rule for every shape. |
 | L2.image_dpi | BLOCKER | Raster images ≥ 300 effective DPI. |
 | L2.page_numbers | MAJOR | Printed page numbers continuous. |
 | L2.solution_match | BLOCKER | Puzzle #n page and solution #n reference the same `puzzle_id`. |

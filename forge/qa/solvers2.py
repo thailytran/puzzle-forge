@@ -261,6 +261,10 @@ def cbn(p: Puzzle) -> Result:
     colors = ColorByNumber().colours_from_cells(p)
     if colors is None:
         return 0, None
+    if "shape" in p.data:  # polygon mosaics: point-in-cell lookup
+        from forge.puzzles.cbn import tiling, tiling_of
+
+        return 1, {"colors": colors, "code": tiling.read_centres(tiling_of(p), colors[0])}
     return 1, {"colors": colors, "code": read_with(colors, "centre")}
 
 

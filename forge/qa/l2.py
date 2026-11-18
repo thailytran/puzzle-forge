@@ -152,6 +152,45 @@ def min_sizes(ctx: Any) -> list[Finding]:
     return out
 
 
+CBN_BLOCKS = ("cbn_grid", "cbn_poly")
+CBN_MIN_LABEL_PT = 6.0
+
+
+def cbn_cell_findings(page: int, blocks: list[dict[str, Any]]) -> list[Finding]:
+    """Planned colour-by-number mosaics (blocks carrying `min_mm`) keep their minimum cell size
+    and label size on the printed page, whatever the cell shape."""
+    out: list[Finding] = []
+    for b in blocks:
+        if b.get("kind") not in CBN_BLOCKS or "min_mm" not in b or not b.get("legend"):
+            continue
+        if b["cell_mm"] < b["min_mm"] - 0.05:
+            out.append(
+                Finding(
+                    message=f"page {page}: colour-by-number cell {b['cell_mm']} mm "
+                    f"< {b['min_mm']} mm ({b.get('shape', 'square')})",
+                    evidence={"page": page, "cell_mm": b["cell_mm"], "min_mm": b["min_mm"]},
+                )
+            )
+        if b["font_pt"] < CBN_MIN_LABEL_PT - 0.05:
+            out.append(
+                Finding(
+                    message=f"page {page}: colour-by-number label {b['font_pt']} pt "
+                    f"< {CBN_MIN_LABEL_PT} pt",
+                    evidence={"page": page, "font_pt": b["font_pt"]},
+                )
+            )
+    return out
+
+
+@check("L2.cbn_cell_size", "MAJOR", "Colour-by-number cells and labels at least the minimum size")
+def cbn_cell_size(ctx: Any) -> list[Finding]:
+    out: list[Finding] = []
+    for i, lp in enumerate(layout(ctx)["pages"], start=1):
+        if lp["kind"] not in SIZE_EXEMPT_KINDS:
+            out.extend(cbn_cell_findings(int(lp.get("number", i)), lp["blocks"]))
+    return out
+
+
 @check("L2.image_dpi", "BLOCKER", "Raster images at least 300 effective DPI")
 def image_dpi(ctx: Any) -> list[Finding]:
     return [

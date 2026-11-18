@@ -235,6 +235,32 @@
   }
 }
 
+// Polygon colour-by-number mosaic (hexagons, triangles, dots…): every cell arrives as an outline
+// in inches plus its centre, label and (solution pages) colour index.
+#let cbn-poly(b) = {
+  let fpt = b.font_pt * 1pt
+  let lab = b.label_in * inch
+  align(center, box(width: b.w_in * inch, height: b.h_in * inch, {
+    for c in b.cells {
+      let fill = if c.f > 0 { rgb(b.palette.at(c.f - 1).hex) } else { white }
+      place(top + left, polygon(fill: fill, stroke: 0.4pt + luma(140),
+        ..c.p.map(q => (q.at(0) * inch, q.at(1) * inch))))
+      if c.f == 0 {
+        place(top + left, dx: c.c.at(0) * inch - lab / 2, dy: c.c.at(1) * inch - lab / 2,
+          box(width: lab, height: lab, align(center + horizon,
+            text(font: L.fonts.sans, size: fpt, c.l))))
+      }
+    }
+  }))
+  if b.at("legend", default: true) {
+    v(0.6em)
+    set text(font: L.fonts.sans, size: base)
+    align(center, b.palette.map(e => box(inset: 3pt, stack(dir: ltr, spacing: 4pt,
+      rect(width: 0.3in, height: 0.3in, fill: rgb(e.hex), stroke: 0.4pt),
+      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.6em)))
+  }
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -305,6 +331,8 @@
     )
   } else if k == "cbn_grid" {
     cbn-grid(b)
+  } else if k == "cbn_poly" {
+    cbn-poly(b)
   } else if k == "word_list" {
     word-list(b)
   } else if k == "toc" {

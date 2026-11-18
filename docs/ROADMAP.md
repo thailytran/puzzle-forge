@@ -45,7 +45,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 
 ## PB — Blueprints, page planner, framed art, colour-by-number (owner rules 2026-11-07)
 - [x] PB.1 Blueprint library: `blueprints/escape_adult/line.yaml` (page types, zones in mm, z-order, variants) + loader + `forge blueprint preview` (coloured zones PDF).
-- [x] PB.2 CBN level 1: geometric mosaic (square/hex/Voronoi) with embedded code glyph, type A + type B, palette + legend, glyph-matching solver, QA L1.cbn_reveal, coloured solution.
+- [x] PB.2 CBN level 1: geometric mosaic (square; hex/triangle/circle in P8.1b, Voronoi in P8.1c) with embedded code glyph, type A + type B, palette + legend, glyph-matching solver, QA L1.cbn_reveal, coloured solution.
 - [ ] PB.3 Page planner: case bible + arc + clue graph + blueprint + targets → `page_plan.yaml` (+ validation, `--from-stage page_plan`), hints (4 tiers), code register / host pack.
 - [ ] PB.4 Art requests: per art zone pixel size + mask PNG + style bible + prompt clauses; `art_requests/` export, `forge art import`; compositor layers; QA L2.art_*.
 - [ ] PB.5 Escape sample book ≥ 50 game pages with 1–2 cbn_reveal pages (needs P3 case data) + review pack.
@@ -102,6 +102,8 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 
 ## P8 — CBN Mystery line (docs/MYSTERY_DESIGN.md §15–§16)
 - [x] P8.1 "All clues required" engine `forge/mystery/necessity.py` (candidate spaces: suspects × attributes, codes, locations; declarative clue predicates) + QA `L4.all_clues_required` (drop any clue → > 1 candidate) for every escape/mystery/adventure line.
+- [x] P8.1b CBN cell shapes: one polygon core (`forge/puzzles/cbn/tiling.py`) for square, hexagon, triangle and circle (`-o shape=...`); shape-independent verifier (paint the solution, read the code back) + centre-lookup second solver; planned cell ≥ 5 mm (adult) / 8 mm (kids), label ≥ 6 pt, QA `L2.cbn_cell_size`.
+- [ ] P8.1c CBN cell shapes: rhombus, Voronoi; symbol labels.
 - [ ] P8.2 Blueprint `cbn_mystery` (kids + adult): chapter = story page + cbn_reveal + evidence card; final deduction page; `case_vault` last page.
 - [ ] P8.3 Case builder: suspects/codes + reveal glyphs → clues that pass P8.1; CBN pages generated with the glyph constraint (PB.2 engine).
 - [ ] P8.4 Sample CBN Mystery book (kids + adult) → QA_PASSED → review pack.
