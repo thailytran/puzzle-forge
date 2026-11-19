@@ -93,6 +93,20 @@ class Chapter(_M):
     teaser: str = ""  # cliff-hanger printed under the evidence card: pulls the reader on
 
 
+class Character(_M):
+    """One person of the story, drawn the same way on every page and in every book of a series.
+
+    `look` never changes (face, hair, build, age, marks). `outfit` belongs to this case and may
+    change from book to book. Art requests carry both texts word for word, plus the id of the
+    character sheet picture that every later picture must be drawn from."""
+
+    id: str
+    name: str
+    role: str = ""
+    look: str
+    outfit: str
+
+
 class CaseFrame(_M):
     id: str
     title: str
@@ -108,6 +122,10 @@ class CaseFrame(_M):
     finale: str = ""
     epilogue: str = ""
     vault_word: str = ""
+    series: str = ""
+    art_style: str = ""  # one style line for every picture of the book / series
+    cast: list[Character] = Field(default_factory=list)
+    cast_lock: dict[str, str] = Field(default_factory=dict)  # id -> look fixed by an earlier book
     prologue_title: str = "Prologue"
     prologue: str = ""  # opening scene before the suspects: stakes, deadline, the detective
 
@@ -318,6 +336,7 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
             p.extend(_card_problems(ch))
         p.extend(_leaks(ch))
     p.extend(_spoilers(frame))
+    p.extend(_cast_problems(frame))
     for where, text in _texts(frame):
         m = UNSAFE.search(text or "")
         if m:
@@ -398,6 +417,52 @@ def _leaks(ch: Chapter) -> list[str]:
             if re.search(rf"\b{re.escape(w)}S?\b", text or "", re.I):
                 out.append(f"chapter {ch.no}: {where} gives away the answer {w}")
     return out
+
+
+def _first(name: str) -> str:
+    return name.split()[0]
+
+
+def _cast_problems(frame: CaseFrame) -> list[str]:
+    """Character lock: everyone who can be drawn has ONE fixed look, the look agrees with the
+    suspect facts the reader reasons with, and it equals the look of earlier books of the series."""
+    out: list[str] = []
+    ids = [c.id for c in frame.cast]
+    if len(set(ids)) != len(ids) or len({c.name for c in frame.cast}) != len(frame.cast):
+        out.append("cast: every character needs a unique id and name")
+    by_name = {c.name: c for c in frame.cast}
+    for c in frame.cast:
+        if len(c.look.split()) < 8:
+            out.append(
+                f"cast {c.name}: describe the fixed look (face, hair, build, age) in 8+ words"
+            )
+        if len(c.outfit.split()) < 3:
+            out.append(f"cast {c.name}: describe the outfit for this case")
+        old = frame.cast_lock.get(c.id)
+        if old is not None and old != c.look:
+            out.append(f"cast {c.name}: the look differs from the earlier book of the series")
+    if not frame.cast:
+        return out
+    for s in frame.suspects:
+        name = str(s.get(frame.answer_field, ""))
+        c = by_name.get(name)
+        if c is None:
+            out.append(f"cast: suspect {name!r} has no character sheet")
+            continue
+        text = f"{c.look} {c.outfit}".lower()
+        wears = bool(re.search(r"\b(glasses|spectacles)\b", text))
+        if "glasses" in s and bool(s["glasses"]) != wears:
+            out.append(f"cast {name}: glasses in the picture text and in the suspect facts differ")
+        if isinstance(s.get("scarf"), str) and not re.search(
+            rf"\b{re.escape(s['scarf'])}\b[^.]*\bscarf\b", c.outfit.lower()
+        ):
+            out.append(f"cast {name}: the outfit must show a {s['scarf']} scarf")
+    return out
+
+
+def cast_in(frame: CaseFrame, text: str) -> list[Character]:
+    """Characters named in a text (first name is enough), in cast order."""
+    return [c for c in frame.cast if re.search(rf"\b{re.escape(_first(c.name))}\b", text)]
 
 
 def _spoilers(frame: CaseFrame) -> list[str]:
@@ -546,10 +611,36 @@ def layout_pages(
     art: list[dict[str, Any]] = []
     half = RenderCtx(width_in=ctx.width_in, height_in=ctx.height_in * 0.46)
 
-    def add(page: Page, brief: str = "", zone: str = "scene") -> None:
+    for c in frame.cast:  # reference pictures first: every later picture is drawn from them
+        art.append(
+            {
+                "page": 0,
+                "zone": "character_sheet",
+                "id": f"char:{c.id}",
+                "brief": f"Character sheet of {c.name} ({c.role}): front view, side view and "
+                f"close-up of the face on a plain background. Look (never changes): {c.look} "
+                f"Outfit in this book: {c.outfit}",
+                "style": frame.art_style,
+            }
+        )
+
+    def add(page: Page, brief: str = "", zone: str = "scene", text: str = "") -> None:
         pages.append(page)
         if brief:
-            art.append({"page": len(pages), "zone": zone, "brief": brief})
+            who = cast_in(frame, f"{brief} {text}")
+            req: dict[str, Any] = {"page": len(pages), "zone": zone, "brief": brief}
+            if frame.art_style:
+                req["style"] = frame.art_style
+            if who:
+                req["refs"] = [f"char:{c.id}" for c in who]
+                req["characters"] = [
+                    {"id": c.id, "name": c.name, "look": c.look, "outfit": c.outfit} for c in who
+                ]
+                req["brief"] += (
+                    " Draw every character exactly as on their character sheet: same face, "
+                    "hair, build and outfit."
+                )
+            art.append(req)
 
     add(
         Page(kind="title", title=frame.title, header=False, number=False, blocks=[]),
@@ -607,7 +698,8 @@ def layout_pages(
             title="The Suspects",
             blocks=[*_para(frame.setting), {"kind": "list", "items": who}],
         ),
-        "Portrait strip of the suspects, friendly storybook style",
+        "Portrait strip of the suspects, in dossier order: "
+        + ", ".join(str(s[frame.answer_field]) for s in frame.suspects),
         "portraits",
     )
     log = [
@@ -627,6 +719,7 @@ def layout_pages(
         add(
             Page(kind="text", title=f"Chapter {ch.no}: {ch.title}", blocks=_para(ch.story)),
             ch.scene,
+            text=ch.story,
         )
         front = cb.render(cp.cbn, ctx)
         files.update(front.files)
@@ -800,6 +893,9 @@ def build_case_book(
     man["reader_sim"] = {"ok": run.ok, "left_after": run.left_after}
     (out / "manifest.json").write_text(json.dumps(man, indent=2), encoding="utf-8")
     (out / "art_requests.json").write_text(json.dumps(art, indent=2), encoding="utf-8")
+    if frame.cast:  # carry this file into the next book of the series as `cast_lock`
+        lock = {c.id: c.look for c in frame.cast}
+        (out / "cast_lock.json").write_text(json.dumps(lock, indent=2), encoding="utf-8")
     if render:
         doc = make_layout(
             title=frame.title, subtitle=frame.subtitle, trim=trim, pages=pages, min_pages=0

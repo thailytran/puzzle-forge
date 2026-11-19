@@ -738,5 +738,121 @@
  "finale": "3:10 p.m. Twelve neighbours, eight facts. Go through your Code Log and cross out everyone who does not fit a fact. One name stays.\nBefore you knock on that door, think about the card on the gatepost. IT WILL COME BACK. This was never a theft for money. So why would this neighbour, of all people, carry the Founders' Star home in the middle of the night?",
  "epilogue": "4:40 p.m. The door opens before you knock. On the workbench inside, under a lamp, lies the Founders' Star, and one of its five points is bright with new solder.\n\"It cracked in the autumn storm,\" your neighbour says. \"One more night of wind and that point would have come down on the square. If the council had known, there would have been no star this year, and no Fair, and you know what happens to the fir then. So I took it down myself, in the dark, and I have not slept since.\" A tail thumps under the bench.\nAt five o'clock exactly, with the whole town holding its breath, the star goes up the fir again. It has never shone so brightly.\nWho was it? You know the name. Prove it in the Case Vault to unlock the portrait and the last page of the story.",
  "prologue_title": "Ten Hours Until Dusk",
- "prologue": "The knocking starts at ten past seven. On your doorstep stands Mayor Alder, hat in his hands, snow on his shoulders.\n\"It's gone,\" he says. \"The Founders' Star. A hundred winters on top of that fir, and this morning there is nothing but sky.\"\nYou know what that means. The town charter says it plainly: no star, no Starlight Fair. And without the Fair the timber company's offer for the old fir, the one the council has refused nine years running, goes to a vote on Monday.\n\"Somebody took it in the night,\" the Mayor whispers. \"Somebody who knew the square. One of us.\" He presses a folded list into your hand. Twelve names. You have bought bread from them, borrowed books from them, sung beside them.\nBehind him, half hidden by the gate, a small boy in a flour-dusted apron is hopping from foot to foot. Pip, the baker's boy. \"I saw something,\" he blurts. \"Last night. From my window.\"\nThe tower clock strikes the quarter. Dusk falls at five. If the star is not shining by then, the Fair is over before it begins, and the fir may never see another winter.\nYou pull on your coat. \"Show me,\" you say."
+ "prologue": "The knocking starts at ten past seven. On your doorstep stands Mayor Alder, hat in his hands, snow on his shoulders.\n\"It's gone,\" he says. \"The Founders' Star. A hundred winters on top of that fir, and this morning there is nothing but sky.\"\nYou know what that means. The town charter says it plainly: no star, no Starlight Fair. And without the Fair the timber company's offer for the old fir, the one the council has refused nine years running, goes to a vote on Monday.\n\"Somebody took it in the night,\" the Mayor whispers. \"Somebody who knew the square. One of us.\" He presses a folded list into your hand. Twelve names. You have bought bread from them, borrowed books from them, sung beside them.\nBehind him, half hidden by the gate, a small boy in a flour-dusted apron is hopping from foot to foot. Pip, the baker's boy. \"I saw something,\" he blurts. \"Last night. From my window.\"\nThe tower clock strikes the quarter. Dusk falls at five. If the star is not shining by then, the Fair is over before it begins, and the fir may never see another winter.\nYou pull on your coat. \"Show me,\" you say.",
+ "series": "Larkspur Hollow Mysteries",
+ "art_style": "Warm storybook illustration, clean ink outlines, soft flat colours, snowy winter light, friendly and cosy, no text in the picture",
+ "cast": [
+  {
+   "id": "wren",
+   "name": "Wren the lamplighter",
+   "role": "lamplighter",
+   "look": "Woman of about thirty, tall and wiry, long copper-red braid over one shoulder, freckled face, grey eyes, soot smudge on one cheek.",
+   "outfit": "Long dark-green coat, red scarf, heavy brown boots, lamplighter's pole; a small brown terrier at her heels."
+  },
+  {
+   "id": "mabel",
+   "name": "Mabel the baker",
+   "role": "baker",
+   "look": "Woman of about fifty, short and round, rosy cheeks, curly grey hair in a bun, warm brown eyes, flour on her forearms.",
+   "outfit": "White apron over a blue dress, green scarf, sturdy black boots."
+  },
+  {
+   "id": "otis",
+   "name": "Otis the clockmaker",
+   "role": "clockmaker",
+   "look": "Man of about sixty-five, thin and stooped, bald with a white moustache, long nose, round wire glasses.",
+   "outfit": "Brown waistcoat with a watch chain, red scarf, polished boots, toolbox in hand."
+  },
+  {
+   "id": "pippa",
+   "name": "Pippa the florist",
+   "role": "florist",
+   "look": "Woman of about twenty-five, slim, short black bob with a fringe, dark eyes, a tiny flower tucked behind one ear.",
+   "outfit": "Mustard cardigan, red scarf, soft grey indoor shoes."
+  },
+  {
+   "id": "hugo",
+   "name": "Hugo the ferryman",
+   "role": "ferryman",
+   "look": "Man of about forty-five, broad shoulders, thick black beard, weathered brown face, deep-set eyes, knitted cap.",
+   "outfit": "Navy pea coat, red scarf, tall rubber boots."
+  },
+  {
+   "id": "nell",
+   "name": "Nell the librarian",
+   "role": "librarian",
+   "look": "Woman of about forty, tall and straight-backed, auburn hair in a tight high bun, sharp green eyes, thin eyebrows.",
+   "outfit": "Plum-coloured long coat, red scarf, laced boots, a book under her arm."
+  },
+  {
+   "id": "basil",
+   "name": "Basil the choirmaster",
+   "role": "choirmaster",
+   "look": "Man of about fifty-five, plump, silver hair combed back, neat pointed beard, pale blue eyes, very upright.",
+   "outfit": "Black choir robe with a white collar, red scarf, shiny black boots."
+  },
+  {
+   "id": "ivy",
+   "name": "Ivy the toymaker",
+   "role": "toymaker",
+   "look": "Woman of about thirty-five, small and quick, wild curly blonde hair tied with a ribbon, hazel eyes, oil-stained fingers.",
+   "outfit": "Patched denim overalls, red scarf, brown work boots; holds her tools in her left hand."
+  },
+  {
+   "id": "tobias",
+   "name": "Tobias the postman",
+   "role": "postman",
+   "look": "Man of about twenty-eight, lanky, sandy hair under a peaked cap, big ears, wide friendly grin.",
+   "outfit": "Blue postal jacket, red scarf, black boots, a post bag with a grey cat looking out."
+  },
+  {
+   "id": "greta",
+   "name": "Greta the weaver",
+   "role": "weaver",
+   "look": "Woman of about seventy, tiny and bird-like, white hair in two long plaits, bright black eyes behind thick square glasses.",
+   "outfit": "Layered shawls in many colours, green scarf, fur-lined boots."
+  },
+  {
+   "id": "felix",
+   "name": "Felix the fiddler",
+   "role": "fiddler",
+   "look": "Man of about thirty-five, lean, long dark hair in a ponytail, thin moustache, one gold earring, laughing eyes.",
+   "outfit": "Patched wine-red jacket, red scarf, scuffed dancing boots, a fiddle case on his back."
+  },
+  {
+   "id": "dora",
+   "name": "Dora the cobbler",
+   "role": "cobbler",
+   "look": "Woman of about forty-five, strong arms, short grey-streaked brown hair, square jaw, calm dark eyes.",
+   "outfit": "Leather apron, red scarf, grey felt clogs, a measuring ribbon round her neck; a tabby cat in her shop window."
+  },
+  {
+   "id": "pip",
+   "name": "Pip",
+   "role": "the baker's boy, the detective's helper",
+   "look": "Boy of about nine, small and skinny, messy straw-coloured hair, gap between his front teeth, huge curious brown eyes.",
+   "outfit": "Flour-dusted apron over a too-big knitted jumper, striped bobble hat, mittens on a string."
+  },
+  {
+   "id": "alder",
+   "name": "Mayor Alder",
+   "role": "mayor",
+   "look": "Man of about sixty, large and anxious, round red face, bushy grey side-whiskers, small worried eyes.",
+   "outfit": "Dark overcoat with a chain of office, top hat usually in his hands."
+  },
+  {
+   "id": "marsh",
+   "name": "Captain Marsh",
+   "role": "retired sailor who teaches knots",
+   "look": "Man of about seventy-five, short and solid, white beard without a moustache, sun-creased face, one eyebrow always raised.",
+   "outfit": "Old navy-blue sailor's jersey, oilskin cap, a coil of rope over his shoulder."
+  },
+  {
+   "id": "hale",
+   "name": "Doctor Hale",
+   "role": "vet",
+   "look": "Woman of about forty, athletic, dark skin, short natural hair, calm steady gaze.",
+   "outfit": "Long tan coat over a tweed suit, leather bag, a small brass lamp."
+  }
+ ]
 }

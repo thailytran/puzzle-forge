@@ -336,3 +336,6 @@ keyword one where only that keyword differs. So no answer can be skipped.
   after the answer is checked there (drives readers to the site).
 - Evidence pictures and suspect portraits are drawn through the Studio queue (ChatGPT brief,
   Gemini picture) and turned into mosaics by code; the 13x13 icons are a placeholder.
+- One character = one look. `look` (face, hair, build, age, marks) is fixed for the book and for
+  every later book of the series; only `outfit` may change between books. Pictures are always
+  drawn from the character sheet, never from a fresh description.

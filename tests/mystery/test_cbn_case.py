@@ -272,3 +272,48 @@ def test_story_never_spoils_what_is_found_later(frame: CaseFrame) -> None:
     text = " ".join(str(b.get("text", "")) for b in card.blocks)
     assert "7 names are still on your list" in text and frame.chapters[2].teaser[:20] in text
     assert any(p.title == "Ten Hours Until Dusk" for p in pages)
+
+
+def test_characters_look_the_same_everywhere(frame: CaseFrame) -> None:
+    """Owner rule: one fixed look per character for the whole book and series."""
+    assert problems(frame, lambda d: None) == []
+    _p, _f, art = layout_pages(frame, build_puzzles(frame, 7), RenderCtx(7.0, 9.0))
+    sheets = [a for a in art if a["zone"] == "character_sheet"]
+    assert len(sheets) == len(frame.cast) == 16
+    wren = next(c for c in frame.cast if c.id == "wren")
+    scenes = [a for a in art if "char:greta" in a.get("refs", [])]
+    assert scenes and all(
+        any(
+            c["look"] == next(x for x in frame.cast if x.id == "greta").look
+            for c in a["characters"]
+        )
+        for a in scenes
+    )
+    assert all(a.get("style") == frame.art_style for a in art if a["zone"] == "scene")
+
+    def changed(d: dict) -> None:  # type: ignore[type-arg]
+        d["cast_lock"] = {"wren": wren.look}
+        d["cast"][0]["look"] = d["cast"][0]["look"].replace("copper-red braid", "short black hair")
+
+    assert any("differs from the earlier book" in p for p in problems(frame, changed))
+
+    def same_look_new_outfit(d: dict) -> None:  # type: ignore[type-arg]
+        d["cast_lock"] = {"wren": wren.look}
+        d["cast"][0]["outfit"] = "Summer linen shirt, red scarf tied at the waist, sandals."
+
+    assert problems(frame, same_look_new_outfit) == []
+
+    def glasses(d: dict) -> None:  # type: ignore[type-arg]
+        d["cast"][0]["look"] += " Wears round glasses."
+
+    assert any("glasses in the picture text" in p for p in problems(frame, glasses))
+
+    def scarf(d: dict) -> None:  # type: ignore[type-arg]
+        d["cast"][1]["outfit"] = d["cast"][1]["outfit"].replace("green scarf", "red scarf")
+
+    assert any("must show a green scarf" in p for p in problems(frame, scarf))
+
+    def missing(d: dict) -> None:  # type: ignore[type-arg]
+        d["cast"].pop(4)
+
+    assert any("has no character sheet" in p for p in problems(frame, missing))
