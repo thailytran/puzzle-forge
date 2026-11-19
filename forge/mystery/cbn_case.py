@@ -39,7 +39,9 @@ from forge.puzzles.cbn.font import ICONS
 from forge.puzzles.cbn.tiling import SHAPES
 from forge.wordlists import is_blocked
 
-SIDE_TYPES = ("scramble", "cryptogram", "wordsearch", "maze", "numlock", "sudoku")
+# Owner rule 2026-11-19: every puzzle must lead straight to the code, no filler. Word scramble and
+# word search were dropped from this line (their word lists had nothing to do with the case).
+SIDE_TYPES = ("cryptogram", "maze", "numlock", "sudoku")
 NUMBER_TYPES = ("numlock", "sudoku")  # their keyword is a number (shoe size, hour, house number)
 SUDOKU_CELLS = [(0, 0), (1, 3), (2, 6), (3, 1)]  # different row, column and box: any digits fit
 SUDOKU_CELLS_6 = [(0, 0), (1, 3), (2, 1), (3, 4)]
@@ -69,10 +71,12 @@ class Decoy(_M):
 
 
 class SidePuzzle(_M):
-    type: Literal["scramble", "cryptogram", "wordsearch", "maze", "numlock", "sudoku"]
+    type: Literal["cryptogram", "maze", "numlock", "sudoku"]
     keyword: str  # a trait of the chapter's evidence object (a word, or digits for number games)
     intro: str = ""
-    words: list[str] = Field(default_factory=list)  # chapter words for scramble / word search
+    message: str = (
+        ""  # cryptogram: the witness note to decode (a sentence of the case, has the keyword)
+    )
 
 
 class Chapter(_M):
@@ -105,7 +109,6 @@ class CaseFrame(_M):
     finale: str = ""
     epilogue: str = ""
     vault_word: str = ""
-    words: list[str] = Field(default_factory=list)  # words of this case's world (filler words)
 
 
 def code_of(ch: Chapter) -> str:
@@ -165,9 +168,7 @@ def side_spec(frame: CaseFrame, sp: SidePuzzle, idx: int) -> PuzzleSpec:
     kw = sp.keyword.upper()
     cons: dict[str, Any]
     data: dict[str, Any] = {"type": sp.type, "level": level, "audience": frame.audience}
-    if sp.type == "wordsearch":
-        cons = {"kind": "hidden_message", "text": kw}
-    elif sp.type == "maze":
+    if sp.type == "maze":
         cons = {"kind": "path_letters", "seq": kw}
     elif sp.type == "sudoku":
         cells = (SUDOKU_CELLS_6 if kids else SUDOKU_CELLS)[: len(kw)]
@@ -177,29 +178,16 @@ def side_spec(frame: CaseFrame, sp: SidePuzzle, idx: int) -> PuzzleSpec:
     else:
         cons = {"kind": "answer_is", "word": kw}
     data["constraints"] = [cons]
-    if sp.type in ("wordsearch", "scramble"):
-        secret = {a for ch in frame.chapters for a in _answers(ch)}
-        pool = [w.upper() for w in [*sp.words, *frame.words] if w.upper() not in secret]
-        if pool:
-            data["words"] = list(dict.fromkeys(pool))
-        else:
-            data["theme"] = "holidays" if frame.season else "weather"
+    if sp.type == "cryptogram" and sp.message:
+        data["options"] = {"text": sp.message}
     return PuzzleSpec.model_validate(data)
 
 
 def _side_type(name: str) -> Any:
-    if name == "scramble":
-        from forge.puzzles.scramble import Scramble
-
-        return Scramble()
     if name == "cryptogram":
         from forge.puzzles.cryptogram import Cryptogram
 
         return Cryptogram()
-    if name == "wordsearch":
-        from forge.puzzles.wordsearch import WordSearch
-
-        return WordSearch()
     if name == "numlock":
         from forge.puzzles.numlock import NumLock
 
@@ -247,6 +235,7 @@ def _texts(frame: CaseFrame) -> list[tuple[str, str]]:
     out = [("setting", frame.setting), ("intro", frame.intro), ("finale", frame.finale)]
     out.append(("epilogue", frame.epilogue))
     for ch in frame.chapters:
+        out += [(f"chapter {ch.no} message", sp.message) for sp in ch.side if sp.message]
         out += [(f"chapter {ch.no} story", ch.story), (f"chapter {ch.no} meaning", ch.meaning)]
         out += [(f"chapter {ch.no} evidence", ch.evidence)]
         out += [(f"chapter {ch.no} hint", h) for h in ch.hints]
@@ -300,13 +289,13 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
                 want = "2-4 digits" if sp.type in NUMBER_TYPES else "one word of 3-12 letters"
                 p.append(f"{tag}: keyword {sp.keyword!r} must be {want} for a {sp.type}")
                 continue
-            if sp.words and sp.type not in ("scramble", "wordsearch"):
-                p.append(f"{tag}: only scramble and word search take a word list")
-            for w in sp.words:
-                if not re.fullmatch(r"[A-Za-z]{3,12}", w) or is_blocked(w.lower()):
-                    p.append(f"{tag}: word {w!r} cannot be used in a puzzle")
-                elif w.upper() in _answers(ch):
-                    p.append(f"{tag}: the word list gives away the answer {w.upper()}")
+            if sp.type == "cryptogram":
+                words = re.findall(r"[A-Z]+", sp.message.upper())
+                if kw not in words or len(words) < 6:
+                    p.append(
+                        f"{tag}: the cryptogram needs a message of at least 6 words from the "
+                        f"case that contains {kw}"
+                    )
             if kw in keys:
                 p.append(f"{tag}: keyword {kw} already used in chapter {keys[kw]}")
             keys[kw] = ch.no
@@ -320,9 +309,6 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
         if len(ch.side) == 2:
             p.extend(_card_problems(ch))
         p.extend(_leaks(ch))
-    for w in frame.words:
-        if not re.fullmatch(r"[A-Za-z]{3,12}", w) or is_blocked(w.lower()):
-            p.append(f"case word {w!r} cannot be used in a puzzle")
     for where, text in _texts(frame):
         m = UNSAFE.search(text or "")
         if m:
@@ -446,7 +432,7 @@ def _solved_keyword(sp: SidePuzzle, pz: Puzzle) -> str | None:
     if not pt.verify(pz).ok:
         return None
     sol = pt.solve(pz).solution or {}
-    seen = sol.get("leftover") or sol.get("code") or (sol.get("bonus") or [None])[0]
+    seen = sol.get("code")
     token = str(pz.token or "").upper()
     return token if seen is None or str(seen).upper() == token else None
 

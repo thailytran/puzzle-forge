@@ -195,20 +195,21 @@
    ],
    "side": [
     {
-     "type": "scramble",
+     "type": "cryptogram",
      "keyword": "WOOLLEN",
-     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The weaver felt the thread and said it was spun from thick woollen yarn"
     },
     {
-     "type": "wordsearch",
+     "type": "maze",
      "keyword": "CRIMSON",
-     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     }
    ],
    "evidence": "What did the thread come from, and what was it like?",
    "hints": [
     "Colour every cell marked 1 first: the darkest colour draws the picture.",
-    "The picture is something you wear in winter. The marked letters of the first puzzle name what it is made of.",
+    "The picture is something you wear in winter. Decode the message to learn what it is made of.",
     "The mosaic shows a SCARF. The keywords are WOOLLEN and CRIMSON."
    ]
   },
@@ -266,12 +267,13 @@
     {
      "type": "cryptogram",
      "keyword": "FAINT",
-     "intro": "Decode the message to find a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The boy said the small light in the figure's hand was faint and yellow"
     },
     {
      "type": "maze",
      "keyword": "TINY",
-     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     }
    ],
    "evidence": "What did the figure hold, and what do your keywords say about that night?",
@@ -342,9 +344,9 @@
      "intro": "Open the cobbler's measuring lock. The code is the size of what made the trail."
     },
     {
-     "type": "wordsearch",
+     "type": "maze",
      "keyword": "RIDGED",
-     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     }
    ],
    "evidence": "What made the trail, what size was it, and what was its sole like?",
@@ -408,12 +410,13 @@
     {
      "type": "cryptogram",
      "keyword": "FROZEN",
-     "intro": "Decode the message to find a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The ferryman wrote in his log that the river gate was frozen from dusk to dawn"
     },
     {
      "type": "maze",
      "keyword": "SHUT",
-     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     }
    ],
    "evidence": "What did the ferryman look at, and how did he find it?",
@@ -479,20 +482,21 @@
    ],
    "side": [
     {
-     "type": "scramble",
+     "type": "cryptogram",
      "keyword": "WOODEN",
-     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The carpenter found splinters in the bark so the rails were wooden not iron"
     },
     {
-     "type": "wordsearch",
+     "type": "maze",
      "keyword": "NARROW",
-     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     }
    ],
    "evidence": "What leaned against the tree, and what was it like?",
    "hints": [
     "The picture is a tool for reaching high places.",
-    "Unscramble the words: the marked letters name what it is made of.",
+    "Decode the message: it names what the tool is made of.",
     "The mosaic shows a LADDER. The keywords are WOODEN and NARROW."
    ]
   },
@@ -550,7 +554,8 @@
     {
      "type": "cryptogram",
      "keyword": "CAROL",
-     "intro": "Decode the message to find a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The page on the stand was the old winter carol the town sings each year"
     },
     {
      "type": "numlock",
@@ -621,20 +626,21 @@
    ],
    "side": [
     {
-     "type": "scramble",
+     "type": "maze",
      "keyword": "THICK",
-     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     },
     {
-     "type": "wordsearch",
+     "type": "cryptogram",
      "keyword": "RIGHT",
-     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The sailor tried it on both hands and it only fits the right one"
     }
    ],
    "evidence": "What was dropped, and which one was it?",
    "hints": [
     "The picture is something you wear, but not on your feet.",
-    "It has five fingers. The leftover letters of the word search tell you which hand.",
+    "It has five fingers. Decode the message to learn which hand.",
     "The mosaic shows a GLOVE. The keywords are THICK and RIGHT."
    ]
   },
@@ -692,12 +698,13 @@
     {
      "type": "cryptogram",
      "keyword": "CLAWED",
-     "intro": "Decode the message to find a keyword that describes the evidence."
+     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "message": "The vet saw four toes and sharp points at each tip so the feet were clawed"
     },
     {
      "type": "maze",
      "keyword": "WIDE",
-     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     }
    ],
    "evidence": "What left the second trail, and what were the marks like?",
@@ -709,57 +716,5 @@
   }
  ],
  "finale": "Eight facts, twelve neighbours. Go through your Code Log and cross out everyone who does not fit a fact. One name stays.",
- "epilogue": "The star was never stolen. One of its points had cracked, and a kind neighbour carried it home at midnight to mend it in secret before the festival. By evening it shone on the fir tree again, brighter than before.",
- "words": [
-  "LARKSPUR",
-  "HOLLOW",
-  "SQUARE",
-  "FESTIVAL",
-  "MAYOR",
-  "ALDER",
-  "RIVER",
-  "CHAPEL",
-  "BAKERY",
-  "FERRY",
-  "SNOW",
-  "MIDNIGHT",
-  "WINDOW",
-  "BRANCH",
-  "TRUNK",
-  "SHED",
-  "CANDLE",
-  "VILLAGE",
-  "WINTER",
-  "GOLDEN",
-  "POINT",
-  "SECRET",
-  "MEND",
-  "NEIGHBOUR",
-  "COBBLER",
-  "SAILOR",
-  "LIBRARY",
-  "FLORIST",
-  "POSTMAN",
-  "TOYMAKER",
-  "BAKER",
-  "CLOCK",
-  "LEDGER",
-  "TRAIL",
-  "PRINT",
-  "FROST",
-  "ICE",
-  "BANK",
-  "NORTH",
-  "SOUTH",
-  "TOWER",
-  "MARKET",
-  "GARLAND",
-  "RIBBON",
-  "CAROLS",
-  "SINGER",
-  "SLEIGH",
-  "HOLLY",
-  "CHIMNEY",
-  "COCOA"
- ]
+ "epilogue": "The star was never stolen. One of its points had cracked, and a kind neighbour carried it home at midnight to mend it in secret before the festival. By evening it shone on the fir tree again, brighter than before."
 }

@@ -157,12 +157,21 @@ def test_reader_simulation(frame: CaseFrame) -> None:
     assert not simulate_reader(edited(frame, swap), built).ok
 
 
-def test_unbuildable_keyword_is_caught(frame: CaseFrame) -> None:
-    def kw(d: dict) -> None:  # type: ignore[type-arg]
-        d["chapters"][0]["side"][0]["keyword"] = "MITTEN"  # has another anagram
+def test_only_code_puzzles_are_allowed(frame: CaseFrame) -> None:
+    """Owner rule: no filler puzzles. Word scramble / word search are not side puzzles any more,
+    and a cryptogram must decode a sentence of the case that holds the keyword."""
+    import pydantic
 
-    probs = check_frame(edited(frame, kw)).problems
-    assert any("cannot produce keyword MITTEN" in p for p in probs)
+    def ws(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["side"][0]["type"] = "wordsearch"
+
+    with pytest.raises(pydantic.ValidationError):
+        edited(frame, ws)
+
+    def no_message(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["side"][0]["message"] = "The answer is here"
+
+    assert any("cryptogram needs a message" in p for p in problems(frame, no_message))
 
 
 def test_puzzles_carry_the_locked_answers(frame: CaseFrame) -> None:
@@ -212,19 +221,14 @@ def test_book_renders(frame: CaseFrame, tmp_path: Path) -> None:
     assert (tmp_path / "interior.pdf").stat().st_size > 50_000
 
 
-def test_number_games_and_case_words(frame: CaseFrame) -> None:
-    from forge.mystery.cbn_case import side_spec
-
+def test_number_games(frame: CaseFrame) -> None:
     assert len(frame.suspects) == 12
     types = [sp.type for ch in frame.chapters for sp in ch.side]
-    assert types.count("numlock") == 2
+    assert types.count("numlock") == 2 and set(types) <= {"cryptogram", "maze", "numlock"}
     built = build_puzzles(frame, 7)
     assert built[2].side[0].token == "44" and built[5].side[1].token == "1200"
-    ws = side_spec(frame, frame.chapters[0].side[1], 0)
-    assert ws.words and "LARKSPUR" in ws.words
-    secret = {ch.object.upper() for ch in frame.chapters}
-    secret |= {sp.keyword.upper() for ch in frame.chapters for sp in ch.side}
-    assert not secret & set(ws.words)  # filler words never contain an answer of the case
+    note = built[0].side[0].solution["quotes"][0]["plain"]
+    assert "WOOLLEN" in note and note.startswith("THE WEAVER")
 
     def few(d: dict) -> None:  # type: ignore[type-arg]
         d["suspects"] = d["suspects"][:8]

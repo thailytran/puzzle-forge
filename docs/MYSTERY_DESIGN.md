@@ -324,3 +324,15 @@ keyword one where only that keyword differs. So no answer can be skipped.
    solver outputs only: two mosaic readers must see the same picture, each side puzzle must yield its
    keyword, the three answers must select the true row and nothing else; one suspect remains only at
    the end.
+
+### 16.2 Owner rules of 2026-11-19
+
+- Every puzzle of a chapter must lead straight to the code: no filler words, nothing beside the case.
+  Side puzzles: cryptogram (a witness statement of the case), maze, number lock, sudoku (shaded
+  squares); later mini crossword and logic grid. No word scramble, no word search in this line.
+- 9-12 suspects.
+- Final deduction in the book: one black / white spiral page; colouring it reveals the culprit.
+  The colour portrait and a bonus shape-by-colour page are unlocked on the Case Vault website
+  after the answer is checked there (drives readers to the site).
+- Evidence pictures and suspect portraits are drawn through the Studio queue (ChatGPT brief,
+  Gemini picture) and turned into mosaics by code; the 13x13 icons are a placeholder.
