@@ -1,0 +1,452 @@
+{
+ "id": "vanished-star",
+ "title": "The Vanished Star",
+ "subtitle": "A Color By Number Mystery",
+ "audience": "adult",
+ "season": "christmas",
+ "setting": "Larkspur Hollow is a small riverside town. Every winter its nine best-known neighbours help to raise a golden star onto the fir tree in the square. This year the star disappeared the night before the Lantern Festival.",
+ "intro": "You are the town's volunteer detective. Each chapter hides one fact inside a colour-by-number mosaic. Colour it, read the symbol, and the evidence card tells you what it means.",
+ "suspects": [
+  {
+   "name": "Wren the lamplighter",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "dog"
+  },
+  {
+   "name": "Mabel the baker",
+   "scarf": "green",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none"
+  },
+  {
+   "name": "Otis the clockmaker",
+   "scarf": "blue",
+   "glasses": true,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "dog"
+  },
+  {
+   "name": "Pippa the florist",
+   "scarf": "red",
+   "glasses": false,
+   "boots": false,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none"
+  },
+  {
+   "name": "Hugo the ferryman",
+   "scarf": "blue",
+   "glasses": false,
+   "boots": true,
+   "side": "south",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "dog"
+  },
+  {
+   "name": "Nell the librarian",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": false,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none"
+  },
+  {
+   "name": "Basil the choirmaster",
+   "scarf": "blue",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": true,
+   "left_handed": false,
+   "pet": "dog"
+  },
+  {
+   "name": "Ivy the toymaker",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": true,
+   "pet": "none"
+  },
+  {
+   "name": "Tobias the postman",
+   "scarf": "blue",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "cat"
+  }
+ ],
+ "answer": "Wren the lamplighter",
+ "answer_field": "name",
+ "chapters": [
+  {
+   "no": 1,
+   "title": "A Thread on the Fir",
+   "story": "On the morning before the Lantern Festival, the great star was gone from the top of the square's fir tree. Caught on the highest branch was a single woollen thread.\nMayor Alder asked you to look closer. What colour was it? The mosaic remembers.",
+   "scene": "Snowy town square at dawn, a tall fir tree with an empty top, a thread caught on a branch",
+   "shape": "square",
+   "symbol": "R",
+   "meaning": "The thread is red or blue. Whoever took the star did not wear a green scarf.",
+   "clue": {
+    "field": "scarf",
+    "op": "ne",
+    "value": "green"
+   },
+   "decoys": [
+    {
+     "symbol": "G",
+     "meaning": "The thread is green. The taker wore a green scarf."
+    },
+    {
+     "symbol": "Y",
+     "meaning": "The thread is yellow. It came from the festival bunting, not from a scarf."
+    }
+   ],
+   "side": [
+    {
+     "type": "scramble",
+     "keyword": "SNOWMAN",
+     "intro": "Unscramble the winter words. The marked letters spell a keyword."
+    },
+    {
+     "type": "wordsearch",
+     "keyword": "LANTERN",
+     "intro": "Find every word. The letters left over spell a keyword."
+    }
+   ],
+   "evidence": "Compare the symbol in your mosaic with the lines below.",
+   "hints": [
+    "Look at the darkest colour first.",
+    "Colour every cell marked 1 before anything else.",
+    "The mosaic shows the letter R."
+   ]
+  },
+  {
+   "no": 2,
+   "title": "Clear Eyes in the Dark",
+   "story": "The lamplighter's ledger says the square was pitch dark at midnight. The baker's boy saw a figure reading the tiny brass label on the star without holding it close.\nSomeone who needs spectacles could not have done that.",
+   "scene": "A brass label on a golden star, lantern light, a child peeking from a bakery window",
+   "shape": "square",
+   "symbol": "7",
+   "meaning": "The label was read from arm's length in the dark. The taker does not wear glasses.",
+   "clue": {
+    "field": "glasses",
+    "op": "eq",
+    "value": false
+   },
+   "decoys": [
+    {
+     "symbol": "1",
+     "meaning": "The figure held the label right up to thick glasses."
+    },
+    {
+     "symbol": "4",
+     "meaning": "The figure could not read the label at all and asked for help."
+    }
+   ],
+   "side": [
+    {
+     "type": "cryptogram",
+     "keyword": "SLEIGH",
+     "intro": "Decode the message to find the keyword."
+    },
+    {
+     "type": "maze",
+     "keyword": "BELL",
+     "intro": "Walk the maze. The letters on your path spell a keyword."
+    }
+   ],
+   "evidence": "Read only the line for the number you found.",
+   "hints": [
+    "The symbol is a number.",
+    "Look for a shape with one long diagonal stroke.",
+    "The mosaic shows the number 7."
+   ]
+  },
+  {
+   "no": 3,
+   "title": "Prints in the Snow",
+   "story": "Fresh snow fell at eleven. By morning one clear trail crossed the square to the fir tree: deep, ridged prints.\nThe cobbler measured them with a ribbon and smiled.",
+   "scene": "Boot prints crossing fresh snow toward a fir tree, a cobbler kneeling with a ribbon",
+   "shape": "hex",
+   "symbol": "*",
+   "meaning": "The prints were made by heavy winter boots. The taker wore boots.",
+   "clue": {
+    "field": "boots",
+    "op": "eq",
+    "value": true
+   },
+   "decoys": [
+    {
+     "symbol": ">",
+     "meaning": "The prints were made by soft indoor slippers."
+    },
+    {
+     "symbol": "+",
+     "meaning": "The prints were made by wooden skates."
+    }
+   ],
+   "side": [
+    {
+     "type": "scramble",
+     "keyword": "BLANKET",
+     "intro": "Unscramble the words. The marked letters spell a keyword."
+    },
+    {
+     "type": "wordsearch",
+     "keyword": "SNOWFALL",
+     "intro": "Find every word. The letters left over spell a keyword."
+    }
+   ],
+   "evidence": "Which symbol appeared in your honeycomb mosaic?",
+   "hints": [
+    "The symbol is not a letter.",
+    "It has points all around.",
+    "The mosaic shows a star."
+   ]
+  },
+  {
+   "no": 4,
+   "title": "The Frozen Bridge",
+   "story": "Only one bridge joins the two halves of the town, and the ferryman swears it was iced shut from dusk till dawn.\nThe trail of prints never came near the river.",
+   "scene": "A small stone bridge covered in ice at night, a river, warm windows on the north bank",
+   "shape": "hex",
+   "symbol": "N",
+   "meaning": "Nobody crossed the river that night. The taker lives on the north side.",
+   "clue": {
+    "field": "side",
+    "op": "eq",
+    "value": "north"
+   },
+   "decoys": [
+    {
+     "symbol": "S",
+     "meaning": "The trail came over the bridge from the south side."
+    },
+    {
+     "symbol": "E",
+     "meaning": "The trail came down from the eastern hill, outside the town."
+    }
+   ],
+   "side": [
+    {
+     "type": "cryptogram",
+     "keyword": "FROST",
+     "intro": "Decode the message to find the keyword."
+    },
+    {
+     "type": "maze",
+     "keyword": "PINE",
+     "intro": "Walk the maze. The letters on your path spell a keyword."
+    }
+   ],
+   "evidence": "Compare the letter in your mosaic with the compass below.",
+   "hints": [
+    "The symbol is a compass letter.",
+    "It is made of two tall strokes joined by a diagonal.",
+    "The mosaic shows the letter N."
+   ]
+  },
+  {
+   "no": 5,
+   "title": "Two Marks in the Bark",
+   "story": "Near the foot of the fir, two neat dents showed where something had leaned against the trunk. The dents were as wide apart as the rails of a ladder.\nThe star hung far too high to reach from the ground.",
+   "scene": "Close view of a fir trunk with two dents in the snow-dusted bark, a ladder shadow",
+   "shape": "hex",
+   "symbol": "L",
+   "meaning": "A ladder stood against the tree. The taker owns a ladder.",
+   "clue": {
+    "field": "ladder",
+    "op": "eq",
+    "value": true
+   },
+   "decoys": [
+    {
+     "symbol": "C",
+     "meaning": "Someone climbed the branches. No ladder was used."
+    },
+    {
+     "symbol": "H",
+     "meaning": "A long hook pole pulled the star down from the ground."
+    }
+   ],
+   "side": [
+    {
+     "type": "scramble",
+     "keyword": "JINGLE",
+     "intro": "Unscramble the words. The marked letters spell a keyword."
+    },
+    {
+     "type": "wordsearch",
+     "keyword": "GARLAND",
+     "intro": "Find every word. The letters left over spell a keyword."
+    }
+   ],
+   "evidence": "Read only the line for your letter.",
+   "hints": [
+    "The symbol is a letter with one corner.",
+    "It looks like a boot seen from the side.",
+    "The mosaic shows the letter L."
+   ]
+  },
+  {
+   "no": 6,
+   "title": "The Midnight Rehearsal",
+   "story": "From ten until one, the choir practised carols in the chapel. The choirmaster keeps a roll, and every singer on it was counted at the stroke of midnight.\nThe star vanished at midnight.",
+   "scene": "A candle-lit chapel with a choir singing, a roll book on a stand, a clock showing midnight",
+   "shape": "triangle",
+   "symbol": "0",
+   "meaning": "Every choir member was in the chapel at midnight. The taker was not at choir practice.",
+   "clue": {
+    "field": "choir",
+    "op": "eq",
+    "value": false
+   },
+   "decoys": [
+    {
+     "symbol": "8",
+     "meaning": "The choir finished early, so any singer could have been in the square."
+    },
+    {
+     "symbol": "3",
+     "meaning": "Three singers slipped out before midnight."
+    }
+   ],
+   "side": [
+    {
+     "type": "cryptogram",
+     "keyword": "CAROL",
+     "intro": "Decode the message to find the keyword."
+    },
+    {
+     "type": "maze",
+     "keyword": "SNOW",
+     "intro": "Walk the maze. The letters on your path spell a keyword."
+    }
+   ],
+   "evidence": "Compare the number in your triangle mosaic with the roll below.",
+   "hints": [
+    "The symbol is a number.",
+    "It is a closed ring.",
+    "The mosaic shows the number 0."
+   ]
+  },
+  {
+   "no": 7,
+   "title": "The Knot",
+   "story": "The rope that once held the star was still tied to the top branch. The sailor who taught knots at the school studied it for a long time.\nA knot shows which hand tied it.",
+   "scene": "A rope knot on a fir branch, an old sailor examining it with a magnifying glass",
+   "shape": "triangle",
+   "symbol": "!",
+   "meaning": "The knot was untied by a right-handed person. The taker is not left-handed.",
+   "clue": {
+    "field": "left_handed",
+    "op": "eq",
+    "value": false
+   },
+   "decoys": [
+    {
+     "symbol": "<",
+     "meaning": "The knot was untied by a left-handed person."
+    },
+    {
+     "symbol": "*",
+     "meaning": "The rope was cut, so the knot says nothing."
+    }
+   ],
+   "side": [
+    {
+     "type": "scramble",
+     "keyword": "COOKIE",
+     "intro": "Unscramble the words. The marked letters spell a keyword."
+    },
+    {
+     "type": "wordsearch",
+     "keyword": "CHIMNEY",
+     "intro": "Find every word. The letters left over spell a keyword."
+    }
+   ],
+   "evidence": "Which symbol appeared in your triangle mosaic?",
+   "hints": [
+    "The symbol is a small object, not a letter.",
+    "It opens locks.",
+    "The mosaic shows a key."
+   ]
+  },
+  {
+   "no": 8,
+   "title": "No Whiskers Here",
+   "story": "Last of all, the baker's boy found a tuft of fur by the tree. The vet looked at it under her lamp: coarse, short and brown.\nNot one cat hair lay anywhere on the trail.",
+   "scene": "A vet with a lamp examining a tuft of brown fur, a friendly dog waiting by the door",
+   "shape": "triangle",
+   "symbol": ">",
+   "meaning": "No cat hair was found on the trail. The taker does not keep a cat.",
+   "clue": {
+    "field": "pet",
+    "op": "ne",
+    "value": "cat"
+   },
+   "decoys": [
+    {
+     "symbol": "+",
+     "meaning": "Cat hair covered the rope. The taker keeps a cat."
+    },
+    {
+     "symbol": "L",
+     "meaning": "The fur came from a fox that passed in the night."
+    }
+   ],
+   "side": [
+    {
+     "type": "cryptogram",
+     "keyword": "STAR",
+     "intro": "Decode the message to find the keyword."
+    },
+    {
+     "type": "maze",
+     "keyword": "GIFT",
+     "intro": "Walk the maze. The letters on your path spell a keyword."
+    }
+   ],
+   "evidence": "Compare the symbol in your mosaic with the lines below.",
+   "hints": [
+    "The symbol points somewhere.",
+    "It points to the right.",
+    "The mosaic shows an arrow."
+   ]
+  }
+ ],
+ "finale": "Eight facts, nine neighbours. Go through your Code Log and cross out everyone who does not fit a fact. One name stays.",
+ "epilogue": "The star was never stolen. One of its points had cracked, and a kind neighbour carried it home at midnight to mend it in secret before the festival. By evening it shone on the fir tree again, brighter than before."
+}

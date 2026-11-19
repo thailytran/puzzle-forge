@@ -75,6 +75,8 @@ class Blueprint(BaseModel):
     binding_mm: float = 19.0
     common: list[Zone] = Field(default_factory=list)
     page_types: dict[str, PageType]
+    required: list[str] = Field(default_factory=list)  # page types this line must define
+    chapter: list[str] = Field(default_factory=list)  # page types of one chapter, in order
 
     def zones(
         self, page_type: str, variant: str = "default", trim: str | None = None
@@ -103,7 +105,8 @@ def validate_blueprint(bp: Blueprint) -> list[str]:
     out: list[str] = []
     t = TRIMS[bp.base_trim]
     w_mm, h_mm = t.width_in * MM_PER_IN, t.height_in * MM_PER_IN
-    missing = [p for p in PAGE_TYPES if p not in bp.page_types]
+    missing = [p for p in (bp.required or PAGE_TYPES) if p not in bp.page_types]
+    out += [f"chapter page type {p!r} is not defined" for p in bp.chapter if p not in bp.page_types]
     if missing:
         out.append(f"missing page types: {missing}")
     for name, pt in bp.page_types.items():

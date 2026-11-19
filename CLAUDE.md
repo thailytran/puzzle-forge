@@ -143,6 +143,8 @@ uv run forge qa run output/<book_id>/editions/<label>      # edition QA (waterma
 uv run forge edition stamp <book_id> --buyer "Jane D." --order 1234 [--email x]   # per-order PDF (digital)
 uv run forge edition trace <stamped.pdf>                   # read the order number back
 uv run forge blueprint preview escape_adult [--trim A4]    # page types with coloured zones -> output/blueprints/
+uv run forge mystery check configs/cases/vanished_star.json   # case frame: all clues needed, codes fit, keywords buildable
+uv run forge mystery build configs/cases/vanished_star.json --out output/mystery   # CBN Mystery book (interior.pdf, manifest, art requests)
 uv run forge vault init output/<book_id>                    # vault.yaml: answer type, accepted answers, listings
 uv run forge vault codes output/<book_id> --count 200 [--channel print|shopify_digital]   # Book Codes CSV + code pages PDF
 uv run forge vault sync [--force]                          # send queued registrations (auto-queued on APPROVED)

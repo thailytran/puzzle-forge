@@ -103,9 +103,9 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 ## P8 — CBN Mystery line (docs/MYSTERY_DESIGN.md §15–§16)
 - [x] P8.1 "All clues required" engine `forge/mystery/necessity.py` (candidate spaces: suspects × attributes, codes, locations; declarative clue predicates) + QA `L4.all_clues_required` (drop any clue → > 1 candidate) for every escape/mystery/adventure line.
 - [x] P8.1b CBN cell shapes: one polygon core (`forge/puzzles/cbn/tiling.py`) for square, hexagon, triangle and circle (`-o shape=...`); shape-independent verifier (paint the solution, read the code back) + centre-lookup second solver; planned cell ≥ 5 mm (adult) / 8 mm (kids), label ≥ 6 pt, QA `L2.cbn_cell_size`.
-- [ ] P8.1c CBN cell shapes: rhombus, Voronoi; symbol labels.
-- [ ] P8.2 Blueprint `cbn_mystery` (kids + adult): chapter = story page + cbn_reveal + evidence card; final deduction page; `case_vault` last page.
-- [ ] P8.3 Case builder: suspects/codes + reveal glyphs → clues that pass P8.1; CBN pages generated with the glyph constraint (PB.2 engine).
+- [ ] P8.1c CBN cell shapes: rhombus, Voronoi. (Symbol glyphs star / arrow / cross / key / heart: done in P8.3.)
+- [x] P8.2 Blueprint `cbn_mystery`: chapter = story + cbn_reveal + 2 side puzzles + evidence card (8 chapters = 40 pages, 24 puzzle pages); how to play, suspects, code log, deduction, hints, solutions, case_vault; ink-saver and kids variants.
+- [x] P8.3 Case builder `forge/mystery/cbn_case.py`: case frame JSON -> `check_frame` (necessity P8.1, codes fit the mosaic, keywords buildable, family-safe; feedback text for the writer) -> puzzles from the locked answers -> layout + manifest + art requests; `forge mystery check|build`; sample frame `configs/cases/vanished_star.json`.
 - [ ] P8.4 Sample CBN Mystery book (kids + adult) → QA_PASSED → review pack.
 
 ## P9 — Case Vault website & rewards (docs/CASEVAULT.md)

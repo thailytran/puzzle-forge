@@ -759,6 +759,49 @@ def blueprint_preview(
         raise typer.Exit(1)
 
 
+mystery_app = typer.Typer(help="CBN Mystery: check a case frame, build the book.")
+app.add_typer(mystery_app, name="mystery")
+
+
+@mystery_app.command("check")
+def mystery_check(
+    case: Path = typer.Argument(..., help="Case frame JSON (configs/cases/*.json)"),
+    fast: bool = typer.Option(False, "--fast", help="Skip building the side puzzles."),
+) -> None:
+    """Check a case frame: every clue needed, one answer, codes fit, keywords buildable."""
+    from forge.mystery.cbn_case import check_frame, load_frame
+
+    rep = check_frame(load_frame(case), deep=not fast)
+    if rep.ok:
+        typer.secho("case frame accepted", fg=typer.colors.GREEN)
+        return
+    typer.secho(rep.feedback(), fg=typer.colors.RED, err=True)
+    raise typer.Exit(1)
+
+
+@mystery_app.command("build")
+def mystery_build(
+    case: Path = typer.Argument(..., help="Case frame JSON"),
+    out: Path = typer.Option(Path("output/mystery"), help="Output folder (a sub-folder per case)"),
+    seed: int = typer.Option(20261118, help="Book seed"),
+    trim: str = typer.Option("8.5x11", help="8.5x11 | A4"),
+    no_render: bool = typer.Option(False, "--no-render", help="Puzzles + manifest only."),
+) -> None:
+    """Build a CBN Mystery book from a checked case frame."""
+    from forge.mystery.cbn_case import build_case_book, load_frame
+    from forge.mystery.necessity import CaseError
+
+    frame = load_frame(case)
+    try:
+        man = build_case_book(frame, out / frame.id, seed, trim, render=not no_render)
+    except CaseError as e:
+        typer.secho(str(e), fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from e
+    typer.echo(
+        f"{frame.id}: {man['pages']} pages, {man['puzzle_pages']} puzzle pages -> {out / frame.id}"
+    )
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 

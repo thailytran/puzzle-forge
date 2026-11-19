@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 
 ## [Unreleased]
 
+- P8.2 + P8.3: CBN Mystery line — blueprint `cbn_mystery` (8 chapters x 5 pages, 24 puzzle pages), case builder (`forge mystery check|build`): the case frame written by an LLM is checked by code (all clues needed, one answer, reveal codes fit the mosaic, side-puzzle keywords buildable, family-safe) before any puzzle is generated; sample frame "The Vanished Star" (square, hexagon, triangle cells); symbol glyphs (star, arrow, cross, key, heart) for reveal codes.
+
 - P8.1b: colour-by-number cell shapes on one polygon core: square, hexagon, triangle, circle (`forge puzzle cbn -o shape=hex`); verifier independent of the cell shape (solution painted to a raster, code read back) + second solver by point-in-cell lookup; cells planned at ≥ 5 mm (adult) / ≥ 8 mm (kids) with labels ≥ 6 pt; QA check L2.cbn_cell_size; Typst block `cbn_poly`. Default mosaics without `shape` keep the previous layout.
 
 ## [0.2.0] - 2026-11-07 — packaging & deploy (P10.1–P10.7); Case Vault P8.1/P9 are listed under 0.1.0
