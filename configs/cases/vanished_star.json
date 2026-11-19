@@ -485,7 +485,7 @@
      "type": "shift",
      "keyword": "WOODEN",
      "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
-     "message": "The carpenter found splinters in the bark so the rails were wooden not iron"
+     "message": "The carpenter found splinters in the bark so both rails were wooden for sure"
     },
     {
      "type": "maze",
