@@ -90,6 +90,7 @@ class Chapter(_M):
     side: list[SidePuzzle] = Field(default_factory=list)
     evidence: str = ""
     hints: list[str] = Field(default_factory=list)  # three tiers: nudge, method, answer
+    teaser: str = ""  # cliff-hanger printed under the evidence card: pulls the reader on
 
 
 class CaseFrame(_M):
@@ -107,6 +108,8 @@ class CaseFrame(_M):
     finale: str = ""
     epilogue: str = ""
     vault_word: str = ""
+    prologue_title: str = "Prologue"
+    prologue: str = ""  # opening scene before the suspects: stakes, deadline, the detective
 
 
 def code_of(ch: Chapter) -> str:
@@ -231,6 +234,9 @@ class FrameReport:
 
 def _texts(frame: CaseFrame) -> list[tuple[str, str]]:
     out = [("setting", frame.setting), ("intro", frame.intro), ("finale", frame.finale)]
+    out.append(("prologue", frame.prologue))
+    out += [(f"chapter {ch.no} teaser", ch.teaser) for ch in frame.chapters]
+    out += [(f"suspect {s.get('name')}", str(s.get("about") or "")) for s in frame.suspects]
     out.append(("epilogue", frame.epilogue))
     for ch in frame.chapters:
         out += [(f"chapter {ch.no} message", sp.message) for sp in ch.side if sp.message]
@@ -311,6 +317,7 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
         if len(ch.side) == 2:
             p.extend(_card_problems(ch))
         p.extend(_leaks(ch))
+    p.extend(_spoilers(frame))
     for where, text in _texts(frame):
         m = UNSAFE.search(text or "")
         if m:
@@ -390,6 +397,23 @@ def _leaks(ch: Chapter) -> list[str]:
         for w in words:
             if re.search(rf"\b{re.escape(w)}S?\b", text or "", re.I):
                 out.append(f"chapter {ch.no}: {where} gives away the answer {w}")
+    return out
+
+
+def _spoilers(frame: CaseFrame) -> list[str]:
+    """Nothing the reader has not found yet may be printed: the prologue holds no answer at all,
+    a chapter story none of its own or later chapters, a teaser none of the later chapters."""
+    out = []
+    later: list[tuple[int, str]] = [(ch.no, a) for ch in frame.chapters for a in _answers(ch)]
+    texts = [(0, "prologue", frame.prologue), (0, "how to play", frame.intro)]
+    texts += [(0, f"suspect {s.get('name')}", str(s.get("about") or "")) for s in frame.suspects]
+    for ch in frame.chapters:
+        texts += [(ch.no, f"chapter {ch.no} story", ch.story + " " + ch.title)]
+        texts += [(ch.no + 1, f"chapter {ch.no} teaser", ch.teaser)]
+    for first, where, text in texts:
+        for no, word in later:
+            if no >= max(first, 1) and re.search(rf"\b{re.escape(word)}S?\b", text or "", re.I):
+                out.append(f"{where} gives away {word} (found only in chapter {no})")
     return out
 
 
@@ -560,11 +584,21 @@ def layout_pages(
             ],
         )
     )
-    who = [
-        ", ".join(
-            [str(s[frame.answer_field])]
-            + [f"{k}: {_show(v)}" for k, v in s.items() if k != frame.answer_field]
+    if frame.prologue:
+        add(
+            Page(kind="text", title=frame.prologue_title, blocks=_para(frame.prologue)),
+            f"Opening scene: {frame.setting}",
         )
+    who = [
+        str(s[frame.answer_field])
+        + (f" - {s['about']}" if s.get("about") else "")
+        + "  ["
+        + " · ".join(
+            f"{k.replace('_', ' ')}: {_show(v)}"
+            for k, v in s.items()
+            if k not in (frame.answer_field, "about")
+        )
+        + "]"
         for s in frame.suspects
     ]
     add(
@@ -582,6 +616,13 @@ def layout_pages(
         for ch in frame.chapters
     ]
     add(Page(kind="text", title="Code Log", blocks=[{"kind": "list", "items": log}]))
+    left = logic_lock.check_logic(
+        frame.suspects,
+        frame.answer,
+        [(f"ch{ch.no}", ch.clue) for ch in frame.chapters],
+        None,
+        frame.answer_field,
+    ).left_after
     for ch, cp in zip(frame.chapters, puzzles, strict=True):
         add(
             Page(kind="text", title=f"Chapter {ch.no}: {ch.title}", blocks=_para(ch.story)),
@@ -614,6 +655,20 @@ def layout_pages(
                         "text": "Only the line with your picture and both of your keywords "
                         "is true. Note its fact in the Code Log.",
                     },
+                    {
+                        "kind": "paragraph",
+                        "text": "Check: after this card "
+                        + (
+                            f"{left[ch.no - 1]} names are still on your list."
+                            if left[ch.no - 1] > 1
+                            else "exactly one name is still on your list."
+                        ),
+                    },
+                    *(
+                        [{"kind": "spacer", "height_in": 0.25}, *_para(ch.teaser)]
+                        if ch.teaser
+                        else []
+                    ),
                 ],
             )
         )

@@ -252,3 +252,23 @@ def test_sudoku_side_puzzle_spec(frame: CaseFrame) -> None:
 
     pz = Sudoku().generate(spec, 5)
     assert pz.token == "47" and Sudoku().verify(pz).ok
+
+
+def test_story_never_spoils_what_is_found_later(frame: CaseFrame) -> None:
+    def early(d: dict) -> None:  # type: ignore[type-arg]
+        d["prologue"] += " A ladder leaned on the wall."  # the ladder is found in chapter 5
+        d["chapters"][1]["teaser"] += " The gate was frozen."  # chapter 4's keyword
+
+    probs = problems(frame, early)
+    assert any("prologue gives away LADDER" in p for p in probs)
+    assert any("chapter 2 teaser gives away FROZEN" in p for p in probs)
+
+    def fine(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][5]["teaser"] += " Remember the ladder."  # already found: allowed
+
+    assert problems(frame, fine) == []
+    pages, _f, _a = layout_pages(frame, build_puzzles(frame, 7), RenderCtx(7.0, 9.0))
+    card = next(p for p in pages if p.title == "Evidence Card 3")
+    text = " ".join(str(b.get("text", "")) for b in card.blocks)
+    assert "7 names are still on your list" in text and frame.chapters[2].teaser[:20] in text
+    assert any(p.title == "Ten Hours Until Dusk" for p in pages)
