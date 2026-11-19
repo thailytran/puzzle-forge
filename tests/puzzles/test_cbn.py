@@ -219,6 +219,7 @@ def test_picture_codes_reveal_in_every_fitting_shape(shape: str) -> None:
             {
                 "type": "cbn",
                 "level": "hard",
+                "audience": "adult",
                 "options": {"shape": shape},
                 "constraints": [{"kind": "answer_is", "word": "@" + name}],
             }
