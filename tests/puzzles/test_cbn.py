@@ -205,3 +205,25 @@ def test_render_pdf_shapes(tmp_path: Path, shape: str) -> None:
 
     p = CB.generate(shaped(shape, "medium"), 3)
     assert preview_pdf(p, tmp_path / f"{shape}.pdf").stat().st_size > 1000
+
+
+@pytest.mark.parametrize("shape", ["square", "hex", "circle"])
+def test_picture_codes_reveal_in_every_fitting_shape(shape: str) -> None:
+    from forge.puzzles.cbn import tiling, tiling_of
+    from forge.puzzles.cbn.font import ICON, ICONS
+
+    assert all(len(r) == ICON and all(len(x) == ICON for x in r) for r in ICONS.values())
+    cb = ColorByNumber()
+    for name in ICONS:
+        spec = PuzzleSpec.model_validate(
+            {
+                "type": "cbn",
+                "level": "hard",
+                "options": {"shape": shape},
+                "constraints": [{"kind": "answer_is", "word": "@" + name}],
+            }
+        )
+        p = cb.generate(spec, 5)
+        t, colours = tiling_of(p), p.solution["colors"][0]
+        assert cb.verify(p).ok and p.solution["code"] == "@" + name
+        assert tiling.read_raster(t, colours) == tiling.read_centres(t, colours) == "@" + name

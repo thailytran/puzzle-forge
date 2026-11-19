@@ -1,16 +1,23 @@
 """CBN Mystery: case frame -> checked case -> puzzle pages -> book (docs/MYSTERY_DESIGN.md §15-§16).
 
-Pipeline (owner spec §6.4): an LLM writes the *case frame* as JSON (setting, suspects, final answer,
-chapters). Python then
-  1. checks the frame (`check_frame`): every clue is needed and together they leave exactly one
-     suspect (`necessity.check_case`), every reveal code fits its mosaic, every side-puzzle keyword
-     can be built by its generator, texts are family-safe;
-  2. generates the puzzle pages from the locked answers (`build_puzzles`) and verifies each one;
-  3. lays the book out (`layout_pages`): per chapter a story page, the colour-by-number page, two
-     side puzzles and an evidence card; then deduction page, hints, solutions, Case Vault page.
+How a chapter gives its clue (v2, owner review 2026-11-18):
+  * the colour-by-number mosaic reveals a PICTURE of the evidence object (scarf, boot, ladder ...);
+  * the two side puzzles each give one keyword = a TRAIT of that object (WOOLLEN, CRIMSON ...);
+  * the evidence card has one row per (object, trait, trait); only the row the reader's three
+     answers point at is true. Each other row differs in exactly the part one puzzle decides, so
+     all three puzzles are needed, and every wrong row is a dead end.
 
-Clues live only in code-generated parts (mosaic code, keywords, evidence table). Art is listed in
-`art_requests` for the image tool and never carries information the reader needs.
+Pipeline (owner spec §6.4): an LLM writes the *case frame* as JSON. Python then
+  1. checks the frame (`check_frame`): structure, buildability, family-safe text, and the LOGIC
+     LOCK - two independent solvers (`necessity`, `logic_lock`), small-hint rule, dead-end decoys,
+     card keys, no answer leaked in the story, causal graph (`causal_graph`);
+  2. generates the puzzle pages from the locked answers (`build_puzzles`) and verifies each one;
+  3. plays the book as a reader (`simulate_reader`): solve in page order, look the card up with
+     the solved answers only, cross suspects out - one suspect must remain only at the very end;
+  4. lays the book out (`layout_pages`).
+
+Clues live only in code-generated parts (mosaic picture, keywords, evidence table). Art is listed
+in `art_requests` for the image tool and never carries information the reader needs.
 """
 
 from __future__ import annotations
@@ -24,10 +31,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from forge.core.models import Audience, Level, Puzzle, PuzzleSpec
 from forge.core.protocol import RenderCtx
 from forge.layout.document import Page
-from forge.mystery import necessity
+from forge.mystery import logic_lock, necessity
+from forge.mystery.causal_graph import CausalGraph
 from forge.puzzles.base import GenerationError
-from forge.puzzles.cbn import ColorByNumber, plan_tiling
-from forge.puzzles.cbn.font import GLYPHS, SYMBOLS
+from forge.puzzles.cbn import ColorByNumber, plan_tiling, tiling, tiling_of
+from forge.puzzles.cbn.font import ICONS
 from forge.puzzles.cbn.tiling import SHAPES
 from forge.wordlists import is_blocked
 
@@ -47,15 +55,18 @@ class _M(BaseModel):
 
 
 class Decoy(_M):
-    """A wrong reading on the evidence card: only solving the mosaic tells which row is true."""
+    """A wrong row of the evidence card. It differs from the true row in the object or in one
+    keyword; `clue` is what a reader who believed it would cross out (None = nothing)."""
 
-    symbol: str
+    object: str
+    keywords: list[str]
     meaning: str
+    clue: dict[str, Any] | None = None
 
 
 class SidePuzzle(_M):
     type: Literal["scramble", "cryptogram", "wordsearch", "maze"]
-    keyword: str
+    keyword: str  # a trait of the chapter's evidence object
     intro: str = ""
 
 
@@ -65,8 +76,8 @@ class Chapter(_M):
     story: str
     scene: str = ""  # picture brief for the image tool (illustration only)
     shape: str = "square"
-    symbol: str  # code revealed by the colour-by-number page (1-2 glyphs or a symbol name)
-    meaning: str  # what the symbol means (reader-facing sentence on the evidence card)
+    object: str  # evidence object whose picture the colour-by-number page reveals (icon name)
+    meaning: str  # what object + both traits prove (reader-facing sentence on the evidence card)
     clue: dict[str, Any]  # the same meaning as an exclusion rule over the suspects
     decoys: list[Decoy] = Field(default_factory=list)
     side: list[SidePuzzle] = Field(default_factory=list)
@@ -91,10 +102,30 @@ class CaseFrame(_M):
     vault_word: str = ""
 
 
-def code_of(symbol: str) -> str:
-    """Glyph string the mosaic reveals for a chapter symbol ("star" -> "*", "r7" -> "R7")."""
-    s = symbol.strip()
-    return SYMBOLS.get(s.lower(), s.upper())
+def code_of(ch: Chapter) -> str:
+    """Mosaic code of a chapter: the icon of its evidence object."""
+    return "@" + ch.object.strip().lower()
+
+
+Key = tuple[str, frozenset[str]]
+
+
+def _key(obj: str, kws: list[str]) -> Key:
+    return obj.strip().lower(), frozenset(k.strip().upper() for k in kws)
+
+
+def card_rows(ch: Chapter) -> list[tuple[Key, str, dict[str, Any] | None, bool]]:
+    """(key, meaning, rule, is_true) for every row of the evidence card, in printed order."""
+    rows: list[tuple[Key, str, dict[str, Any] | None, bool]] = [
+        (_key(ch.object, [sp.keyword for sp in ch.side]), ch.meaning, ch.clue, True)
+    ]
+    rows += [(_key(d.object, d.keywords), d.meaning, d.clue, False) for d in ch.decoys]
+    rows.sort(key=lambda r: (sorted(r[0][1]), r[0][0]))  # the true row is not always first
+    return rows
+
+
+def _row_label(key: Key) -> str:
+    return " + ".join([key[0].upper(), *sorted(key[1])])
 
 
 def _kids(aud: str) -> bool:
@@ -109,7 +140,7 @@ def cbn_spec(frame: CaseFrame, ch: Chapter, idx: int) -> PuzzleSpec:
             "level": level,
             "audience": frame.audience,
             "options": {"shape": ch.shape, "mode": "A"},
-            "constraints": [{"kind": "answer_is", "word": code_of(ch.symbol)}],
+            "constraints": [{"kind": "answer_is", "word": code_of(ch)}],
         }
     )
 
@@ -172,6 +203,7 @@ def _generate(pt: Any, spec: PuzzleSpec, seed: int, tries: int = 6) -> Puzzle:
 class FrameReport:
     problems: list[str] = field(default_factory=list)
     necessity: dict[str, Any] = field(default_factory=dict)
+    lock: dict[str, Any] = field(default_factory=dict)
 
     @property
     def ok(self) -> bool:
@@ -214,26 +246,21 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
     seen: dict[str, int] = {}
     keys: dict[str, int] = {}
     for i, ch in enumerate(frame.chapters):
-        code = code_of(ch.symbol)
+        obj = ch.object.strip().lower()
         tag = f"chapter {ch.no}"
-        if not code or any(c not in GLYPHS for c in code) or len(code) > 2:
-            p.append(f"{tag}: symbol {ch.symbol!r} must be 1-2 letters / digits or a known symbol")
+        if obj not in ICONS:
+            p.append(f"{tag}: no picture for object {ch.object!r} (use {', '.join(ICONS)})")
             continue
-        if code in seen:
-            p.append(f"{tag}: symbol {code!r} already used in chapter {seen[code]}")
-        seen[code] = ch.no
+        if obj in seen:
+            p.append(f"{tag}: object {obj!r} already used in chapter {seen[obj]}")
+        seen[obj] = ch.no
         if ch.shape not in SHAPES:
             p.append(f"{tag}: unknown cell shape {ch.shape!r} (use {', '.join(SHAPES)})")
         else:
             try:
-                plan_tiling(ch.shape, code, cbn_spec(frame, ch, i))
+                plan_tiling(ch.shape, code_of(ch), cbn_spec(frame, ch, i))
             except GenerationError as e:
                 p.append(f"{tag}: {e}")
-        dec = [code_of(d.symbol) for d in ch.decoys]
-        if len(ch.decoys) < 2:
-            p.append(f"{tag}: the evidence card needs at least 2 decoy readings")
-        if code in dec or len(set(dec)) != len(dec):
-            p.append(f"{tag}: decoy symbols must differ from each other and from the real one")
         if len(ch.side) != 2:
             p.append(f"{tag}: needs exactly 2 side puzzles, got {len(ch.side)}")
         if len(ch.hints) != 3:
@@ -253,6 +280,9 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
                     _generate(_side_type(sp.type), side_spec(frame, sp, i), seed + 97 * ch.no, 3)
                 except GenerationError as e:
                     p.append(f"{tag}: {sp.type} cannot produce keyword {kw} ({e})")
+        if len(ch.side) == 2:
+            p.extend(_card_problems(ch))
+        p.extend(_leaks(ch))
     for where, text in _texts(frame):
         m = UNSAFE.search(text or "")
         if m:
@@ -273,9 +303,74 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
         )
         rep.necessity = {"solutions": nr.solutions, "redundant": nr.redundant, "ok": nr.ok}
         p.extend(nr.problems())
-    except (necessity.CaseError, KeyError) as e:
+        lr = logic_lock.check_logic(
+            frame.suspects,
+            frame.answer,
+            [(f"ch{ch.no}", ch.clue) for ch in frame.chapters],
+            {
+                f"ch{ch.no}": [(_row_label(_key(d.object, d.keywords)), d.clue) for d in ch.decoys]
+                for ch in frame.chapters
+            },
+            frame.answer_field,
+        )
+        rep.lock = {"removed": lr.removed, "left_after": lr.left_after, "ok": lr.ok}
+        p.extend(x for x in lr.problems if x not in p)
+        if lr.solutions != nr.solutions or sorted(lr.redundant) != sorted(nr.redundant):
+            p.append("the two logic solvers disagree about this case")
+    except (necessity.CaseError, logic_lock.LockError, KeyError) as e:
         p.append(f"clue logic: {e}")
+    p.extend(case_graph(frame).problems())
     return rep
+
+
+def _card_problems(ch: Chapter) -> list[str]:
+    """The card must need all three answers of the chapter to find the true row."""
+    out: list[str] = []
+    tag = f"chapter {ch.no}"
+    obj, kws = _key(ch.object, [sp.keyword for sp in ch.side])
+    keys = [k for k, _m, _r, _t in card_rows(ch)]
+    if len(set(keys)) != len(keys):
+        out.append(f"{tag}: two rows of the evidence card have the same object and keywords")
+    for d in ch.decoys:
+        if d.object.strip().lower() not in ICONS:
+            out.append(f"{tag}: decoy object {d.object!r} has no picture")
+        if len(d.keywords) != 2 or not all(re.fullmatch(r"[A-Za-z]{3,12}", k) for k in d.keywords):
+            out.append(f"{tag}: decoy rows need two one-word keywords")
+    dec = [_key(d.object, d.keywords) for d in ch.decoys]
+    if not any(o != obj and k == kws for o, k in dec):
+        out.append(f"{tag}: add a decoy row with another object and the same two keywords")
+    for kw in sorted(kws):
+        if not any(o == obj and kw not in k and len(k & kws) == 1 for o, k in dec):
+            out.append(f"{tag}: add a decoy row with the same object where only {kw} differs")
+    return out
+
+
+def _leaks(ch: Chapter) -> list[str]:
+    """Answers the reader must work for may not be printed in the chapter's own text."""
+    out = []
+    words = [ch.object.upper(), *(sp.keyword.upper() for sp in ch.side)]
+    texts = [("title", ch.title), ("story", ch.story), ("card intro", ch.evidence)]
+    texts += [(f"hint {i}", h) for i, h in enumerate(ch.hints[:2], 1)]  # hint 3 is the answer
+    texts += [("puzzle intro", sp.intro) for sp in ch.side]
+    for where, text in texts:
+        for w in words:
+            if re.search(rf"\b{re.escape(w)}S?\b", text or "", re.I):
+                out.append(f"chapter {ch.no}: {where} gives away the answer {w}")
+    return out
+
+
+def case_graph(frame: CaseFrame) -> CausalGraph:
+    """Causal graph in page order: story -> 3 puzzles -> evidence card ... -> final deduction."""
+    g = CausalGraph()
+    cards = []
+    for ch in frame.chapters:
+        n = ch.no
+        g.add(f"story{n}", "story")
+        g.add(f"picture{n}", "puzzle", (f"story{n}",))
+        side = [g.add(f"keyword{n}.{k}", "puzzle", (f"story{n}",)).id for k in (1, 2)]
+        cards.append(g.add(f"card{n}", "evidence", (f"picture{n}", *side[: len(ch.side)])).id)
+    g.add("final", "final", tuple(cards))
+    return g
 
 
 @dataclass
@@ -298,6 +393,77 @@ def build_puzzles(frame: CaseFrame, seed: int) -> list[ChapterPuzzles]:
     return out
 
 
+def _solved_keyword(sp: SidePuzzle, pz: Puzzle) -> str | None:
+    """Keyword a reader gets from a side puzzle: the independent solver must agree with the stored
+    solution, and where the solver output shows the keyword itself it is read from there."""
+    pt = _side_type(sp.type)
+    if not pt.verify(pz).ok:
+        return None
+    sol = pt.solve(pz).solution or {}
+    seen = sol.get("leftover") or (sol.get("bonus") or [None])[0]
+    token = str(pz.token or "").upper()
+    return token if seen is None or str(seen).upper() == token else None
+
+
+@dataclass
+class ReaderRun:
+    problems: list[str] = field(default_factory=list)
+    left_after: list[int] = field(default_factory=list)
+    answer: list[str] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return not self.problems
+
+
+def simulate_reader(frame: CaseFrame, puzzles: list[ChapterPuzzles]) -> ReaderRun:
+    """Play the finished book in page order using only what the solvers produce.
+
+    Per chapter: read the picture from the solved mosaic (two readers must agree), solve both side
+    puzzles, find the card row for exactly these three answers, cross out suspects. One suspect
+    may remain only after the last chapter. Leaving out any one answer must not identify a row."""
+    run = ReaderRun()
+    left = list(frame.suspects)
+    cb = ColorByNumber()
+    for ch, cp in zip(frame.chapters, puzzles, strict=True):
+        tag = f"chapter {ch.no}"
+        colours = (cb.solve(cp.cbn).solution or {"colors": [[]]})["colors"]
+        t = tiling_of(cp.cbn)
+        seen = {tiling.read_raster(t, colours[0]), tiling.read_centres(t, colours[0])}
+        if len(seen) != 1 or not next(iter(seen)).startswith("@"):
+            run.problems.append(f"{tag}: the mosaic picture is not readable ({sorted(seen)})")
+            break
+        obj = next(iter(seen))[1:]
+        kws = [_solved_keyword(sp, pz) for sp, pz in zip(ch.side, cp.side, strict=True)]
+        if None in kws:
+            run.problems.append(f"{tag}: a side puzzle does not give its keyword")
+            break
+        mine = (obj, frozenset(str(k) for k in kws))
+        rows = card_rows(ch)
+        hit = [r for r in rows if r[0] == mine]
+        if len(hit) != 1 or not hit[0][3]:
+            run.problems.append(f"{tag}: the solved answers do not select the true card row")
+            break
+        for part in ("object", *sorted(mine[1])):
+            same = [
+                r
+                for r in rows
+                if (part == "object" or r[0][0] == obj) and (mine[1] - {part}) <= r[0][1]
+            ]
+            if len(same) < 2:
+                run.problems.append(f"{tag}: the card can be read without solving for {part}")
+        rule = hit[0][2]
+        left = [s for s in left if rule is None or necessity.holds(rule, s)]
+        run.left_after.append(len(left))
+    run.answer = [str(s[frame.answer_field]) for s in left]
+    if not run.problems:
+        if run.answer != [frame.answer]:
+            run.problems.append(f"reader ends with {run.answer}, not the declared answer")
+        if any(k <= 1 for k in run.left_after[:-1]):
+            run.problems.append("reader knows the culprit before the last chapter")
+    return run
+
+
 # --- layout ---------------------------------------------------------------------------------
 
 
@@ -306,12 +472,7 @@ def _para(text: str) -> list[dict[str, Any]]:
 
 
 def _evidence_rows(ch: Chapter) -> list[str]:
-    rows = [(code_of(ch.symbol), ch.meaning)] + [(code_of(d.symbol), d.meaning) for d in ch.decoys]
-    rows.sort(key=lambda r: r[0])  # the true reading is not always first
-    return [f"If the picture shows  {SYMBOL_NAMES.get(c, c)}  →  {m}" for c, m in rows]
-
-
-SYMBOL_NAMES = {v: f"{v} ({k})" for k, v in SYMBOLS.items()}
+    return [f"{_row_label(k)}  →  {m}" for k, m, _r, _t in card_rows(ch)]
 
 
 def layout_pages(
@@ -344,11 +505,15 @@ def layout_pages(
                     "kind": "list",
                     "items": [
                         "Read the chapter story.",
-                        "Colour the mosaic by number. A hidden symbol appears.",
-                        "Solve the two side puzzles. Each gives one keyword.",
-                        "Open the evidence card and read the line for YOUR symbol only.",
-                        "Write the symbol and both keywords in the Code Log.",
-                        "After the last chapter, cross out suspects until one is left.",
+                        "Colour the mosaic by number. A picture of the evidence appears.",
+                        "Solve the two side puzzles. Each keyword describes that evidence.",
+                        "Open the evidence card. Find the line with YOUR picture and "
+                        "YOUR two keywords. Only that line is true.",
+                        "Write the evidence, both keywords and the fact in the Code Log.",
+                        "After the last chapter, cross out every suspect who does not fit "
+                        "a fact. One name stays.",
+                        "No suspect left, or more than one? One of your answers is wrong: "
+                        "go back and check.",
                     ],
                 },
                 {
@@ -375,7 +540,8 @@ def layout_pages(
         "portraits",
     )
     log = [
-        f"Chapter {ch.no}:   symbol ______   keywords ______________  ______________"
+        f"Chapter {ch.no}:   evidence __________   it is __________ and __________   "
+        "fact: ______________________________"
         for ch in frame.chapters
     ]
     add(Page(kind="text", title="Code Log", blocks=[{"kind": "list", "items": log}]))
@@ -386,7 +552,7 @@ def layout_pages(
         )
         front = cb.render(cp.cbn, ctx)
         files.update(front.files)
-        add(Page(kind="puzzle", title=f"Chapter {ch.no}: The Hidden Symbol", blocks=front.blocks))
+        add(Page(kind="puzzle", title=f"Chapter {ch.no}: The Hidden Evidence", blocks=front.blocks))
         for k, (sp, pz) in enumerate(zip(ch.side, cp.side, strict=True), 1):
             r = _side_type(sp.type).render(pz, ctx)
             files.update(r.files)
@@ -408,8 +574,8 @@ def layout_pages(
                     {"kind": "list", "items": _evidence_rows(ch)},
                     {
                         "kind": "paragraph",
-                        "text": "Only the line that matches your symbol is true. "
-                        "Note it in the Code Log.",
+                        "text": "Only the line with your picture and both of your keywords "
+                        "is true. Note its fact in the Code Log.",
                     },
                 ],
             )
@@ -442,7 +608,10 @@ def layout_pages(
         blocks = [{"kind": "heading", "text": f"Chapter {ch.no}", "level": 2}, *back.blocks]
         keys = ", ".join(sp.keyword.upper() for sp in ch.side)
         blocks.append(
-            {"kind": "paragraph", "text": f"Keywords: {keys}. True reading: {ch.meaning}"}
+            {
+                "kind": "paragraph",
+                "text": f"Evidence: {ch.object.upper()}. Keywords: {keys}. Fact: {ch.meaning}",
+            }
         )
         add(Page(kind="solutions", title="Solutions", blocks=blocks))
     add(
@@ -492,6 +661,8 @@ def manifest(frame: CaseFrame, puzzles: list[ChapterPuzzles], rep: FrameReport) 
             "ok": rep.ok,
             "unique": len(rep.necessity.get("solutions", [])) == 1,
             "redundant": rep.necessity.get("redundant", []),
+            "suspects_left_after_each_chapter": rep.lock.get("left_after", []),
+            "suspects_removed_per_clue": rep.lock.get("removed", {}),
         },
         "puzzles": rows,
     }
@@ -520,6 +691,9 @@ def build_case_book(
     if not rep.ok:
         raise necessity.CaseError(rep.feedback())
     puzzles = build_puzzles(frame, seed)
+    run = simulate_reader(frame, puzzles)
+    if not run.ok:
+        raise necessity.CaseError("reader simulation failed: " + "; ".join(run.problems))
     t = TRIMS[trim]
     m = margins_for(72)
     ctx = RenderCtx(
@@ -531,6 +705,7 @@ def build_case_book(
     out.mkdir(parents=True, exist_ok=True)
     man = manifest(frame, puzzles, rep)
     man.update({"seed": seed, "trim": trim, "pages": len(pages)})
+    man["reader_sim"] = {"ok": run.ok, "left_after": run.left_after}
     (out / "manifest.json").write_text(json.dumps(man, indent=2), encoding="utf-8")
     (out / "art_requests.json").write_text(json.dumps(art, indent=2), encoding="utf-8")
     if render:

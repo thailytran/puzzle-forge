@@ -15,6 +15,7 @@ from forge.mystery.cbn_case import (
     code_of,
     layout_pages,
     load_frame,
+    simulate_reader,
 )
 from forge.mystery.necessity import CaseError
 from forge.puzzles.cbn import ColorByNumber
@@ -63,15 +64,97 @@ def test_wrong_answer_and_bad_inputs(frame: CaseFrame) -> None:
     )
 
     def bad(d: dict) -> None:  # type: ignore[type-arg]
-        d["chapters"][0]["symbol"] = "OWL"  # too long
+        d["chapters"][0]["object"] = "owl"  # no picture
         d["chapters"][2]["side"][0]["keyword"] = "two words"
-        d["chapters"][3]["story"] = "A murder at the bridge."
-        d["chapters"][5]["symbol"] = "0"
+        d["chapters"][3]["story"] = "A murder at the river."
         d["chapters"][5]["shape"] = "blob"
+        d["chapters"][6]["shape"] = "triangle"  # a 13 x 13 picture needs smaller cells than 5 mm
 
     probs = check_frame(edited(frame, bad), deep=False).problems
-    for needle in ("symbol 'OWL'", "one word", "family-friendly", "unknown cell shape"):
+    for needle in (
+        "object 'owl'",
+        "one word",
+        "family-friendly",
+        "unknown cell shape",
+        "does not fit",
+    ):
         assert any(needle in p for p in probs), (needle, probs)
+
+
+def problems(frame: CaseFrame, fn: object) -> list[str]:
+    return check_frame(edited(frame, fn), deep=False).problems
+
+
+def test_logic_lock_rejects_unfair_cases(frame: CaseFrame) -> None:
+    def strong(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["clue"] = {"field": "name", "op": "eq", "value": d["answer"]}
+
+    assert any("too strong" in p for p in problems(frame, strong))
+
+    def hits_culprit(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][2]["clue"] = {"field": "boots", "op": "eq", "value": False}
+
+    assert any("crosses out the culprit" in p for p in problems(frame, hits_culprit))
+
+    def live_decoy(d: dict) -> None:  # type: ignore[type-arg]  # wrong row -> a wrong culprit
+        d["chapters"][0]["decoys"][0]["clue"] = {"field": "scarf", "op": "eq", "value": "green"}
+
+    assert any("must be a dead end" in p for p in problems(frame, live_decoy))
+
+    def same_as_true(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["decoys"][0]["clue"] = d["chapters"][0]["clue"]
+
+    assert any("says the same" in p for p in problems(frame, same_as_true))
+
+
+def test_card_needs_all_three_answers(frame: CaseFrame) -> None:
+    def no_object_decoy(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["decoys"].pop(0)
+
+    assert any("another object" in p for p in problems(frame, no_object_decoy))
+
+    def no_keyword_decoy(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["decoys"].pop(1)
+
+    assert any("only WOOLLEN differs" in p for p in problems(frame, no_keyword_decoy))
+
+
+def test_story_may_not_give_the_answer_away(frame: CaseFrame) -> None:
+    def leak(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][0]["story"] += " It was a crimson scarf."
+
+    probs = problems(frame, leak)
+    assert any("gives away the answer SCARF" in p for p in probs)
+    assert any("gives away the answer CRIMSON" in p for p in probs)
+
+
+def test_causal_graph() -> None:
+    from forge.mystery.causal_graph import CausalGraph
+
+    g = CausalGraph()
+    g.add("p1", "puzzle")
+    g.add("p2", "puzzle")
+    g.add("orphan", "puzzle")
+    g.add("card", "evidence", ("p1", "p2"))
+    g.add("final", "final", ("card",))
+    assert g.problems() == ["orphan is not needed for the final answer"]
+    assert g.closure("final") == {"card", "p1", "p2"}
+    bad = CausalGraph()
+    bad.add("card", "evidence", ("p9",))
+    bad.add("final", "final", ("card",))
+    assert any("unknown node" in p for p in bad.problems())
+
+
+def test_reader_simulation(frame: CaseFrame) -> None:
+    built = build_puzzles(frame, 7)
+    run = simulate_reader(frame, built)
+    assert run.ok, run.problems
+    assert run.left_after == [8, 7, 6, 5, 4, 3, 2, 1] and run.answer == [frame.answer]
+
+    def swap(d: dict) -> None:  # type: ignore[type-arg]  # card no longer matches the puzzles
+        d["chapters"][3]["side"][1]["keyword"] = "OPEN"
+
+    assert not simulate_reader(edited(frame, swap), built).ok
 
 
 def test_unbuildable_keyword_is_caught(frame: CaseFrame) -> None:
@@ -87,12 +170,12 @@ def test_puzzles_carry_the_locked_answers(frame: CaseFrame) -> None:
     built = build_puzzles(frame, 7)
     assert len(built) == 8 and sum(1 + len(b.side) for b in built) == 24
     for ch, cp in zip(frame.chapters, built, strict=True):
-        assert cb.solve(cp.cbn).solution["code"] == code_of(ch.symbol)
+        assert cb.solve(cp.cbn).solution["code"] == code_of(ch)
         assert cp.cbn.data["shape"] == ch.shape
         assert cb.verify(cp.cbn).ok
     again = build_puzzles(frame, 7)
     assert [b.cbn.content_hash for b in built] == [b.cbn.content_hash for b in again]
-    assert {b.cbn.data["shape"] for b in built} == {"square", "hex", "triangle"}
+    assert {b.cbn.data["shape"] for b in built} == {"square", "hex"}
 
 
 def test_layout_has_five_pages_per_chapter(frame: CaseFrame) -> None:
@@ -105,7 +188,8 @@ def test_layout_has_five_pages_per_chapter(frame: CaseFrame) -> None:
     assert len(art) >= 8 and all(a["brief"] for a in art)
     card = next(p for p in pages if p.title == "Evidence Card 1")
     rows = next(b for b in card.blocks if b["kind"] == "list")["items"]
-    assert len(rows) == 3  # the true reading and two decoys: the mosaic decides
+    assert len(rows) == 4  # the true row + one decoy per answer (picture, keyword 1, keyword 2)
+    assert sum("SCARF" in r for r in rows) == 3 and sum("WOOLLEN" in r for r in rows) == 3
 
 
 def test_manifest_without_render(frame: CaseFrame, tmp_path: Path) -> None:

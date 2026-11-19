@@ -116,6 +116,7 @@ givens, word lists, scrambles; cipher letters as an ordered subsequence) and re-
 
 - `L4.all_clues_required` (BLOCKER) — all clues → exactly 1 candidate = declared answer; dropping
   any single clue → > 1 candidate (`forge/mystery/necessity.py`, MYSTERY_DESIGN §15).
+- `L4.logic_lock` (BLOCKER, CBN Mystery; enforced by `forge mystery check|build`) — second solver agrees with the first; every clue removes ≥ 1 suspect, never the culprit, ≤ 50 % of the suspects and alone leaves ≥ 3; every decoy row is a dead end (0 or ≥ 2 suspects); object / keywords not printed in the chapter text; causal graph valid; reader simulation ends with the declared answer only after the last chapter (MYSTERY_DESIGN §16.1).
 - `L4.vault_page` (MAJOR, mystery/escape lines) — last content page is the `case_vault` page: prints
   the domain + `/solve/<book_id>` URL and a QR code that encodes exactly that URL.
 

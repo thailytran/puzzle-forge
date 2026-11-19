@@ -14,9 +14,9 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw
 
 from forge.puzzles.base import GenerationError
+from forge.puzzles.cbn.font import ICON, bitmap_of, decode
 from forge.puzzles.cbn.font import H as FONT_H
 from forge.puzzles.cbn.font import W as FONT_W
-from forge.puzzles.cbn.font import bitmap, match
 
 SHAPES = ("square", "hex", "triangle", "circle")
 SQRT3 = math.sqrt(3.0)
@@ -157,15 +157,15 @@ LATTICE: dict[str, tuple[float, float, float, int, int]] = {
 MAX_ASPECT = 1.35  # a font pixel may be at most this much wider than tall (or taller than wide)
 
 
-def frame(n_chars: int, t: Tiling) -> tuple[float, float, float, float]:
-    """(pixel width, pixel height, left, top) of the centred, lattice-aligned code frame."""
+def frame_px(width_px: int, height_px: int, t: Tiling) -> tuple[float, float, float, float]:
+    """(pixel width, pixel height, left, top) of the centred, lattice-aligned picture frame."""
     ux, uy, y0, kx_min, ky_min = LATTICE[t.shape]
-    width_px = n_chars * (FONT_W + 1) - 1
     kx = int((t.width - 2 * MARGIN) / (width_px * ux) + 1e-9)
-    ky = int((t.height - y0 - 2 * MARGIN) / (FONT_H * uy) + 1e-9)
+    ky = int((t.height - y0 - 2 * MARGIN) / (height_px * uy) + 1e-9)
     if kx < kx_min or ky < ky_min:
         raise GenerationError(
-            f"cbn: a {n_chars}-character code does not fit a {t.rows}x{t.cols} {t.shape} mosaic"
+            f"cbn: a {width_px}x{height_px} picture does not fit a {t.rows}x{t.cols} "
+            f"{t.shape} mosaic"
         )
     if t.shape in ("square", "circle"):
         kx = ky = min(kx, ky)
@@ -175,24 +175,36 @@ def frame(n_chars: int, t: Tiling) -> tuple[float, float, float, float]:
         ky -= 1
     sx, sy = kx * ux, ky * uy
     left = math.floor((t.width - width_px * sx) / 2 / ux) * ux
-    top = y0 + math.floor((t.height - y0 - FONT_H * sy) / 2 / uy) * uy
+    top = y0 + math.floor((t.height - y0 - height_px * sy) / 2 / uy) * uy
     return sx, sy, left, top
 
 
+def frame(n_chars: int, t: Tiling) -> tuple[float, float, float, float]:
+    """Frame of an n-character text code."""
+    return frame_px(n_chars * (FONT_W + 1) - 1, FONT_H, t)
+
+
+def frame_of(code: str, t: Tiling) -> tuple[float, float, float, float]:
+    bm = bitmap_of(code)
+    return frame_px(len(bm[0]), len(bm), t)
+
+
 def code_cells(code: str, t: Tiling) -> list[bool]:
-    """True for every cell whose centre lies on an "on" pixel of the code bitmap."""
-    sx, sy, left, top = frame(len(code), t)
-    bms = [bitmap(ch) for ch in code]
+    """True for every cell whose centre lies on an "on" pixel of the code picture."""
+    bm = bitmap_of(code)
+    hpx, wpx = len(bm), len(bm[0])
+    sx, sy, left, top = frame_px(wpx, hpx, t)
     out = []
     for cell in t.cells:
         gx, gy = (cell.cx - left) / sx, (cell.cy - top) / sy
-        on = False
-        if 0 <= gy < FONT_H and gx >= 0:
-            k, px = divmod(int(gx), FONT_W + 1)
-            if k < len(code) and px < FONT_W:
-                on = bool(bms[k][int(gy)][px])
+        on = 0 <= gy < hpx and 0 <= gx < wpx and bool(bm[int(gy)][int(gx)])
         out.append(on)
     return out
+
+
+def _sizes(max_len: int) -> list[tuple[int, int]]:
+    """Picture sizes a reader tries: the icon size, then text of 1..max_len characters."""
+    return [(ICON, ICON)] + [(n * (FONT_W + 1) - 1, FONT_H) for n in range(1, max_len + 1)]
 
 
 def raster(t: Tiling, colors: list[int]) -> Image.Image:
@@ -217,39 +229,34 @@ def _dark(img: Image.Image, box: tuple[float, float, float, float]) -> tuple[int
 def read_raster(t: Tiling, colors: list[int], max_len: int = 4) -> str:
     """Read the revealed code from the painted picture, whatever the cell shape.
 
-    For each possible code length the centred frame is recomputed; the length is accepted when
-    every font pixel is clearly dark or clearly light, every glyph matches exactly and (almost)
-    no code-coloured ink lies outside the frame."""
+    For each possible picture size the centred frame is recomputed; the size is accepted when
+    every pixel is clearly dark or clearly light, the pixels form a known picture exactly and
+    (almost) no code-coloured ink lies outside the frame."""
     img = raster(t, colors)
     total = img.histogram()[1]
     if not total:
         return "?"
-    for n in range(1, max_len + 1):
+    for wpx, hpx in _sizes(max_len):
         try:
-            sx, sy, left, top = frame(n, t)
+            sx, sy, left, top = frame_px(wpx, hpx, t)
         except GenerationError:
-            break
-        out = []
+            continue
         clear = True
-        for k in range(n):
-            block = []
-            for gy in range(FONT_H):
-                line = []
-                for gx in range(FONT_W):
-                    x = left + (k * (FONT_W + 1) + gx) * sx
-                    y = top + gy * sy
-                    dark, area = _dark(img, (x, y, x + sx, y + sy))
-                    share = dark / area if area else 0.0
-                    if OFF_MAX < share < ON_MIN:
-                        clear = False
-                    line.append(1 if share >= ON_MIN else 0)
-                block.append(line)
-            ch, err = match(block)
-            out.append(ch if err == 0 else "?")
-        width_px = n * (FONT_W + 1) - 1
-        inside, _ = _dark(img, (left, top, left + width_px * sx, top + FONT_H * sy))
-        if clear and "?" not in out and (total - inside) / total <= OUTSIDE_MAX:
-            return "".join(out)
+        block = []
+        for gy in range(hpx):
+            line = []
+            for gx in range(wpx):
+                x, y = left + gx * sx, top + gy * sy
+                dark, area = _dark(img, (x, y, x + sx, y + sy))
+                share = dark / area if area else 0.0
+                if OFF_MAX < share < ON_MIN:
+                    clear = False
+                line.append(1 if share >= ON_MIN else 0)
+            block.append(line)
+        code = decode(block)
+        inside, _ = _dark(img, (left, top, left + wpx * sx, top + hpx * sy))
+        if clear and code != "?" and (total - inside) / total <= OUTSIDE_MAX:
+            return code
     return "?"
 
 
@@ -266,42 +273,34 @@ def _inside(pts: tuple[tuple[float, float], ...], x: float, y: float) -> bool:
 
 
 def read_centres(t: Tiling, colors: list[int], max_len: int = 4) -> str:
-    """Second, independent reading: the colour of the cell under the centre of each font pixel
+    """Second, independent reading: the colour of the cell under the centre of each pixel
     (point-in-polygon lookup, no raster)."""
     dark_total = sum(v == 1 for v in colors)
-    for n in range(1, max_len + 1):
+    for wpx, hpx in _sizes(max_len):
         try:
-            sx, sy, left, top = frame(n, t)
+            sx, sy, left, top = frame_px(wpx, hpx, t)
         except GenerationError:
-            break
-        out = []
+            continue
         used: set[int] = set()
-        for k in range(n):
-            block = []
-            for gy in range(FONT_H):
-                line = []
-                for gx in range(FONT_W):
-                    x = left + (k * (FONT_W + 1) + gx + 0.5) * sx
-                    y = top + (gy + 0.5) * sy
-                    idx = next(
-                        (i for i, c in enumerate(t.cells) if _inside(c.area, x, y)),
-                        -1,
-                    )
-                    on = idx >= 0 and colors[idx] == 1
-                    if on:
-                        used.add(idx)
-                    line.append(1 if on else 0)
-                block.append(line)
-            ch, err = match(block)
-            out.append(ch if err == 0 else "?")
-        if "?" not in out and dark_total >= len(used) > 0:
-            width_px = n * (FONT_W + 1) - 1
-            x1, y1 = left + width_px * sx, top + FONT_H * sy
+        block = []
+        for gy in range(hpx):
+            line = []
+            for gx in range(wpx):
+                x, y = left + (gx + 0.5) * sx, top + (gy + 0.5) * sy
+                idx = next((i for i, c in enumerate(t.cells) if _inside(c.area, x, y)), -1)
+                on = idx >= 0 and colors[idx] == 1
+                if on:
+                    used.add(idx)
+                line.append(1 if on else 0)
+            block.append(line)
+        code = decode(block)
+        if code != "?" and dark_total >= len(used) > 0:
+            x1, y1 = left + wpx * sx, top + hpx * sy
             stray = sum(
                 1
                 for c, v in zip(t.cells, colors, strict=True)
                 if v == 1 and not (left <= c.cx <= x1 and top <= c.cy <= y1)
             )
             if stray == 0:
-                return "".join(out)
+                return code
     return "?"

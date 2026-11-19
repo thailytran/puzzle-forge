@@ -106,6 +106,7 @@ Tick `[x]` when a task is done (tests + QA pass). Each task ≈ one Claude Code 
 - [ ] P8.1c CBN cell shapes: rhombus, Voronoi. (Symbol glyphs star / arrow / cross / key / heart: done in P8.3.)
 - [x] P8.2 Blueprint `cbn_mystery`: chapter = story + cbn_reveal + 2 side puzzles + evidence card (8 chapters = 40 pages, 24 puzzle pages); how to play, suspects, code log, deduction, hints, solutions, case_vault; ink-saver and kids variants.
 - [x] P8.3 Case builder `forge/mystery/cbn_case.py`: case frame JSON -> `check_frame` (necessity P8.1, codes fit the mosaic, keywords buildable, family-safe; feedback text for the writer) -> puzzles from the locked answers -> layout + manifest + art requests; `forge mystery check|build`; sample frame `configs/cases/vanished_star.json`.
+- [x] P8.3b CBN Mystery v2 (owner review 2026-11-18): mosaic reveals a 13x13 PICTURE of the evidence object (`@icon` codes, `forge/puzzles/cbn/font.py`), side-puzzle keywords are traits of that object, evidence card keyed by (object, trait, trait) with one decoy row per answer; LOGIC LOCK = second solver `forge/mystery/logic_lock.py` (agrees with `necessity`), small-hint rule, dead-end decoys, no answer leaked in chapter text, causal graph `forge/mystery/causal_graph.py`, reader simulation `simulate_reader` (page order, solver outputs only) - all mandatory before a book is built.
 - [ ] P8.4 Sample CBN Mystery book (kids + adult) → QA_PASSED → review pack.
 
 ## P9 — Case Vault website & rewards (docs/CASEVAULT.md)

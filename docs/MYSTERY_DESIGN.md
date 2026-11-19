@@ -293,3 +293,34 @@ A colour-by-number mystery: each chapter's colouring page (type A or B, §14) re
 clue glyphs combined with the evidence narrow the suspects (or the code digits) to exactly one — the
 §15 rule applies unchanged (drop any reveal → > 1 candidate). Audience: kids 6–8 (4-colour palettes,
 3–4 reveals) and adults (6–8 colours, 6–8 reveals). Blueprint `blueprints/cbn_mystery/line.yaml`.
+
+### 16.1 Picture reveal and logic lock (v2, 2026-11-18)
+
+A chapter gives one fact through three answers that belong together:
+
+| Page | Reader gets | Role |
+|---|---|---|
+| Colour by number | a picture of the evidence object (`@scarf`, `@boot` ... 13x13 icons) | WHAT was found |
+| Side puzzle 1 + 2 | two keywords | WHAT IT WAS LIKE (traits of that object) |
+| Evidence card | the row for (object, trait, trait) | WHAT IT PROVES (a rule over the suspects) |
+
+The card carries the true row and at least three decoy rows: one with another object, and for each
+keyword one where only that keyword differs. So no answer can be skipped.
+
+`check_frame` refuses a case unless all of these hold (the "logic lock"):
+
+1. **Two solvers agree** - `necessity` (candidate filtering) and `logic_lock` (exclusion-set algebra,
+   own rule evaluator): all clues leave exactly the declared answer; both name the same redundant clues.
+2. **Every clue is needed** - without it more than one suspect is left.
+3. **Every clue is a small hint** - it removes at least one suspect, never the culprit, at most half
+   of the suspects, and alone leaves at least three. The culprit is unknown before the last chapter.
+4. **A wrong reading is a dead end** - with any decoy row in place of the true one the case ends
+   with zero or several suspects, never with one wrong name.
+5. **No leak** - the object and the keywords of a chapter do not appear in its title, story, card
+   intro, puzzle intros or the first two hints.
+6. **Causal graph** - story -> picture + 2 keywords -> card -> final; DAG in page order, every puzzle
+   and card is needed for the final answer, every card depends on at least two puzzles.
+7. **Reader simulation** (after the puzzles are generated) - the book is played in page order with
+   solver outputs only: two mosaic readers must see the same picture, each side puzzle must yield its
+   keyword, the three answers must select the true row and nothing else; one suspect remains only at
+   the end.

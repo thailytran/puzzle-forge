@@ -31,7 +31,7 @@ from forge.core.protocol import RenderCtx, RenderedBlock
 from forge.core.seeds import derive_seed, make_rng
 from forge.puzzles.base import GenerationError, find_constraint
 from forge.puzzles.cbn import tiling
-from forge.puzzles.cbn.font import GLYPHS, H, W, bitmap, match
+from forge.puzzles.cbn.font import H, W, bitmap, is_icon, known, match
 
 SOLVER = "cbn-block-read-v1"
 SOLVER_RASTER = "cbn-raster-read-v1"
@@ -98,7 +98,7 @@ def plan_tiling(shape: str, code: str, spec: PuzzleSpec, mode: str = "A") -> til
         rows = 1 + int((PAGE_MM[1] / unit_mm - one.height) / dy)
         try:
             t = tiling.make(shape, max(rows, 2), max(cols, 2))
-            tiling.frame(len(code), t)
+            tiling.frame_of(code, t)
             return t
         except GenerationError as e:
             last = e
@@ -242,12 +242,13 @@ class ColorByNumber:
         kids = spec.audience in ("kids_6_8", "kids_9_12")
         rng = make_rng(derive_seed(seed, "cbn"))
         ans = find_constraint(spec, AnswerIs)
-        code = (ans.word if ans else str(spec.options.get("code") or rng.randint(10, 99))).upper()
-        if any(ch not in GLYPHS for ch in code):
+        code = ans.word if ans else str(spec.options.get("code") or rng.randint(10, 99))
+        code = code.lower() if is_icon(code) else code.upper()
+        if not known(code):
             raise GenerationError(f"cbn: unsupported characters in code {code!r}")
-        if kids and len(code) > 1 and not ans:
+        if kids and len(code) > 1 and not ans and not is_icon(code):
             code = code[0]
-        shape = str(spec.options.get("shape") or "")
+        shape = str(spec.options.get("shape") or ("square" if is_icon(code) else ""))
         if shape:  # explicit shape (square included): planned tiling with the minimum cell size
             return self._generate_tiling(spec, seed, shape, code, p.mode, rng)
         width_px = len(code) * (W + 1) - 1
@@ -381,7 +382,7 @@ class ColorByNumber:
         if len({e["answer"] for e in pal}) != len(pal):
             msgs.append("two colours share an answer value (type B ambiguous)")
         ans = find_constraint(puzzle.spec, AnswerIs)
-        if ans and ans.word.upper() != puzzle.solution["code"]:
+        if ans and ans.word.upper() != str(puzzle.solution["code"]).upper():
             msgs.append("code differs from answer_is constraint")
         solver = SOLVER_RASTER if "shape" in puzzle.data else SOLVER
         return VerifyReport(ok=not msgs, unique=True, solver=solver, messages=msgs)
@@ -459,6 +460,8 @@ class ColorByNumber:
         cell = {"hex": "hexagon", "triangle": "triangle", "circle": "dot"}.get(
             puzzle.data.get("shape", "square"), "square"
         )
+        picture = is_icon(str(puzzle.solution.get("code", "")))
+        reveal = " A hidden picture will appear." if picture else " A secret code will appear."
         how = (
             f"Colour each {cell} with the colour of its number."
             if puzzle.data["mode"] == "A"
@@ -466,16 +469,16 @@ class ColorByNumber:
         )
         return RenderedBlock(
             blocks=[
-                {"kind": "paragraph", "text": how + " A secret code will appear."},
+                {"kind": "paragraph", "text": how + reveal},
                 self._block(puzzle, ctx, False, 0.78),
             ]
         )
 
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
         blk = self._block(puzzle, ctx, True, 0.85)
-        return RenderedBlock(
-            blocks=[blk, {"kind": "paragraph", "text": f"Code: {puzzle.solution['code']}"}]
-        )
+        code = str(puzzle.solution["code"])
+        shown = f"Picture: {code[1:]}" if is_icon(code) else f"Code: {code}"
+        return RenderedBlock(blocks=[blk, {"kind": "paragraph", "text": shown}])
 
 
 __all__ = ["ColorByNumber", "Level", "min_cell_mm", "read_code", "tiling_of"]

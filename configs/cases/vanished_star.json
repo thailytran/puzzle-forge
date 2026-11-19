@@ -5,7 +5,7 @@
  "audience": "adult",
  "season": "christmas",
  "setting": "Larkspur Hollow is a small riverside town. Every winter its nine best-known neighbours help to raise a golden star onto the fir tree in the square. This year the star disappeared the night before the Lantern Festival.",
- "intro": "You are the town's volunteer detective. Each chapter hides one fact inside a colour-by-number mosaic. Colour it, read the symbol, and the evidence card tells you what it means.",
+ "intro": "You are the town's volunteer detective. Each chapter hides one piece of evidence inside a colour-by-number mosaic. Colour it to see what was found, solve two short puzzles to learn what it was like, and the evidence card tells you what that proves.",
  "suspects": [
   {
    "name": "Wren the lamplighter",
@@ -31,7 +31,7 @@
   },
   {
    "name": "Otis the clockmaker",
-   "scarf": "blue",
+   "scarf": "red",
    "glasses": true,
    "boots": true,
    "side": "north",
@@ -53,7 +53,7 @@
   },
   {
    "name": "Hugo the ferryman",
-   "scarf": "blue",
+   "scarf": "red",
    "glasses": false,
    "boots": true,
    "side": "south",
@@ -75,7 +75,7 @@
   },
   {
    "name": "Basil the choirmaster",
-   "scarf": "blue",
+   "scarf": "red",
    "glasses": false,
    "boots": true,
    "side": "north",
@@ -97,7 +97,7 @@
   },
   {
    "name": "Tobias the postman",
-   "scarf": "blue",
+   "scarf": "red",
    "glasses": false,
    "boots": true,
    "side": "north",
@@ -113,53 +113,80 @@
   {
    "no": 1,
    "title": "A Thread on the Fir",
-   "story": "On the morning before the Lantern Festival, the great star was gone from the top of the square's fir tree. Caught on the highest branch was a single woollen thread.\nMayor Alder asked you to look closer. What colour was it? The mosaic remembers.",
+   "story": "On the morning before the Lantern Festival, the great star was gone from the top of the square's fir tree. Caught on the highest branch was a single thread.\nMayor Alder asked you to look closer. What did it come from, what was it made of, and what colour was it? The mosaic and the two puzzles remember.",
    "scene": "Snowy town square at dawn, a tall fir tree with an empty top, a thread caught on a branch",
    "shape": "square",
-   "symbol": "R",
-   "meaning": "The thread is red or blue. Whoever took the star did not wear a green scarf.",
+   "object": "scarf",
+   "meaning": "The thread was pulled from a red wool scarf. Whoever took the star wore a red scarf.",
    "clue": {
     "field": "scarf",
-    "op": "ne",
-    "value": "green"
+    "op": "eq",
+    "value": "red"
    },
    "decoys": [
     {
-     "symbol": "G",
-     "meaning": "The thread is green. The taker wore a green scarf."
+     "object": "bell",
+     "keywords": [
+      "WOOLLEN",
+      "CRIMSON"
+     ],
+     "meaning": "The thread is from the chapel bell rope. Whoever took the star had been ringing with the choir.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
     },
     {
-     "symbol": "Y",
-     "meaning": "The thread is yellow. It came from the festival bunting, not from a scarf."
+     "object": "scarf",
+     "keywords": [
+      "SILKEN",
+      "CRIMSON"
+     ],
+     "meaning": "A silk scarf, far too fine for this town. The taker came over from the south bank.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "scarf",
+     "keywords": [
+      "WOOLLEN",
+      "GOLDEN"
+     ],
+     "meaning": "A yellow wool thread from the festival bunting. It tells you nothing about the taker.",
+     "clue": null
     }
    ],
    "side": [
     {
      "type": "scramble",
-     "keyword": "SNOWMAN",
-     "intro": "Unscramble the winter words. The marked letters spell a keyword."
+     "keyword": "WOOLLEN",
+     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
     },
     {
      "type": "wordsearch",
-     "keyword": "LANTERN",
-     "intro": "Find every word. The letters left over spell a keyword."
+     "keyword": "CRIMSON",
+     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Compare the symbol in your mosaic with the lines below.",
+   "evidence": "What did the thread come from, and what was it like?",
    "hints": [
-    "Look at the darkest colour first.",
-    "Colour every cell marked 1 before anything else.",
-    "The mosaic shows the letter R."
+    "Colour every cell marked 1 first: the darkest colour draws the picture.",
+    "The picture is something you wear in winter. The marked letters of the first puzzle name what it is made of.",
+    "The mosaic shows a SCARF. The keywords are WOOLLEN and CRIMSON."
    ]
   },
   {
    "no": 2,
-   "title": "Clear Eyes in the Dark",
-   "story": "The lamplighter's ledger says the square was pitch dark at midnight. The baker's boy saw a figure reading the tiny brass label on the star without holding it close.\nSomeone who needs spectacles could not have done that.",
-   "scene": "A brass label on a golden star, lantern light, a child peeking from a bakery window",
-   "shape": "square",
-   "symbol": "7",
-   "meaning": "The label was read from arm's length in the dark. The taker does not wear glasses.",
+   "title": "Sharp Eyes",
+   "story": "The square was dark at midnight. The baker's boy, awake at his window, saw a figure hold up a small light and read the brass label on the star from arm's length.\nHow much light was there, and how big were the letters?",
+   "scene": "A brass label on a golden star, a child peeking from a bakery window at night",
+   "shape": "hex",
+   "object": "lantern",
+   "meaning": "Tiny letters, read from arm's length by a faint light: sharp eyes. The taker does not wear glasses.",
    "clue": {
     "field": "glasses",
     "op": "eq",
@@ -167,41 +194,68 @@
    },
    "decoys": [
     {
-     "symbol": "1",
-     "meaning": "The figure held the label right up to thick glasses."
+     "object": "clock",
+     "keywords": [
+      "FAINT",
+      "TINY"
+     ],
+     "meaning": "The figure was only checking the time on the tower. It was a choir singer late for practice.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
     },
     {
-     "symbol": "4",
-     "meaning": "The figure could not read the label at all and asked for help."
+     "object": "lantern",
+     "keywords": [
+      "BLAZING",
+      "TINY"
+     ],
+     "meaning": "A blazing light like that belongs to the ferry. The taker lives on the south side.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "lantern",
+     "keywords": [
+      "FAINT",
+      "HUGE"
+     ],
+     "meaning": "Anyone can read huge letters, even by a faint light. Nothing is proved.",
+     "clue": null
     }
    ],
    "side": [
     {
      "type": "cryptogram",
-     "keyword": "SLEIGH",
-     "intro": "Decode the message to find the keyword."
+     "keyword": "FAINT",
+     "intro": "Decode the message to find a keyword that describes the evidence."
     },
     {
      "type": "maze",
-     "keyword": "BELL",
-     "intro": "Walk the maze. The letters on your path spell a keyword."
+     "keyword": "TINY",
+     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Read only the line for the number you found.",
+   "evidence": "What did the figure hold, and what do your keywords say about that night?",
    "hints": [
-    "The symbol is a number.",
-    "Look for a shape with one long diagonal stroke.",
-    "The mosaic shows the number 7."
+    "The picture is something you carry in the dark.",
+    "Decode the message: its last word is the first keyword. The second keyword lies along your path.",
+    "The mosaic shows a LANTERN. The keywords are FAINT and TINY."
    ]
   },
   {
    "no": 3,
    "title": "Prints in the Snow",
-   "story": "Fresh snow fell at eleven. By morning one clear trail crossed the square to the fir tree: deep, ridged prints.\nThe cobbler measured them with a ribbon and smiled.",
-   "scene": "Boot prints crossing fresh snow toward a fir tree, a cobbler kneeling with a ribbon",
-   "shape": "hex",
-   "symbol": "*",
-   "meaning": "The prints were made by heavy winter boots. The taker wore boots.",
+   "story": "Fresh snow fell at eleven. By morning one clear trail crossed the square to the fir tree.\nThe cobbler knelt beside the prints with a ribbon and smiled. He knew what had made them.",
+   "scene": "A trail of prints crossing fresh snow toward a fir tree, a cobbler kneeling with a ribbon",
+   "shape": "square",
+   "object": "boot",
+   "meaning": "Deep prints with ridged soles: heavy winter boots. The taker wore boots.",
    "clue": {
     "field": "boots",
     "op": "eq",
@@ -209,41 +263,72 @@
    },
    "decoys": [
     {
-     "symbol": ">",
-     "meaning": "The prints were made by soft indoor slippers."
+     "object": "paw",
+     "keywords": [
+      "HEAVY",
+      "RIDGED"
+     ],
+     "meaning": "The trail was made by a large animal, not a person. Only someone with a cat would be followed like that.",
+     "clue": {
+      "field": "pet",
+      "op": "eq",
+      "value": "cat"
+     }
     },
     {
-     "symbol": "+",
-     "meaning": "The prints were made by wooden skates."
+     "object": "boot",
+     "keywords": [
+      "LIGHT",
+      "RIDGED"
+     ],
+     "meaning": "Light, small prints: a child's boot. No grown-up in the dossier fits.",
+     "clue": {
+      "field": "name",
+      "op": "eq",
+      "value": "nobody"
+     }
+    },
+    {
+     "object": "boot",
+     "keywords": [
+      "HEAVY",
+      "SMOOTH"
+     ],
+     "meaning": "Smooth soles slip on a ladder. The taker climbed without one.",
+     "clue": {
+      "field": "ladder",
+      "op": "eq",
+      "value": false
+     }
     }
    ],
    "side": [
     {
      "type": "scramble",
-     "keyword": "BLANKET",
-     "intro": "Unscramble the words. The marked letters spell a keyword."
+     "keyword": "HEAVY",
+     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
     },
     {
      "type": "wordsearch",
-     "keyword": "SNOWFALL",
-     "intro": "Find every word. The letters left over spell a keyword."
+     "keyword": "RIDGED",
+     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Which symbol appeared in your honeycomb mosaic?",
+   "evidence": "What made the trail, and what kind was it?",
    "hints": [
-    "The symbol is not a letter.",
-    "It has points all around.",
-    "The mosaic shows a star."
+    "The picture is something you wear outdoors.",
+    "It goes on a foot. The leftover letters of the word search describe its sole.",
+    "The mosaic shows a BOOT. The keywords are HEAVY and RIDGED."
    ]
   },
   {
    "no": 4,
-   "title": "The Frozen Bridge",
-   "story": "Only one bridge joins the two halves of the town, and the ferryman swears it was iced shut from dusk till dawn.\nThe trail of prints never came near the river.",
-   "scene": "A small stone bridge covered in ice at night, a river, warm windows on the north bank",
+   "title": "The River Crossing",
+   "story": "Only one crossing joins the two halves of the town. The ferryman walked down to look at it at dusk and again at dawn.\nThe trail of prints never came near the river.",
+   "scene": "A small stone crossing over a river at night, warm windows on the north bank",
    "shape": "hex",
-   "symbol": "N",
-   "meaning": "Nobody crossed the river that night. The taker lives on the north side.",
+   "object": "bridge",
+   "meaning": "The bridge was frozen and shut all night. Nobody crossed: the taker lives on the north side.",
    "clue": {
     "field": "side",
     "op": "eq",
@@ -251,41 +336,68 @@
    },
    "decoys": [
     {
-     "symbol": "S",
-     "meaning": "The trail came over the bridge from the south side."
+     "object": "ladder",
+     "keywords": [
+      "FROZEN",
+      "SHUT"
+     ],
+     "meaning": "A ladder lay across the river ice like a walkway. Only someone in soft shoes could cross it without slipping: the taker wore no boots.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
     },
     {
-     "symbol": "E",
-     "meaning": "The trail came down from the eastern hill, outside the town."
+     "object": "bridge",
+     "keywords": [
+      "DRY",
+      "SHUT"
+     ],
+     "meaning": "The gate was shut, but a left-handed latch opens it from outside. The taker is left-handed.",
+     "clue": {
+      "field": "left_handed",
+      "op": "eq",
+      "value": true
+     }
+    },
+    {
+     "object": "bridge",
+     "keywords": [
+      "FROZEN",
+      "OPEN"
+     ],
+     "meaning": "The crossing stood open. Anyone from either bank could have come.",
+     "clue": null
     }
    ],
    "side": [
     {
      "type": "cryptogram",
-     "keyword": "FROST",
-     "intro": "Decode the message to find the keyword."
+     "keyword": "FROZEN",
+     "intro": "Decode the message to find a keyword that describes the evidence."
     },
     {
      "type": "maze",
-     "keyword": "PINE",
-     "intro": "Walk the maze. The letters on your path spell a keyword."
+     "keyword": "SHUT",
+     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Compare the letter in your mosaic with the compass below.",
+   "evidence": "What did the ferryman look at, and how did he find it?",
    "hints": [
-    "The symbol is a compass letter.",
-    "It is made of two tall strokes joined by a diagonal.",
-    "The mosaic shows the letter N."
+    "The picture is something that stands over water.",
+    "Decode the message for the first keyword. The maze path spells the second.",
+    "The mosaic shows a BRIDGE. The keywords are FROZEN and SHUT."
    ]
   },
   {
    "no": 5,
    "title": "Two Marks in the Bark",
-   "story": "Near the foot of the fir, two neat dents showed where something had leaned against the trunk. The dents were as wide apart as the rails of a ladder.\nThe star hung far too high to reach from the ground.",
-   "scene": "Close view of a fir trunk with two dents in the snow-dusted bark, a ladder shadow",
-   "shape": "hex",
-   "symbol": "L",
-   "meaning": "A ladder stood against the tree. The taker owns a ladder.",
+   "story": "Near the foot of the fir, two neat dents showed where something had leaned against the trunk.\nThe star hung far too high to reach from the ground.",
+   "scene": "Close view of a fir trunk with two dents in the snow-dusted bark",
+   "shape": "square",
+   "object": "ladder",
+   "meaning": "A narrow wooden ladder stood against the tree, the kind kept in a shed. The taker owns a ladder.",
    "clue": {
     "field": "ladder",
     "op": "eq",
@@ -293,41 +405,72 @@
    },
    "decoys": [
     {
-     "symbol": "C",
-     "meaning": "Someone climbed the branches. No ladder was used."
+     "object": "tree",
+     "keywords": [
+      "WOODEN",
+      "NARROW"
+     ],
+     "meaning": "The dents are only old knots in the trunk. The taker climbed the branches in soft shoes, not boots.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
     },
     {
-     "symbol": "H",
-     "meaning": "A long hook pole pulled the star down from the ground."
+     "object": "ladder",
+     "keywords": [
+      "IRON",
+      "NARROW"
+     ],
+     "meaning": "An iron ladder is the ferry's own. The taker lives on the south side.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "ladder",
+     "keywords": [
+      "WOODEN",
+      "BROAD"
+     ],
+     "meaning": "A broad wooden ladder is the one from the chapel. The taker sings in the choir.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
     }
    ],
    "side": [
     {
      "type": "scramble",
-     "keyword": "JINGLE",
-     "intro": "Unscramble the words. The marked letters spell a keyword."
+     "keyword": "WOODEN",
+     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
     },
     {
      "type": "wordsearch",
-     "keyword": "GARLAND",
-     "intro": "Find every word. The letters left over spell a keyword."
+     "keyword": "NARROW",
+     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Read only the line for your letter.",
+   "evidence": "What leaned against the tree, and what was it like?",
    "hints": [
-    "The symbol is a letter with one corner.",
-    "It looks like a boot seen from the side.",
-    "The mosaic shows the letter L."
+    "The picture is a tool for reaching high places.",
+    "Unscramble the words: the marked letters name what it is made of.",
+    "The mosaic shows a LADDER. The keywords are WOODEN and NARROW."
    ]
   },
   {
    "no": 6,
    "title": "The Midnight Rehearsal",
-   "story": "From ten until one, the choir practised carols in the chapel. The choirmaster keeps a roll, and every singer on it was counted at the stroke of midnight.\nThe star vanished at midnight.",
-   "scene": "A candle-lit chapel with a choir singing, a roll book on a stand, a clock showing midnight",
-   "shape": "triangle",
-   "symbol": "0",
-   "meaning": "Every choir member was in the chapel at midnight. The taker was not at choir practice.",
+   "story": "From ten until one, the singers practised in the chapel. On the stand lay a sheet that every singer present had signed at the stroke of midnight.\nThe star vanished at midnight.",
+   "scene": "A candle-lit chapel with singers, a sheet on a stand, a clock showing midnight",
+   "shape": "hex",
+   "object": "note",
+   "meaning": "The carol sheet was signed by the full choir at midnight. The taker is not in the choir.",
    "clue": {
     "field": "choir",
     "op": "eq",
@@ -335,41 +478,68 @@
    },
    "decoys": [
     {
-     "symbol": "8",
-     "meaning": "The choir finished early, so any singer could have been in the square."
+     "object": "bell",
+     "keywords": [
+      "CAROL",
+      "FULL"
+     ],
+     "meaning": "The bell that rang a full carol at midnight hangs on the south bank. The taker lives on the south side.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
     },
     {
-     "symbol": "3",
-     "meaning": "Three singers slipped out before midnight."
+     "object": "note",
+     "keywords": [
+      "LULLABY",
+      "FULL"
+     ],
+     "meaning": "A lullaby is sung at home with a cat on the lap. The taker keeps a cat.",
+     "clue": {
+      "field": "pet",
+      "op": "eq",
+      "value": "cat"
+     }
+    },
+    {
+     "object": "note",
+     "keywords": [
+      "CAROL",
+      "HALF"
+     ],
+     "meaning": "Half the singers had gone home early. The sheet proves nothing.",
+     "clue": null
     }
    ],
    "side": [
     {
      "type": "cryptogram",
      "keyword": "CAROL",
-     "intro": "Decode the message to find the keyword."
+     "intro": "Decode the message to find a keyword that describes the evidence."
     },
     {
      "type": "maze",
-     "keyword": "SNOW",
-     "intro": "Walk the maze. The letters on your path spell a keyword."
+     "keyword": "FULL",
+     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Compare the number in your triangle mosaic with the roll below.",
+   "evidence": "What lay on the stand, and what do the keywords say about it?",
    "hints": [
-    "The symbol is a number.",
-    "It is a closed ring.",
-    "The mosaic shows the number 0."
+    "The picture is something you can sing.",
+    "Decode the message for the first keyword. The maze path spells how many singers signed.",
+    "The mosaic shows a music NOTE. The keywords are CAROL and FULL."
    ]
   },
   {
    "no": 7,
-   "title": "The Knot",
-   "story": "The rope that once held the star was still tied to the top branch. The sailor who taught knots at the school studied it for a long time.\nA knot shows which hand tied it.",
-   "scene": "A rope knot on a fir branch, an old sailor examining it with a magnifying glass",
-   "shape": "triangle",
-   "symbol": "!",
-   "meaning": "The knot was untied by a right-handed person. The taker is not left-handed.",
+   "title": "Dropped in the Snow",
+   "story": "Under the lowest branch lay something dropped in a hurry, already stiff with frost.\nThe old sailor who teaches knots at the school turned it over twice. Then he looked at the rope that had held the star.",
+   "scene": "An old sailor examining a small found object beside a rope tied to a fir branch",
+   "shape": "square",
+   "object": "glove",
+   "meaning": "A thick glove for the right hand, worn thin from work. The taker is not left-handed.",
    "clue": {
     "field": "left_handed",
     "op": "eq",
@@ -377,41 +547,72 @@
    },
    "decoys": [
     {
-     "symbol": "<",
-     "meaning": "The knot was untied by a left-handed person."
+     "object": "key",
+     "keywords": [
+      "THICK",
+      "RIGHT"
+     ],
+     "meaning": "A thick key that turns to the right: the chapel key. The taker is in the choir.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
     },
     {
-     "symbol": "*",
-     "meaning": "The rope was cut, so the knot says nothing."
+     "object": "glove",
+     "keywords": [
+      "THIN",
+      "RIGHT"
+     ],
+     "meaning": "A thin indoor glove. The taker had no winter boots on either.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
+    },
+    {
+     "object": "glove",
+     "keywords": [
+      "THICK",
+      "LEFT"
+     ],
+     "meaning": "A thick left-hand glove with a spectacle cloth tucked inside. The taker wears glasses.",
+     "clue": {
+      "field": "glasses",
+      "op": "eq",
+      "value": true
+     }
     }
    ],
    "side": [
     {
      "type": "scramble",
-     "keyword": "COOKIE",
-     "intro": "Unscramble the words. The marked letters spell a keyword."
+     "keyword": "THICK",
+     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
     },
     {
      "type": "wordsearch",
-     "keyword": "CHIMNEY",
-     "intro": "Find every word. The letters left over spell a keyword."
+     "keyword": "RIGHT",
+     "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Which symbol appeared in your triangle mosaic?",
+   "evidence": "What was dropped, and which one was it?",
    "hints": [
-    "The symbol is a small object, not a letter.",
-    "It opens locks.",
-    "The mosaic shows a key."
+    "The picture is something you wear, but not on your feet.",
+    "It has five fingers. The leftover letters of the word search tell you which hand.",
+    "The mosaic shows a GLOVE. The keywords are THICK and RIGHT."
    ]
   },
   {
    "no": 8,
-   "title": "No Whiskers Here",
-   "story": "Last of all, the baker's boy found a tuft of fur by the tree. The vet looked at it under her lamp: coarse, short and brown.\nNot one cat hair lay anywhere on the trail.",
-   "scene": "A vet with a lamp examining a tuft of brown fur, a friendly dog waiting by the door",
-   "shape": "triangle",
-   "symbol": ">",
-   "meaning": "No cat hair was found on the trail. The taker does not keep a cat.",
+   "title": "The Last Trace",
+   "story": "Last of all, the baker's boy found a second trail beside the first: small marks that trotted along and waited by the tree.\nThe vet bent over them with her lamp.",
+   "scene": "A vet with a lamp examining small marks in the snow, a friendly animal waiting by a door",
+   "shape": "hex",
+   "object": "paw",
+   "meaning": "Wide paw prints with claw marks: a dog walked beside the taker. A cat hides its claws, so the taker does not keep a cat.",
    "clue": {
     "field": "pet",
     "op": "ne",
@@ -419,31 +620,58 @@
    },
    "decoys": [
     {
-     "symbol": "+",
-     "meaning": "Cat hair covered the rope. The taker keeps a cat."
+     "object": "star",
+     "keywords": [
+      "CLAWED",
+      "WIDE"
+     ],
+     "meaning": "The marks are where the star itself was dragged. The taker pulled it with the left hand.",
+     "clue": {
+      "field": "left_handed",
+      "op": "eq",
+      "value": true
+     }
     },
     {
-     "symbol": "L",
-     "meaning": "The fur came from a fox that passed in the night."
+     "object": "paw",
+     "keywords": [
+      "SOFT",
+      "WIDE"
+     ],
+     "meaning": "Soft prints with no claw marks are slippers, not paws. The taker wore no boots.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
+    },
+    {
+     "object": "paw",
+     "keywords": [
+      "CLAWED",
+      "NARROW"
+     ],
+     "meaning": "Narrow clawed prints belong to a fox passing by. They say nothing about the taker.",
+     "clue": null
     }
    ],
    "side": [
     {
      "type": "cryptogram",
-     "keyword": "STAR",
-     "intro": "Decode the message to find the keyword."
+     "keyword": "CLAWED",
+     "intro": "Decode the message to find a keyword that describes the evidence."
     },
     {
      "type": "maze",
-     "keyword": "GIFT",
-     "intro": "Walk the maze. The letters on your path spell a keyword."
+     "keyword": "WIDE",
+     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "Compare the symbol in your mosaic with the lines below.",
+   "evidence": "What left the second trail, and what were the marks like?",
    "hints": [
-    "The symbol points somewhere.",
-    "It points to the right.",
-    "The mosaic shows an arrow."
+    "The picture is a print left by an animal.",
+    "Decode the message for the first keyword. The maze path tells how broad the marks were.",
+    "The mosaic shows a PAW. The keywords are CLAWED and WIDE."
    ]
   }
  ],
