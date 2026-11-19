@@ -6,7 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 
 ## [Unreleased]
 
-- P8.3c2: CBN Mystery side puzzles limited to code puzzles (cryptogram of a case sentence, maze, number lock, sudoku); word scramble / word search removed from this line.
+- P8.3c2: CBN Mystery side puzzles limited to code puzzles (shift cipher of a case sentence - new type `shift` -, maze, number lock, sudoku); word scramble / word search removed from this line.
 - P8.3c: 9-12 suspects; number lock puzzle (`numlock`); `numlock` / `sudoku` side puzzles with number keywords; case word lists for scramble and word search.
 - P8.3b: CBN Mystery v2 - picture reveals (13 evidence icons), trait keywords, evidence card keyed by picture + 2 keywords, logic lock (dual solver, small-hint rule, dead-end decoys, leak check, causal graph, reader simulation); sample case rewritten.
 - P8.2 + P8.3: CBN Mystery line — blueprint `cbn_mystery` (8 chapters x 5 pages, 24 puzzle pages), case builder (`forge mystery check|build`): the case frame written by an LLM is checked by code (all clues needed, one answer, reveal codes fit the mosaic, side-puzzle keywords buildable, family-safe) before any puzzle is generated; sample frame "The Vanished Star" (square, hexagon, triangle cells); symbol glyphs (star, arrow, cross, key, heart) for reveal codes.

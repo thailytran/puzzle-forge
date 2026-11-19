@@ -19,6 +19,7 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
     from forge.puzzles.maze import Maze
     from forge.puzzles.numlock import NumLock
     from forge.puzzles.scramble import Scramble
+    from forge.puzzles.shift import Shift
     from forge.puzzles.sudoku import Sudoku
     from forge.puzzles.wordsearch import WordSearch
 
@@ -33,5 +34,6 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
             Crossword(),
             ColorByNumber(),
             NumLock(),
+            Shift(),
         )
     }

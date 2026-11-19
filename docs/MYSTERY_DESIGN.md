@@ -328,7 +328,7 @@ keyword one where only that keyword differs. So no answer can be skipped.
 ### 16.2 Owner rules of 2026-11-19
 
 - Every puzzle of a chapter must lead straight to the code: no filler words, nothing beside the case.
-  Side puzzles: cryptogram (a witness statement of the case), maze, number lock, sudoku (shaded
+  Side puzzles: shift cipher (a witness statement of the case), maze, number lock, sudoku (shaded
   squares); later mini crossword and logic grid. No word scramble, no word search in this line.
 - 9-12 suspects.
 - Final deduction in the book: one black / white spiral page; colouring it reveals the culprit.

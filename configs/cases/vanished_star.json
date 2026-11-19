@@ -195,9 +195,9 @@
    ],
    "side": [
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "WOOLLEN",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
      "message": "The weaver felt the thread and said it was spun from thick woollen yarn"
     },
     {
@@ -209,7 +209,7 @@
    "evidence": "What did the thread come from, and what was it like?",
    "hints": [
     "Colour every cell marked 1 first: the darkest colour draws the picture.",
-    "The picture is something you wear in winter. Decode the message to learn what it is made of.",
+    "The picture is something you wear in winter. Decode the statement to learn what it is made of.",
     "The mosaic shows a SCARF. The keywords are WOOLLEN and CRIMSON."
    ]
   },
@@ -265,10 +265,10 @@
    ],
    "side": [
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "FAINT",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
-     "message": "The boy said the small light in the figure's hand was faint and yellow"
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "message": "The boy said the small light in that hand was faint and yellow"
     },
     {
      "type": "maze",
@@ -279,7 +279,7 @@
    "evidence": "What did the figure hold, and what do your keywords say about that night?",
    "hints": [
     "The picture is something you carry in the dark.",
-    "Decode the message: its last word is the first keyword. The second keyword lies along your path.",
+    "Decode the statement: its last word is the first keyword. The second keyword lies along your path.",
     "The mosaic shows a LANTERN. The keywords are FAINT and TINY."
    ]
   },
@@ -408,9 +408,9 @@
    ],
    "side": [
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "FROZEN",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
      "message": "The ferryman wrote in his log that the river gate was frozen from dusk to dawn"
     },
     {
@@ -422,7 +422,7 @@
    "evidence": "What did the ferryman look at, and how did he find it?",
    "hints": [
     "The picture is something that stands over water.",
-    "Decode the message for the first keyword. The maze path spells the second.",
+    "Decode the statement for the first keyword. The maze path spells the second.",
     "The mosaic shows a BRIDGE. The keywords are FROZEN and SHUT."
    ]
   },
@@ -482,9 +482,9 @@
    ],
    "side": [
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "WOODEN",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
      "message": "The carpenter found splinters in the bark so the rails were wooden not iron"
     },
     {
@@ -496,7 +496,7 @@
    "evidence": "What leaned against the tree, and what was it like?",
    "hints": [
     "The picture is a tool for reaching high places.",
-    "Decode the message: it names what the tool is made of.",
+    "Decode the statement: it names what the tool is made of.",
     "The mosaic shows a LADDER. The keywords are WOODEN and NARROW."
    ]
   },
@@ -552,9 +552,9 @@
    ],
    "side": [
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "CAROL",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
      "message": "The page on the stand was the old winter carol the town sings each year"
     },
     {
@@ -566,7 +566,7 @@
    "evidence": "What lay on the stand, what was sung, and at what time was it signed?",
    "hints": [
     "The picture is something you can sing.",
-    "Decode the message for the first keyword. The dials give a time of four digits.",
+    "Decode the statement for the first keyword. The dials give a time of four digits.",
     "The mosaic shows a music NOTE. The keywords are CAROL and 1200."
    ]
   },
@@ -631,16 +631,16 @@
      "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
     },
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "RIGHT",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
      "message": "The sailor tried it on both hands and it only fits the right one"
     }
    ],
    "evidence": "What was dropped, and which one was it?",
    "hints": [
     "The picture is something you wear, but not on your feet.",
-    "It has five fingers. Decode the message to learn which hand.",
+    "It has five fingers. Decode the statement to learn which hand.",
     "The mosaic shows a GLOVE. The keywords are THICK and RIGHT."
    ]
   },
@@ -696,9 +696,9 @@
    ],
    "side": [
     {
-     "type": "cryptogram",
+     "type": "shift",
      "keyword": "CLAWED",
-     "intro": "Decode the witness statement. One word in it describes the evidence: write it as your keyword.",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
      "message": "The vet saw four toes and sharp points at each tip so the feet were clawed"
     },
     {
@@ -710,7 +710,7 @@
    "evidence": "What left the second trail, and what were the marks like?",
    "hints": [
     "The picture is a print left by an animal.",
-    "Decode the message for the first keyword. The maze path tells how broad the marks were.",
+    "Decode the statement for the first keyword. The maze path tells how broad the marks were.",
     "The mosaic shows a PAW. The keywords are CLAWED and WIDE."
    ]
   }

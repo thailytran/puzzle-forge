@@ -284,6 +284,45 @@ def numlock(p: Puzzle) -> Result:
     return 1, {"code": "".join(digits)}
 
 
+def shift(p: Puzzle) -> Result:
+    """Frequency reading: the shift that maps the commonest cipher letters onto E / T / A / O
+    best (solver 1 uses the dictionary). Short messages can fool it, so it only has to agree
+    when it scores a clear winner."""
+    from collections import Counter
+
+    cipher = p.data["cipher"]
+    az = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    weight = {
+        "E": 12.7,
+        "T": 9.1,
+        "A": 8.2,
+        "O": 7.5,
+        "I": 7.0,
+        "N": 6.7,
+        "S": 6.3,
+        "H": 6.1,
+        "R": 6.0,
+        "D": 4.3,
+        "L": 4.0,
+        "U": 2.8,
+        "Z": -3.0,
+        "Q": -3.0,
+        "X": -2.5,
+        "J": -2.5,
+    }
+    cnt = Counter(c for c in cipher if c in az)
+    scores = sorted(
+        (
+            (sum(n * weight.get(az[(az.index(c) - k) % 26], 0.0) for c, n in cnt.items()), k)
+            for k in range(1, 26)
+        ),
+        reverse=True,
+    )
+    k = scores[0][1]
+    plain = "".join(az[(az.index(c) - k) % 26] if c in az else c for c in cipher)
+    return 1, {"shift": k, "plain": plain}
+
+
 SOLVERS = {
     "sudoku": sudoku,
     "wordsearch": wordsearch,
@@ -293,6 +332,7 @@ SOLVERS = {
     "cryptogram": cryptogram,
     "cbn": cbn,
     "numlock": numlock,
+    "shift": shift,
 }
 
 
@@ -324,4 +364,6 @@ def matches_stored(p: Puzzle, solution: Any) -> bool:
         return bool(solution == {"colors": p.solution["colors"], "code": p.solution["code"]})
     if t == "numlock":
         return bool(solution == {"code": p.solution["code"]})
+    if t == "shift":
+        return bool(solution == p.solution)
     return False

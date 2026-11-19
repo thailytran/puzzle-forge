@@ -159,7 +159,7 @@ def test_reader_simulation(frame: CaseFrame) -> None:
 
 def test_only_code_puzzles_are_allowed(frame: CaseFrame) -> None:
     """Owner rule: no filler puzzles. Word scramble / word search are not side puzzles any more,
-    and a cryptogram must decode a sentence of the case that holds the keyword."""
+    and a shift cipher must decode a sentence of the case that holds the keyword."""
     import pydantic
 
     def ws(d: dict) -> None:  # type: ignore[type-arg]
@@ -171,7 +171,7 @@ def test_only_code_puzzles_are_allowed(frame: CaseFrame) -> None:
     def no_message(d: dict) -> None:  # type: ignore[type-arg]
         d["chapters"][0]["side"][0]["message"] = "The answer is here"
 
-    assert any("cryptogram needs a message" in p for p in problems(frame, no_message))
+    assert any("cipher needs a message" in p for p in problems(frame, no_message))
 
 
 def test_puzzles_carry_the_locked_answers(frame: CaseFrame) -> None:
@@ -224,10 +224,10 @@ def test_book_renders(frame: CaseFrame, tmp_path: Path) -> None:
 def test_number_games(frame: CaseFrame) -> None:
     assert len(frame.suspects) == 12
     types = [sp.type for ch in frame.chapters for sp in ch.side]
-    assert types.count("numlock") == 2 and set(types) <= {"cryptogram", "maze", "numlock"}
+    assert types.count("numlock") == 2 and set(types) <= {"shift", "maze", "numlock"}
     built = build_puzzles(frame, 7)
     assert built[2].side[0].token == "44" and built[5].side[1].token == "1200"
-    note = built[0].side[0].solution["quotes"][0]["plain"]
+    note = built[0].side[0].solution["plain"]
     assert "WOOLLEN" in note and note.startswith("THE WEAVER")
 
     def few(d: dict) -> None:  # type: ignore[type-arg]

@@ -126,6 +126,7 @@ uv run forge puzzle maze --level medium --seed 4             # SVG maze; solutio
 uv run forge puzzle scramble --theme ocean --level medium      # unique anagrams (ENABLE dictionary)
 uv run forge puzzle cryptogram --level hard                     # PD quotes; hints added until unique
 uv run forge puzzle crossword --theme ocean --level medium      # fill-in criss-cross (clue mode after P2.3)
+uv run forge puzzle shift -o text="..."                         # shift (Caesar) cipher of a sentence; one reading only
 uv run forge puzzle numlock --level medium                     # number lock: chains of sums, one digit per dial
 uv run forge puzzle cbn --level easy -o shape=hex -o code=47    # colour by number; shape=square|hex|triangle|circle (cells >= 5 mm, kids 8 mm)
 uv run forge book build configs/books/example_wordsearch.yaml   # also example_mixed / example_sudoku_large_print

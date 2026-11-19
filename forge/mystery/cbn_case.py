@@ -41,7 +41,7 @@ from forge.wordlists import is_blocked
 
 # Owner rule 2026-11-19: every puzzle must lead straight to the code, no filler. Word scramble and
 # word search were dropped from this line (their word lists had nothing to do with the case).
-SIDE_TYPES = ("cryptogram", "maze", "numlock", "sudoku")
+SIDE_TYPES = ("shift", "maze", "numlock", "sudoku")
 NUMBER_TYPES = ("numlock", "sudoku")  # their keyword is a number (shoe size, hour, house number)
 SUDOKU_CELLS = [(0, 0), (1, 3), (2, 6), (3, 1)]  # different row, column and box: any digits fit
 SUDOKU_CELLS_6 = [(0, 0), (1, 3), (2, 1), (3, 4)]
@@ -71,12 +71,10 @@ class Decoy(_M):
 
 
 class SidePuzzle(_M):
-    type: Literal["cryptogram", "maze", "numlock", "sudoku"]
+    type: Literal["shift", "maze", "numlock", "sudoku"]
     keyword: str  # a trait of the chapter's evidence object (a word, or digits for number games)
     intro: str = ""
-    message: str = (
-        ""  # cryptogram: the witness note to decode (a sentence of the case, has the keyword)
-    )
+    message: str = ""  # shift cipher: the witness statement to decode (holds the keyword)
 
 
 class Chapter(_M):
@@ -178,16 +176,16 @@ def side_spec(frame: CaseFrame, sp: SidePuzzle, idx: int) -> PuzzleSpec:
     else:
         cons = {"kind": "answer_is", "word": kw}
     data["constraints"] = [cons]
-    if sp.type == "cryptogram" and sp.message:
+    if sp.type == "shift":
         data["options"] = {"text": sp.message}
     return PuzzleSpec.model_validate(data)
 
 
 def _side_type(name: str) -> Any:
-    if name == "cryptogram":
-        from forge.puzzles.cryptogram import Cryptogram
+    if name == "shift":
+        from forge.puzzles.shift import Shift
 
-        return Cryptogram()
+        return Shift()
     if name == "numlock":
         from forge.puzzles.numlock import NumLock
 
@@ -289,11 +287,15 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
                 want = "2-4 digits" if sp.type in NUMBER_TYPES else "one word of 3-12 letters"
                 p.append(f"{tag}: keyword {sp.keyword!r} must be {want} for a {sp.type}")
                 continue
-            if sp.type == "cryptogram":
+            if sp.type == "shift":
                 words = re.findall(r"[A-Z]+", sp.message.upper())
+                others = {k.upper() for d in ch.decoys for k in d.keywords} - {kw}
+                both = sorted(others & set(words))
+                if both:
+                    p.append(f"{tag}: the message also contains the decoy keyword {both[0]}")
                 if kw not in words or len(words) < 6:
                     p.append(
-                        f"{tag}: the cryptogram needs a message of at least 6 words from the "
+                        f"{tag}: the cipher needs a message of at least 6 words from the "
                         f"case that contains {kw}"
                     )
             if kw in keys:
@@ -433,6 +435,9 @@ def _solved_keyword(sp: SidePuzzle, pz: Puzzle) -> str | None:
         return None
     sol = pt.solve(pz).solution or {}
     seen = sol.get("code")
+    if sp.type == "shift":  # the keyword must be a word of the message the solver decoded
+        plain = str(sol.get("plain") or "").split()
+        return str(pz.token) if pz.token in plain else None
     token = str(pz.token or "").upper()
     return token if seen is None or str(seen).upper() == token else None
 
