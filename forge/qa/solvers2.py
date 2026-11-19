@@ -268,6 +268,22 @@ def cbn(p: Puzzle) -> Result:
     return 1, {"colors": colors, "code": read_with(colors, "centre")}
 
 
+def numlock(p: Puzzle) -> Result:
+    """Fraction arithmetic over each chain (solver 1 uses integer steps)."""
+    from fractions import Fraction
+
+    digits = []
+    for d in p.data["dials"]:
+        v = Fraction(int(d["start"]))
+        for op, n in d["steps"]:
+            f = Fraction(int(n))
+            v = v + f if op == "+" else v - f if op == "-" else v * f if op == "x" else v / f
+        if v.denominator != 1 or not 0 <= v <= 9:
+            return 0, None
+        digits.append(str(int(v)))
+    return 1, {"code": "".join(digits)}
+
+
 SOLVERS = {
     "sudoku": sudoku,
     "wordsearch": wordsearch,
@@ -276,6 +292,7 @@ SOLVERS = {
     "crossword": crossword,
     "cryptogram": cryptogram,
     "cbn": cbn,
+    "numlock": numlock,
 }
 
 
@@ -305,4 +322,6 @@ def matches_stored(p: Puzzle, solution: Any) -> bool:
         return bool(solution == [q["plain"] for q in p.solution["quotes"]])
     if t == "cbn":
         return bool(solution == {"colors": p.solution["colors"], "code": p.solution["code"]})
+    if t == "numlock":
+        return bool(solution == {"code": p.solution["code"]})
     return False

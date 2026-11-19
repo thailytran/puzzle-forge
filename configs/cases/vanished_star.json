@@ -4,7 +4,7 @@
  "subtitle": "A Color By Number Mystery",
  "audience": "adult",
  "season": "christmas",
- "setting": "Larkspur Hollow is a small riverside town. Every winter its nine best-known neighbours help to raise a golden star onto the fir tree in the square. This year the star disappeared the night before the Lantern Festival.",
+ "setting": "Larkspur Hollow is a small riverside town. Every winter its twelve best-known neighbours help to raise a golden star onto the fir tree in the square. This year the star disappeared the night before the Lantern Festival.",
  "intro": "You are the town's volunteer detective. Each chapter hides one piece of evidence inside a colour-by-number mosaic. Colour it to see what was found, solve two short puzzles to learn what it was like, and the evidence card tells you what that proves.",
  "suspects": [
   {
@@ -104,6 +104,39 @@
    "ladder": true,
    "choir": false,
    "left_handed": false,
+   "pet": "cat"
+  },
+  {
+   "name": "Greta the weaver",
+   "scarf": "green",
+   "glasses": true,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none"
+  },
+  {
+   "name": "Felix the fiddler",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "south",
+   "ladder": true,
+   "choir": true,
+   "left_handed": false,
+   "pet": "dog"
+  },
+  {
+   "name": "Dora the cobbler",
+   "scarf": "red",
+   "glasses": false,
+   "boots": false,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": true,
    "pet": "cat"
   }
  ],
@@ -255,7 +288,7 @@
    "scene": "A trail of prints crossing fresh snow toward a fir tree, a cobbler kneeling with a ribbon",
    "shape": "square",
    "object": "boot",
-   "meaning": "Deep prints with ridged soles: heavy winter boots. The taker wore boots.",
+   "meaning": "Size 44 prints with ridged soles: a grown-up's heavy winter boots. The taker wore boots.",
    "clue": {
     "field": "boots",
     "op": "eq",
@@ -265,7 +298,7 @@
     {
      "object": "paw",
      "keywords": [
-      "HEAVY",
+      "44",
       "RIDGED"
      ],
      "meaning": "The trail was made by a large animal, not a person. Only someone with a cat would be followed like that.",
@@ -278,10 +311,10 @@
     {
      "object": "boot",
      "keywords": [
-      "LIGHT",
+      "28",
       "RIDGED"
      ],
-     "meaning": "Light, small prints: a child's boot. No grown-up in the dossier fits.",
+     "meaning": "Size 28 is a child's boot. No grown-up in the dossier fits.",
      "clue": {
       "field": "name",
       "op": "eq",
@@ -291,7 +324,7 @@
     {
      "object": "boot",
      "keywords": [
-      "HEAVY",
+      "44",
       "SMOOTH"
      ],
      "meaning": "Smooth soles slip on a ladder. The taker climbed without one.",
@@ -304,9 +337,9 @@
    ],
    "side": [
     {
-     "type": "scramble",
-     "keyword": "HEAVY",
-     "intro": "Unscramble the words. The marked letters spell a keyword that describes the evidence."
+     "type": "numlock",
+     "keyword": "44",
+     "intro": "Open the cobbler's measuring lock. The code is the size of what made the trail."
     },
     {
      "type": "wordsearch",
@@ -314,11 +347,11 @@
      "intro": "Find every word. The letters left over spell a keyword that describes the evidence."
     }
    ],
-   "evidence": "What made the trail, and what kind was it?",
+   "evidence": "What made the trail, what size was it, and what was its sole like?",
    "hints": [
     "The picture is something you wear outdoors.",
-    "It goes on a foot. The leftover letters of the word search describe its sole.",
-    "The mosaic shows a BOOT. The keywords are HEAVY and RIDGED."
+    "It goes on a foot. Work each dial from left to right for its size.",
+    "The mosaic shows a BOOT. The keywords are 44 and RIDGED."
    ]
   },
   {
@@ -470,7 +503,7 @@
    "scene": "A candle-lit chapel with singers, a sheet on a stand, a clock showing midnight",
    "shape": "hex",
    "object": "note",
-   "meaning": "The carol sheet was signed by the full choir at midnight. The taker is not in the choir.",
+   "meaning": "The carol sheet was signed by every singer at 12:00, the very minute the star vanished. The taker is not in the choir.",
    "clue": {
     "field": "choir",
     "op": "eq",
@@ -481,9 +514,9 @@
      "object": "bell",
      "keywords": [
       "CAROL",
-      "FULL"
+      "1200"
      ],
-     "meaning": "The bell that rang a full carol at midnight hangs on the south bank. The taker lives on the south side.",
+     "meaning": "The bell that rang a carol at 12:00 hangs on the south bank. The taker lives on the south side.",
      "clue": {
       "field": "side",
       "op": "eq",
@@ -494,7 +527,7 @@
      "object": "note",
      "keywords": [
       "LULLABY",
-      "FULL"
+      "1200"
      ],
      "meaning": "A lullaby is sung at home with a cat on the lap. The taker keeps a cat.",
      "clue": {
@@ -507,9 +540,9 @@
      "object": "note",
      "keywords": [
       "CAROL",
-      "HALF"
+      "1030"
      ],
-     "meaning": "Half the singers had gone home early. The sheet proves nothing.",
+     "meaning": "The sheet was signed at 10:30, long before the star vanished. It proves nothing.",
      "clue": null
     }
    ],
@@ -520,16 +553,16 @@
      "intro": "Decode the message to find a keyword that describes the evidence."
     },
     {
-     "type": "maze",
-     "keyword": "FULL",
-     "intro": "Walk the maze. The letters on your path spell a keyword that describes the evidence."
+     "type": "numlock",
+     "keyword": "1200",
+     "intro": "Open the chapel clock case. The code is the time written on the sheet."
     }
    ],
-   "evidence": "What lay on the stand, and what do the keywords say about it?",
+   "evidence": "What lay on the stand, what was sung, and at what time was it signed?",
    "hints": [
     "The picture is something you can sing.",
-    "Decode the message for the first keyword. The maze path spells how many singers signed.",
-    "The mosaic shows a music NOTE. The keywords are CAROL and FULL."
+    "Decode the message for the first keyword. The dials give a time of four digits.",
+    "The mosaic shows a music NOTE. The keywords are CAROL and 1200."
    ]
   },
   {
@@ -675,6 +708,58 @@
    ]
   }
  ],
- "finale": "Eight facts, nine neighbours. Go through your Code Log and cross out everyone who does not fit a fact. One name stays.",
- "epilogue": "The star was never stolen. One of its points had cracked, and a kind neighbour carried it home at midnight to mend it in secret before the festival. By evening it shone on the fir tree again, brighter than before."
+ "finale": "Eight facts, twelve neighbours. Go through your Code Log and cross out everyone who does not fit a fact. One name stays.",
+ "epilogue": "The star was never stolen. One of its points had cracked, and a kind neighbour carried it home at midnight to mend it in secret before the festival. By evening it shone on the fir tree again, brighter than before.",
+ "words": [
+  "LARKSPUR",
+  "HOLLOW",
+  "SQUARE",
+  "FESTIVAL",
+  "MAYOR",
+  "ALDER",
+  "RIVER",
+  "CHAPEL",
+  "BAKERY",
+  "FERRY",
+  "SNOW",
+  "MIDNIGHT",
+  "WINDOW",
+  "BRANCH",
+  "TRUNK",
+  "SHED",
+  "CANDLE",
+  "VILLAGE",
+  "WINTER",
+  "GOLDEN",
+  "POINT",
+  "SECRET",
+  "MEND",
+  "NEIGHBOUR",
+  "COBBLER",
+  "SAILOR",
+  "LIBRARY",
+  "FLORIST",
+  "POSTMAN",
+  "TOYMAKER",
+  "BAKER",
+  "CLOCK",
+  "LEDGER",
+  "TRAIL",
+  "PRINT",
+  "FROST",
+  "ICE",
+  "BANK",
+  "NORTH",
+  "SOUTH",
+  "TOWER",
+  "MARKET",
+  "GARLAND",
+  "RIBBON",
+  "CAROLS",
+  "SINGER",
+  "SLEIGH",
+  "HOLLY",
+  "CHIMNEY",
+  "COCOA"
+ ]
 }

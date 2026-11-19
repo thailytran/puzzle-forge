@@ -65,7 +65,7 @@ def test_wrong_answer_and_bad_inputs(frame: CaseFrame) -> None:
 
     def bad(d: dict) -> None:  # type: ignore[type-arg]
         d["chapters"][0]["object"] = "owl"  # no picture
-        d["chapters"][2]["side"][0]["keyword"] = "two words"
+        d["chapters"][2]["side"][1]["keyword"] = "two words"
         d["chapters"][3]["story"] = "A murder at the river."
         d["chapters"][5]["shape"] = "blob"
         d["chapters"][6]["shape"] = "triangle"  # a 13 x 13 picture needs smaller cells than 5 mm
@@ -149,7 +149,7 @@ def test_reader_simulation(frame: CaseFrame) -> None:
     built = build_puzzles(frame, 7)
     run = simulate_reader(frame, built)
     assert run.ok, run.problems
-    assert run.left_after == [8, 7, 6, 5, 4, 3, 2, 1] and run.answer == [frame.answer]
+    assert run.left_after == [10, 9, 7, 5, 4, 3, 2, 1] and run.answer == [frame.answer]
 
     def swap(d: dict) -> None:  # type: ignore[type-arg]  # card no longer matches the puzzles
         d["chapters"][3]["side"][1]["keyword"] = "OPEN"
@@ -210,3 +210,41 @@ def test_rejected_frame_does_not_build(frame: CaseFrame, tmp_path: Path) -> None
 def test_book_renders(frame: CaseFrame, tmp_path: Path) -> None:
     build_case_book(frame, tmp_path)
     assert (tmp_path / "interior.pdf").stat().st_size > 50_000
+
+
+def test_number_games_and_case_words(frame: CaseFrame) -> None:
+    from forge.mystery.cbn_case import side_spec
+
+    assert len(frame.suspects) == 12
+    types = [sp.type for ch in frame.chapters for sp in ch.side]
+    assert types.count("numlock") == 2
+    built = build_puzzles(frame, 7)
+    assert built[2].side[0].token == "44" and built[5].side[1].token == "1200"
+    ws = side_spec(frame, frame.chapters[0].side[1], 0)
+    assert ws.words and "LARKSPUR" in ws.words
+    secret = {ch.object.upper() for ch in frame.chapters}
+    secret |= {sp.keyword.upper() for ch in frame.chapters for sp in ch.side}
+    assert not secret & set(ws.words)  # filler words never contain an answer of the case
+
+    def few(d: dict) -> None:  # type: ignore[type-arg]
+        d["suspects"] = d["suspects"][:8]
+
+    assert any("9-12 suspects" in p for p in problems(frame, few))
+
+    def word_for_lock(d: dict) -> None:  # type: ignore[type-arg]
+        d["chapters"][2]["side"][0]["keyword"] = "HEAVY"
+
+    assert any("2-4 digits" in p for p in problems(frame, word_for_lock))
+
+
+def test_sudoku_side_puzzle_spec(frame: CaseFrame) -> None:
+    from forge.mystery.cbn_case import SidePuzzle, side_spec
+
+    sp = SidePuzzle(type="sudoku", keyword="47")
+    spec = side_spec(frame, sp, 3)
+    assert spec.options["size"] == 9 and spec.constraints[0].expect == "47"  # type: ignore[union-attr]
+    pytest.importorskip("rustoku")
+    from forge.puzzles.sudoku import Sudoku
+
+    pz = Sudoku().generate(spec, 5)
+    assert pz.token == "47" and Sudoku().verify(pz).ok
