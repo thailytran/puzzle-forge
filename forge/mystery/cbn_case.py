@@ -839,7 +839,7 @@ def layout_pages(
                 width_in=max(2.5, pw - (0.56 if kind == "cbn" else 0.3)),
                 # mosaic: subtitle, instruction and colour key above it; the frame hangs lanterns
                 # over the lower corners of the panel, so the last inch stays empty
-                height_in=max(2.5, ph - (2.35 if kind == "cbn" else 1.6)),
+                height_in=max(2.5, ph - (2.3 if kind == "cbn" else 1.6)),
             )
         return side_ctx
 
