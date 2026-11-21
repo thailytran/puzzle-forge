@@ -140,7 +140,7 @@ def theme_margins(width_in: float, height_in: float) -> dict[str, float]:
         "inside": side,
         "outside": side,
         "top": round(max(0.8, height_in * sy), 2),
-        "bottom": round(max(1.2, height_in * 0.145), 2),  # corner ornaments (lantern, pine) sit low
+        "bottom": round(max(1.15, height_in * 0.13), 2),  # corner ornaments (lantern, pine) sit low
     }
 
 

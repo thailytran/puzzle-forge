@@ -992,7 +992,9 @@ def build_case_book(
         - margins["bottom"]
         - 0.9
         - max(0.0, sign - 0.35)
-        - (1.55 if theme else 0.0),  # designed pages: how-to-play + tips row and slogan ribbon
+        - (
+            2.4 if theme else 0.0
+        ),  # designed pages: how-to-play + tips row, slogan ribbon, card insets
     )
     pages, files, art = layout_pages(frame, puzzles, ctx)
     files.update(theme_files)

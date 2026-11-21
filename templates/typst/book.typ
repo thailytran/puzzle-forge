@@ -376,7 +376,7 @@
   align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(S.subtitle)))
   v(0.35em)
   // the puzzle itself on a white card with the type colour
-  block(width: 100%, breakable: false, fill: white, stroke: (paint: c, thickness: 2pt), radius: 10pt, inset: 10pt,
+  block(width: 100%, breakable: false, fill: white, stroke: (paint: c, thickness: 2pt), radius: 10pt, inset: 8pt,
     { for b in p.blocks { render-block(b) } })
   v(0.4em)
   // how to play + tips
@@ -389,7 +389,7 @@
           box(width: 0.2in, height: 0.2in, radius: 50%, fill: c,
             align(center + horizon, text(font: L.fonts.sans, weight: "bold", size: 0.75 * base, fill: white, str(i + 1)))),
           text(size: 0.8 * base, s))
-        v(0.15em)
+        v(0.05em)
       }
     }),
     block(width: 100%, fill: rgb("#fff6d8"), stroke: (paint: rgb("#e0a526"), thickness: 1.2pt), radius: 8pt, inset: 8pt, {
