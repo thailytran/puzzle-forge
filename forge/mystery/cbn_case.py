@@ -797,11 +797,14 @@ def layout_pages(
     ).left_after
     # side puzzles carry an intro paragraph and a keyword line on the same page
     side_ctx = RenderCtx(width_in=ctx.width_in, height_in=max(3.0, ctx.height_in - 0.6))
-    if (
-        panel_in is not None
-    ):  # Gemini-designed pages: the puzzle fills the empty panel of the template
-        pw, ph = panel_in
-        side_ctx = RenderCtx(width_in=max(3.0, pw - 0.3), height_in=max(3.0, ph - 1.0))
+
+    def ctx_for(kind: str) -> RenderCtx:
+        """Gemini-designed pages: the puzzle fills the empty panel of its type's template."""
+        if panel_in and kind in panel_in:
+            pw, ph = panel_in[kind]
+            return RenderCtx(width_in=max(2.5, pw - 0.3), height_in=max(2.5, ph - 0.9))
+        return side_ctx
+
     for ch, cp in zip(frame.chapters, puzzles, strict=True):
         add(
             Page(kind="text", title=f"Chapter {ch.no}: {ch.title}", blocks=_para(ch.story)),
@@ -809,7 +812,7 @@ def layout_pages(
             text=ch.story,
             rid=f"ch{ch.no}",
         )
-        front = cb.render(cp.cbn, side_ctx)
+        front = cb.render(cp.cbn, ctx_for("cbn"))
         files.update(front.files)
         add(
             Page(
@@ -820,7 +823,7 @@ def layout_pages(
             )
         )
         for k, (sp, pz) in enumerate(zip(ch.side, cp.side, strict=True), 1):
-            r = _side_type(sp.type).render(pz, side_ctx)
+            r = _side_type(sp.type).render(pz, ctx_for(sp.type))
             files.update(r.files)
             intro = _para(sp.intro) if sp.intro else []
             tail = {"kind": "paragraph", "text": f"Keyword {k}: ____________________"}
@@ -1011,8 +1014,8 @@ def build_case_book(
             2.4 if theme else 0.0
         ),  # designed pages: how-to-play + tips row, slogan ribbon, card insets
     )
-    panels = [(t["w_in"], t["h_in"]) for t in ((theme or {}).get("templates") or {}).values()]
-    panel_in = (min(w for w, _ in panels), min(h for _, h in panels)) if panels else None
+    tpl = (theme or {}).get("templates") or {}
+    panel_in = {k: (t["w_in"], t["h_in"]) for k, t in tpl.items()} or None
     pages, files, art = layout_pages(frame, puzzles, ctx, panel_in)
     files.update(theme_files)
     art_report: dict[str, Any] | None = None
