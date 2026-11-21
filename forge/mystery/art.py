@@ -193,10 +193,7 @@ def decorate_plain_pages(
         title = str(getattr(page, "title", "") or "")
         key = None
         m = re.match(r"Evidence Card (\d+)", title)
-        if m:
-            key = f"ch{m.group(1)}"
-        else:
-            key = next((k for pre, k in BANNER_PAGES if pre in title), None)
+        key = f"ch{m.group(1)}" if m else next((k for pre, k in BANNER_PAGES if pre in title), None)
         src = art.get(key) if key else None
         if src is None or any(b.get("kind") == "image" for b in page.blocks):
             continue
