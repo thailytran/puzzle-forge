@@ -159,7 +159,7 @@
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 12) * 1pt)
   let pairs = b.at("pairs", default: 1)
   grid(
-    columns: (1.15fr, 1fr) * pairs,
+    columns: if pairs == 1 { (auto, 1fr) } else { (1.15fr, 1fr) * pairs },
     row-gutter: b.at("gap_em", default: 1.1) * 1em,
     column-gutter: 1em,
     ..b.rows.map(r => (
@@ -213,11 +213,12 @@
 // colour legend sits ABOVE the picture grid: the lower corners of the frame hold ornaments
 #let legend-row(b) = {
   if b.at("legend", default: true) {
-    set text(font: L.fonts.sans, size: base)
-    align(center, b.palette.map(e => box(inset: 3pt, stack(dir: ltr, spacing: 4pt,
-      rect(width: 0.3in, height: 0.3in, fill: rgb(e.hex), stroke: 0.4pt),
-      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.6em)))
-    v(0.5em)
+    // one single row of small swatches (owner 2026-11-21): the mosaic gets the room
+    set text(font: L.fonts.sans, size: 0.78 * base)
+    align(center, box(b.palette.map(e => box(stack(dir: ltr, spacing: 3pt,
+      rect(width: 0.17in, height: 0.17in, fill: rgb(e.hex), stroke: 0.5pt),
+      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.7em))))
+    v(0.35em)
   }
 }
 
@@ -381,6 +382,17 @@
   scale(x: k * 100%, y: k * 100%, origin: top + center, reflow: true, block(width: size.width, body))
 }))
 
+// Like fit(), but for the small panel of a designed page: the content is laid out wider and scaled
+// down as one piece, so a long line (number-lock chain, alphabet strip) never wraps or runs out.
+#let fit-wide(body, top: 1.0) = block(width: 100%, height: 100%, layout(size => {
+  let pick = 0.5
+  for k in (1.0, 0.92, 0.85, 0.78, 0.72, 0.66, 0.6, 0.55, 0.5).filter(k => k <= top) {
+    let m = measure(width: size.width / k, body)
+    if m.height * k <= size.height { pick = k; break }
+  }
+  align(center + horizon, scale(x: pick * 100%, y: pick * 100%, reflow: true, block(width: size.width / pick, body)))
+}))
+
 // ---------------------------------------------------------------- designed puzzle page (themed books)
 #let styled-puzzle(p) = {
   let S = p.style
@@ -426,17 +438,44 @@
 }
 
 // ---------------------------------------------------------------- pages
+#let cover-of(p) = if p.kind != "title" { none } else {
+  p.at("blocks", default: ()).find(b => b.kind == "image")
+}
+
 #let title-page(p) = {
-  v(1fr)
-  align(center)[
-    #text(font: L.fonts.sans, weight: "bold", size: 2.6 * base, L.title)
-    #if L.subtitle != "" { v(0.8em); text(font: L.fonts.sans, size: 1.4 * base, L.subtitle) }
-  ]
-  // cover art of a CBN Mystery book (forge/mystery/art.py) sits under the title
-  for b in p.at("blocks", default: ()) { v(0.8em); render-block(b) }
-  v(1fr)
-  if L.author != "" { align(center, text(size: 1.2 * base, L.author)) }
-  v(0.5fr)
+  let img = cover-of(p)
+  if img != none {
+    // themed book: the cover picture fills the page (page background); title on a dark band,
+    // the back-cover blurb on a parchment card at the foot (owner 2026-11-21)
+    let hf = if T != none { T.at("heading_font", default: L.fonts.sans) } else { L.fonts.sans }
+    let gold = rgb("#f3d58a")
+    block(width: 100%, fill: rgb("#14203a").transparentize(12%), radius: 10pt, inset: (x: 16pt, y: 14pt),
+      stroke: (paint: gold, thickness: 1.2pt), align(center, {
+        text(font: hf, size: 3.0 * base, fill: gold, L.title)
+        if L.subtitle != "" { v(0.35em); text(font: L.fonts.sans, size: 1.15 * base, fill: white, upper(L.subtitle)) }
+      }))
+    v(1fr)
+    let paras = p.blocks.filter(b => b.kind == "paragraph")
+    if paras.len() > 0 {
+      block(width: 100%, fill: rgb("#fffaf0").transparentize(8%), radius: 10pt, inset: 14pt,
+        stroke: (paint: rgb("#b8862b"), thickness: 1.2pt), {
+          set par(justify: true)
+          for (i, b) in paras.enumerate() {
+            if i == 0 { text(size: 1.05 * base, b.text) } else { v(0.4em); align(center, text(font: L.fonts.sans, weight: "bold", size: 0.95 * base, fill: rgb("#8a1c1c"), b.text)) }
+          }
+        })
+    }
+  } else {
+    v(1fr)
+    align(center)[
+      #text(font: L.fonts.sans, weight: "bold", size: 2.6 * base, L.title)
+      #if L.subtitle != "" { v(0.8em); text(font: L.fonts.sans, size: 1.4 * base, L.subtitle) }
+    ]
+    for b in p.at("blocks", default: ()) { v(0.8em); render-block(b) }
+    v(1fr)
+    if L.author != "" { align(center, text(size: 1.2 * base, L.author)) }
+    v(0.5fr)
+  }
 }
 
 #let notes-page(p) = {
@@ -502,16 +541,12 @@
   let c = rgb(p.style.color)
   let side = L.margins.outside * inch
   place(top + left, dx: tp.x_in * inch - side, dy: tp.y_in * inch - L.margins.top * inch,
-    block(width: tp.w_in * inch, height: tp.h_in * inch, inset: 0.12in, {
+    block(width: tp.w_in * inch, height: tp.h_in * inch, inset: (x: 0.26in, y: 0.2in), fit-wide(top: if p.style.type == "cbn" { 1.0 } else { 0.78 }, {
+      // fit(): the puzzle shrinks until it is inside the panel, never over the frame art
       align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(p.style.subtitle)))
       v(0.2em)
-      if p.style.type == "cbn" {
-        // colour-by-number mosaic: keep every cell clear of the ornaments in the lower corners
-        align(center + top, scale(x: 93%, y: 93%, origin: top + center, reflow: true, { for b in p.blocks { render-block(b) } }))
-      } else {
-        align(center + horizon, { for b in p.blocks { render-block(b) } })
-      }
-    }))
+      align(center, { for b in p.blocks { render-block(b) } })
+    })))
 }
 
 #for p in L.pages {
@@ -519,7 +554,9 @@
   page(
     header: if p.header and p.kind != "title" and T == none { running-header } else { none },
     footer: if p.number and p.kind != "title" { page-footer } else { none },
-    background: if tp != none { designed-bg(tp) } else { page-background },
+    background: if tp != none { designed-bg(tp) } else if cover-of(p) != none {
+      place(top + left, image(cover-of(p).path, width: 100%, height: 100%, fit: "cover"))
+    } else { page-background },
   )[
     #if p.kind == "title" {
       title-page(p)
@@ -539,7 +576,8 @@
       } else if tp != none {
         template-puzzle(p, tp)
       } else if styled {
-        fit(styled-puzzle(p))
+        // inset: the cards stay clear of the keys / lanterns the frame hangs on its sides
+        block(width: 100%, height: 100% - 0.55in, pad(x: 0.38in, fit(styled-puzzle(p))))
       } else if T != none and p.blocks.len() > 0 and T.at("card", default: false) {  // owner: no white cards
         // themed book: the page content sits on a cream card with a gold rule (reads well on the parchment frame)
         block(width: 100%, breakable: true, fill: rgb(T.at("panel_fill", default: "#fffdf6")),

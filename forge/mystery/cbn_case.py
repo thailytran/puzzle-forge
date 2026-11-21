@@ -670,6 +670,26 @@ PAGE_STYLES: dict[str, dict[str, Any]] = {
 }
 
 
+# the designed page already prints "How to play": the puzzle's own generic instruction would only
+# crowd the small panel (owner 2026-11-21: text ran over the frame)
+_GENERIC_HOWTO = ("Every letter of this message was moved", "Work out each dial from left to right")
+
+
+def _no_howto(blocks: list[dict[str, Any]], kind: str) -> list[dict[str, Any]]:
+    if kind not in PAGE_STYLES:
+        return blocks
+    out: list[dict[str, Any]] = []
+    for b in blocks:
+        if b.get("kind") == "paragraph" and str(b.get("text", "")).startswith(_GENERIC_HOWTO):
+            continue
+        if b.get("kind") == "spacer":  # the panel is small: no empty bands
+            continue
+        if kind == "shift" and b.get("kind") == "answer_lines":  # two writing lines are enough
+            b = {**b, "rows": list(b.get("rows", []))[:2], "gap_em": 1.5}
+        out.append(b)
+    return out
+
+
 def page_style(kind: str, subtitle: str) -> dict[str, Any] | None:
     st = PAGE_STYLES.get(kind)
     return None if st is None else {"type": kind, "subtitle": subtitle, **st}
@@ -724,7 +744,16 @@ def layout_pages(
             art.append(req)
 
     add(
-        Page(kind="title", title=frame.title, header=False, number=False, blocks=[]),
+        Page(
+            kind="title",
+            title=frame.title,
+            header=False,
+            number=False,
+            blocks=[
+                {"kind": "paragraph", "text": frame.setting},
+                {"kind": "paragraph", "text": "Can you solve the case before dusk?"},
+            ],
+        ),
         f"Cover art for '{frame.title}': {frame.setting}",
         "cover_art",
         rid="cover",
@@ -835,7 +864,7 @@ def layout_pages(
                 Page(
                     kind="puzzle",
                     title=f"Chapter {ch.no}: Keyword {k}",
-                    blocks=[*intro, *r.blocks, tail],
+                    blocks=[*intro, *_no_howto(r.blocks, sp.type), tail],
                     style=page_style(sp.type, f"Chapter {ch.no} · Keyword {k}"),
                 )
             )
