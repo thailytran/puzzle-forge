@@ -95,24 +95,52 @@ def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
     return blocks[:cut], blocks[cut:]
 
 
-def story_jpeg(src: Path, box_w_in: float, box_h_in: float) -> tuple[bytes, float, float]:
-    """The picture, complete and untouched, sized to fit the picture area of a story page.
+STORY_FEATHER = 0.14  # soft colour wash under the picture, as a share of the picture height
+STORY_PAPER = (246, 240, 227)  # the paper colour the picture melts into
 
-    Returns (jpeg, width, height) with the size as shares of the frame opening."""
+
+def _feather(rgb: Any, share: float) -> Any:
+    """Extend the picture downwards by `share` of its height with a soft wash that melts the colours
+    of its lower edge into the paper: no hard line between picture and text, and nothing is laid
+    over the picture (the wash is added BELOW it)."""
+    from PIL import Image, ImageFilter
+
+    w, h = rgb.size
+    fh = max(2, round(h * share))
+    edge = rgb.crop((0, max(0, h - max(4, h // 25)), w, h)).resize((w, 1), Image.Resampling.BOX)
+    edge = edge.filter(ImageFilter.GaussianBlur(max(2, w // 14)))
+    wash = edge.resize((w, fh), Image.Resampling.NEAREST)
+    paper = Image.new("RGB", (w, fh), STORY_PAPER)
+    mask = Image.linear_gradient("L").resize((w, fh))  # 0 (top) -> 255 (bottom)
+    mask = mask.point(lambda v: round(255 * (v / 255) ** 0.8))
+    wash = Image.composite(paper, wash, mask)
+    out = Image.new("RGB", (w, h + fh), STORY_PAPER)
+    out.paste(rgb, (0, 0))
+    out.paste(wash, (0, h))
+    return out
+
+
+def story_jpeg(src: Path, box_w_in: float, box_h_in: float) -> tuple[bytes, float, float]:
+    """The picture, complete and untouched, sized to fit the picture area of a story page, with a
+    soft wash below it that melts into the paper (the story text starts under that wash).
+
+    Returns (jpeg, width, height) with the size as shares of the frame opening; the height already
+    includes the wash and never exceeds STORY_PIC_MAX."""
     from PIL import Image
 
     with Image.open(src) as im:
         rgb = im.convert("RGB")
     if rgb.height > rgb.width:  # first-draft portrait page: keep its painted top part only
         rgb = rgb.crop((0, 0, rgb.width, round(rgb.height * STORY_LEGACY_CROP)))
-    max_h = box_h_in * STORY_PIC_MAX
+    max_h = box_h_in * STORY_PIC_MAX / (1 + STORY_FEATHER)
     w_in = min(box_w_in, max_h * rgb.width / rgb.height)
-    h_in = w_in * rgb.height / rgb.width
     px = round(w_in * 220)
     if rgb.width > px:
         rgb = rgb.resize((px, round(px * rgb.height / rgb.width)), Image.Resampling.LANCZOS)
+    rgb = _feather(rgb, STORY_FEATHER)
+    h_in = w_in * rgb.height / rgb.width
     buf = io.BytesIO()
-    rgb.save(buf, "JPEG", quality=90, optimize=True, dpi=(220, 220))
+    rgb.save(buf, "JPEG", quality=92, optimize=True, dpi=(220, 220))
     return buf.getvalue(), round(w_in / box_w_in, 4), round(h_in / box_h_in, 4)
 
 
