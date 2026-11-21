@@ -196,7 +196,7 @@ def decorate_plain_pages(
         if m:
             key = f"ch{m.group(1)}"
         else:
-            key = next((k for pre, k in BANNER_PAGES if title.startswith(pre)), None)
+            key = next((k for pre, k in BANNER_PAGES if pre in title), None)
         src = art.get(key) if key else None
         if src is None or any(b.get("kind") == "image" for b in page.blocks):
             continue
@@ -325,7 +325,7 @@ def theme_margins(width_in: float, height_in: float) -> dict[str, float]:
         "inside": side,
         "outside": side,
         "top": round(max(0.8, height_in * sy), 2),
-        "bottom": round(max(1.15, height_in * 0.16), 2),  # corner ornaments (lantern, pine) sit low
+        "bottom": round(max(1.15, height_in * 0.18), 2),  # corner ornaments (lantern, pine) sit low
     }
 
 
