@@ -316,6 +316,14 @@
     let fp = b.at("font_pt", default: none)
     let body = if b.at("numbered", default: false) { enum(tight: true, spacing: 0.35em, ..b.items) } else { list(..b.items) }
     if fp != none { text(size: fp * 1pt, body) } else { body }
+  } else if k == "writelog" {
+    // Code Log: generous ruled lines to write on (owner 2026-11-21: lines were too close together)
+    let rule = box(width: 100%, height: 0.3in, stroke: (bottom: 0.7pt + luma(130)))
+    for it in b.items {
+      block(breakable: false, below: 0.26in, grid(columns: (auto, auto, 1fr, auto, 1fr, auto, 1fr), column-gutter: 7pt, row-gutter: 0.08in, align: bottom,
+        text(weight: "bold", it.label), [evidence], rule, [it is], rule, [and], rule,
+        [], [fact], grid.cell(colspan: 5, rule)))
+    }
   } else if k == "spacer" {
     v(b.height_in * inch)
   } else if k == "url" {

@@ -156,7 +156,6 @@ BANNER_RATIO = 2.7  # width / height of the picture strip on text-only pages
 # owner 2026-11-21: no page may be only text + frame -> these pages get a picture strip
 # (a crop of an existing scene) under their title: page title prefix -> art key
 BANNER_PAGES: tuple[tuple[str, str | None], ...] = (
-    ("Code Log", "prologue"),
     ("Final Deduction", "cover"),
     ("Hints", "prologue"),
     ("Case Closed", "cover"),

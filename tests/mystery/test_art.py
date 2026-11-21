@@ -188,7 +188,7 @@ def test_plain_pages_get_a_picture_strip(tmp_path: Path) -> None:
             self.kind, self.title, self.style = "text", title, None
             self.blocks: list[dict] = [{"kind": "paragraph", "text": "x"}]
 
-    pages = [Pg("Evidence Card 2"), Pg("Code Log"), Pg("Other")]
+    pages = [Pg("Evidence Card 2"), Pg("Hints"), Pg("Other")]
     art = {
         "ch2": _png(tmp_path / "c.png", 2400, 1800),
         "prologue": _png(tmp_path / "p.png", 2400, 1800),

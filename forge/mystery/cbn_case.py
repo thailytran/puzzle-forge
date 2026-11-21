@@ -786,12 +786,8 @@ def layout_pages(
         "portraits",
         rid="portraits",
     )
-    log = [
-        f"Chapter {ch.no}:   evidence __________   it is __________ and __________   "
-        "fact: ______________________________"
-        for ch in frame.chapters
-    ]
-    add(Page(kind="text", title="Code Log", blocks=[{"kind": "list", "items": log}]))
+    log = [{"label": f"Chapter {ch.no}"} for ch in frame.chapters]
+    add(Page(kind="text", title="Code Log", blocks=[{"kind": "writelog", "items": log}]))
     left = logic_lock.check_logic(
         frame.suspects,
         frame.answer,
