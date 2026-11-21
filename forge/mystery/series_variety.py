@@ -32,6 +32,18 @@ def check_series(series: dict[str, Any]) -> list[str]:
     seen_mech: set[str] = set()
     seen_inspo: set[str] = set()
     seen_setting: set[str] = set()
+    if rules.get("arc_clue_every_volume"):  # one long mystery runs under the single cases
+        arc = series.get("series_arc") or {}
+        if not (arc.get("secret") and arc.get("question")):
+            bad.append("series_arc needs a secret and a question")
+        found = [str((v.get("arc_clue") or {}).get("found", "")).strip() for v in vols]
+        for v, f in zip(vols, found, strict=True):
+            if not f:
+                bad.append(
+                    f"vol {v['no']} {v.get('title', '')}: no arc_clue (piece of the series secret)"
+                )
+        if len({f for f in found if f}) != len([f for f in found if f]):
+            bad.append("arc_clue: two volumes hand out the same piece of the series secret")
     for i, v in enumerate(vols):
         tag = f"vol {v['no']} {v.get('title', '')}"
         games = set(v.get("games") or [])

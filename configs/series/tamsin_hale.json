@@ -5,28 +5,322 @@
  "audience": "adult",
  "tagline": "One detective. One assistant. One small dog. A new case in a new corner of the world.",
  "bible": {
-  "detective": {"name": "Tamsin Hale", "role": "travelling case consultant", "look": "late thirties, short dark curls, round tortoiseshell glasses, long olive travel coat with many pockets, leather satchel, magnifier on a cord", "method": "notices what people carry, not what they say; keeps a pocket casebook with a pressed flower for every solved case"},
-  "assistant": {"name": "Barnaby Okafor", "role": "assistant: young cartographer and linguist", "look": "tall, bow tie, flat cap, rolled maps under one arm", "skill": "maps, languages, train timetables; always asks the question that unlocks the case"},
-  "dog": {"name": "Biscuit", "role": "small wire-haired terrier, nose of the team", "look": "cream and brown, one ear up, one ear down, red collar with a tiny brass bell", "skill": "finds the thing that is out of place; comic relief; never in danger"},
+  "detective": {
+   "name": "Tamsin Hale",
+   "role": "travelling case consultant",
+   "look": "late thirties, short dark curls, round tortoiseshell glasses, long olive travel coat with many pockets, leather satchel, magnifier on a cord",
+   "method": "notices what people carry, not what they say; keeps a pocket casebook with a pressed flower for every solved case"
+  },
+  "assistant": {
+   "name": "Barnaby Okafor",
+   "role": "assistant: young cartographer and linguist",
+   "look": "tall, bow tie, flat cap, rolled maps under one arm",
+   "skill": "maps, languages, train timetables; always asks the question that unlocks the case"
+  },
+  "dog": {
+   "name": "Biscuit",
+   "role": "small wire-haired terrier, nose of the team",
+   "look": "cream and brown, one ear up, one ear down, red collar with a tiny brass bell",
+   "skill": "finds the thing that is out of place; comic relief; never in danger"
+  },
   "tone": "cozy, witty, gentle: no gore, no on-page violence, no romance; crimes are thefts, forgeries, disappearances, impostors, sabotage",
-  "recurring": ["each volume ends with Tamsin pressing a flower from the place into her casebook", "a running letter from a mysterious patron, one fragment per volume, revealed in volume 8"],
-  "rules": ["every volume has a new setting, a new cast of suspects and a new way of combining clues", "inspired by a public-domain story or legend; credit line on cover and first page; all names, plots and puzzles are new", "puzzle answers are built by code and verified by an independent solver; AI never decides an answer"]
+  "recurring": [
+   "each volume ends with Tamsin pressing a flower from the place into her casebook",
+   "a running letter from a mysterious patron, one fragment per volume, revealed in volume 8"
+  ],
+  "rules": [
+   "every volume has a new setting, a new cast of suspects and a new way of combining clues",
+   "inspired by a public-domain story or legend; credit line on cover and first page; all names, plots and puzzles are new",
+   "puzzle answers are built by code and verified by an independent solver; AI never decides an answer"
+  ]
  },
  "variety_rules": {
   "min_pages": 48,
   "mechanic_unique": true,
   "consecutive_type_similarity_max": 0.5,
   "min_new_or_twisted_types": 2,
-  "final_form_not_in_previous": 2
+  "final_form_not_in_previous": 2,
+  "arc_clue_every_volume": true
  },
  "volumes": [
-  {"no": 1, "title": "The Moonstone Affair", "setting": "a Yorkshire country house, 1880s", "inspired_by": {"work": "The Moonstone", "author": "Wilkie Collins", "year": 1868}, "clue_mechanic": "alibi timeline grid (who was where, hour by hour)", "final_form": "accusation grid", "games": ["logicgrid", "cryptogram", "crossword", "scramble", "maze", "wordsearch"], "new_types": ["logicgrid", "cryptogram", "crossword", "scramble", "maze", "wordsearch"], "twists": {}},
-  {"no": 2, "title": "The Worn-Out Slippers of Halvern Hall", "setting": "a snowbound manor with a hidden ballroom", "inspired_by": {"work": "The Twelve Dancing Princesses", "author": "Brothers Grimm", "year": 1812}, "clue_mechanic": "wear-pattern map overlay (trace the paths the slippers took)", "final_form": "route through the hidden passages", "games": ["maze", "sudoku", "numlock", "shift", "wordsearch", "cbn"], "new_types": ["sudoku", "numlock", "shift", "cbn"], "twists": {"maze": "drawn on a transparent-style overlay of the manor plan", "wordsearch": "words run along the dance steps"}},
-  {"no": 3, "title": "The Ghost Ship Ledger", "setting": "a drifting merchant brig and a harbour office, 1870s", "inspired_by": {"work": "Mary Celeste (legend)", "author": "public legend", "year": 1872}, "clue_mechanic": "two documents that contradict each other (spot the lie)", "final_form": "lock combination from three contradictions", "games": ["cryptogram", "bearings", "crossword", "logicgrid", "wordladder", "scramble"], "new_types": ["bearings", "wordladder"], "twists": {"cryptogram": "ship's code flags instead of letters", "logicgrid": "crew cabins and watches"}},
-  {"no": 4, "title": "The Lamp-Lit Locked Room", "setting": "a music conservatory at night", "inspired_by": {"work": "The Murders in the Rue Morgue (locked-room idea only, non-violent)", "author": "Edgar Allan Poe", "year": 1841}, "clue_mechanic": "floor-plan elimination (what could not have entered)", "final_form": "how-it-was-done floor plan", "games": ["sudoku6", "maze", "logicgrid", "numlock", "pigpen", "crossword"], "new_types": ["sudoku6", "pigpen"], "twists": {"logicgrid": "rooms and doors instead of people", "crossword": "clues are sheet-music terms"}},
-  {"no": 5, "title": "The Clockwork Nightingale", "setting": "an emperor's winter conservatory of automata", "inspired_by": {"work": "The Nightingale", "author": "Hans Christian Andersen", "year": 1844}, "clue_mechanic": "rhythm and music-box cipher (read the pins on the cylinder)", "final_form": "a melody that spells the culprit's alias", "games": ["morse", "shift", "wordsearch", "scramble", "nonogram", "cbn"], "new_types": ["morse", "nonogram"], "twists": {"shift": "a keyboard shift instead of the alphabet", "cbn": "the picture is a music-box cylinder"}},
-  {"no": 6, "title": "The Woman in the Grey Shawl", "setting": "a seaside town and its portrait gallery", "inspired_by": {"work": "The Woman in White", "author": "Wilkie Collins", "year": 1860}, "clue_mechanic": "family tree and identity matching (who is who)", "final_form": "portrait-to-name matching board", "games": ["logicgrid", "crossword", "cryptogram", "acrostic", "sudoku", "maze"], "new_types": ["acrostic"], "twists": {"logicgrid": "branches of a family tree", "cryptogram": "a letter in mirror writing", "sudoku": "portrait symbols instead of digits", "maze": "gallery corridors with locked doors"}},
-  {"no": 7, "title": "The Lost Colony Carving", "setting": "a misty island and its abandoned fort", "inspired_by": {"work": "Roanoke Colony (legend)", "author": "public legend", "year": 1590}, "clue_mechanic": "directional chain (follow the carved arrows and place names)", "final_form": "map coordinates of the hiding place", "games": ["wordsearch", "maze", "semaphore", "bookcipher", "numlock", "scramble"], "new_types": ["semaphore", "bookcipher"], "twists": {"wordsearch": "place names on a coastal map", "maze": "tide-dependent paths", "numlock": "compass bearings", "scramble": "scrambled place names"}},
-  {"no": 8, "title": "The Golden City Cipher", "setting": "a mountain archive and a hidden valley", "inspired_by": {"work": "El Dorado (legend)", "author": "public legend", "year": 1530}, "clue_mechanic": "stacked cipher layers (each layer opens the next)", "final_form": "layered decode that reveals the patron", "games": ["shift", "cryptogram", "pigpen", "rebus", "numlock", "crossword"], "new_types": ["rebus"], "twists": {"shift": "double shift", "cryptogram": "symbols from three alphabets", "pigpen": "rotated grid", "numlock": "dials in sequence", "crossword": "clues are earlier cipher outputs"}}
- ]
+  {
+   "no": 1,
+   "title": "The Moonstone Affair",
+   "setting": "a Yorkshire country house, 1880s",
+   "inspired_by": {
+    "work": "The Moonstone",
+    "author": "Wilkie Collins",
+    "year": 1868
+   },
+   "clue_mechanic": "alibi timeline grid (who was where, hour by hour)",
+   "final_form": "accusation grid",
+   "games": [
+    "logicgrid",
+    "cryptogram",
+    "crossword",
+    "scramble",
+    "maze",
+    "wordsearch"
+   ],
+   "new_types": [
+    "logicgrid",
+    "cryptogram",
+    "crossword",
+    "scramble",
+    "maze",
+    "wordsearch"
+   ],
+   "twists": {},
+   "arc_clue": {
+    "letter": "H",
+    "found": "the stud is sewn into the lining of the stolen jewel's travelling case; engraved with a tiny mapmaker's mark Tamsin knows from home"
+   }
+  },
+  {
+   "no": 2,
+   "title": "The Worn-Out Slippers of Halvern Hall",
+   "setting": "a snowbound manor with a hidden ballroom",
+   "inspired_by": {
+    "work": "The Twelve Dancing Princesses",
+    "author": "Brothers Grimm",
+    "year": 1812
+   },
+   "clue_mechanic": "wear-pattern map overlay (trace the paths the slippers took)",
+   "final_form": "route through the hidden passages",
+   "games": [
+    "maze",
+    "sudoku",
+    "numlock",
+    "shift",
+    "wordsearch",
+    "cbn"
+   ],
+   "new_types": [
+    "sudoku",
+    "numlock",
+    "shift",
+    "cbn"
+   ],
+   "twists": {
+    "maze": "drawn on a transparent-style overlay of the manor plan",
+    "wordsearch": "words run along the dance steps"
+   },
+   "arc_clue": {
+    "letter": "O",
+    "found": "a stud fixed under the heel of the twelfth slipper; Barnaby notices the same mark on a manor floor plan dated the year Odile vanished"
+   }
+  },
+  {
+   "no": 3,
+   "title": "The Ghost Ship Ledger",
+   "setting": "a drifting merchant brig and a harbour office, 1870s",
+   "inspired_by": {
+    "work": "Mary Celeste (legend)",
+    "author": "public legend",
+    "year": 1872
+   },
+   "clue_mechanic": "two documents that contradict each other (spot the lie)",
+   "final_form": "lock combination from three contradictions",
+   "games": [
+    "cryptogram",
+    "bearings",
+    "crossword",
+    "logicgrid",
+    "wordladder",
+    "scramble"
+   ],
+   "new_types": [
+    "bearings",
+    "wordladder"
+   ],
+   "twists": {
+    "cryptogram": "ship's code flags instead of letters",
+    "logicgrid": "crew cabins and watches"
+   },
+   "arc_clue": {
+    "letter": "L",
+    "found": "the brig's ledger lists a passenger 'O. H., cartographer' who paid with a brass stud"
+   }
+  },
+  {
+   "no": 4,
+   "title": "The Lamp-Lit Locked Room",
+   "setting": "a music conservatory at night",
+   "inspired_by": {
+    "work": "The Murders in the Rue Morgue (locked-room idea only, non-violent)",
+    "author": "Edgar Allan Poe",
+    "year": 1841
+   },
+   "clue_mechanic": "floor-plan elimination (what could not have entered)",
+   "final_form": "how-it-was-done floor plan",
+   "games": [
+    "sudoku6",
+    "maze",
+    "logicgrid",
+    "numlock",
+    "pigpen",
+    "crossword"
+   ],
+   "new_types": [
+    "sudoku6",
+    "pigpen"
+   ],
+   "twists": {
+    "logicgrid": "rooms and doors instead of people",
+    "crossword": "clues are sheet-music terms"
+   },
+   "arc_clue": {
+    "letter": "L",
+    "found": "the locked room's music stand hides a stud; the conservatory's founder once ordered a map 'of a place that keeps moving'"
+   }
+  },
+  {
+   "no": 5,
+   "title": "The Clockwork Nightingale",
+   "setting": "an emperor's winter conservatory of automata",
+   "inspired_by": {
+    "work": "The Nightingale",
+    "author": "Hans Christian Andersen",
+    "year": 1844
+   },
+   "clue_mechanic": "rhythm and music-box cipher (read the pins on the cylinder)",
+   "final_form": "a melody that spells the culprit's alias",
+   "games": [
+    "morse",
+    "shift",
+    "wordsearch",
+    "scramble",
+    "nonogram",
+    "cbn"
+   ],
+   "new_types": [
+    "morse",
+    "nonogram"
+   ],
+   "twists": {
+    "shift": "a keyboard shift instead of the alphabet",
+    "cbn": "the picture is a music-box cylinder"
+   },
+   "arc_clue": {
+    "letter": "O",
+    "found": "the clockwork nightingale sings eight notes; the second stud of its kind sits in its key, and the notes match the compass bearings so far"
+   }
+  },
+  {
+   "no": 6,
+   "title": "The Woman in the Grey Shawl",
+   "setting": "a seaside town and its portrait gallery",
+   "inspired_by": {
+    "work": "The Woman in White",
+    "author": "Wilkie Collins",
+    "year": 1860
+   },
+   "clue_mechanic": "family tree and identity matching (who is who)",
+   "final_form": "portrait-to-name matching board",
+   "games": [
+    "logicgrid",
+    "crossword",
+    "cryptogram",
+    "acrostic",
+    "sudoku",
+    "maze"
+   ],
+   "new_types": [
+    "acrostic"
+   ],
+   "twists": {
+    "logicgrid": "branches of a family tree",
+    "cryptogram": "a letter in mirror writing",
+    "sudoku": "portrait symbols instead of digits",
+    "maze": "gallery corridors with locked doors"
+   },
+   "arc_clue": {
+    "letter": "W",
+    "found": "a portrait in the gallery shows a woman in a grey shawl holding Odile's unfinished atlas, a stud painted on its clasp"
+   }
+  },
+  {
+   "no": 7,
+   "title": "The Lost Colony Carving",
+   "setting": "a misty island and its abandoned fort",
+   "inspired_by": {
+    "work": "Roanoke Colony (legend)",
+    "author": "public legend",
+    "year": 1590
+   },
+   "clue_mechanic": "directional chain (follow the carved arrows and place names)",
+   "final_form": "map coordinates of the hiding place",
+   "games": [
+    "wordsearch",
+    "maze",
+    "semaphore",
+    "bookcipher",
+    "numlock",
+    "scramble"
+   ],
+   "new_types": [
+    "semaphore",
+    "bookcipher"
+   ],
+   "twists": {
+    "wordsearch": "place names on a coastal map",
+    "maze": "tide-dependent paths",
+    "numlock": "compass bearings",
+    "scramble": "scrambled place names"
+   },
+   "arc_clue": {
+    "letter": "A",
+    "found": "a carving on the island fort repeats the mapmaker's mark and gives the first true bearing: the compass was never broken"
+   }
+  },
+  {
+   "no": 8,
+   "title": "The Golden City Cipher",
+   "setting": "a mountain archive and a hidden valley",
+   "inspired_by": {
+    "work": "El Dorado (legend)",
+    "author": "public legend",
+    "year": 1530
+   },
+   "clue_mechanic": "stacked cipher layers (each layer opens the next)",
+   "final_form": "layered decode that reveals the patron",
+   "games": [
+    "shift",
+    "cryptogram",
+    "pigpen",
+    "rebus",
+    "numlock",
+    "crossword"
+   ],
+   "new_types": [
+    "rebus"
+   ],
+   "twists": {
+    "shift": "double shift",
+    "cryptogram": "symbols from three alphabets",
+    "pigpen": "rotated grid",
+    "numlock": "dials in sequence",
+    "crossword": "clues are earlier cipher outputs"
+   },
+   "arc_clue": {
+    "letter": "Y",
+    "found": "the patron's last letter fragment and the eighth stud; the eight letters and bearings lead to the hidden valley where the atlas ends"
+   }
+  }
+ ],
+ "series_arc": {
+  "model": "Each volume is a complete case. Under it runs ONE long mystery about the detective herself; every volume ends by handing the reader one small, real piece of it. The pieces only make sense together, and the last volume cannot be solved without the pieces from the earlier ones.",
+  "secret": "Fifteen years ago Tamsin's mother, the mapmaker Odile Hale, walked out of the family map shop with an unfinished atlas and was never seen again. Tamsin keeps Odile's brass travelling compass: its lid holds eight empty sockets and its needle does not point north.",
+  "question": "Where did Odile Hale go, and why does her compass point somewhere that is on no map?",
+  "collectible": "a small engraved brass compass stud: one is hidden in each case, each carries one letter and one bearing",
+  "mechanic": "The last page of every volume is the Compass Page: the reader records the stud's letter and bearing. Volume 8's final puzzle needs all eight (the letters spell a place name, the bearings draw the route).",
+  "patron_link": "The mysterious patron who sends the letter fragments is tied to Odile; who the patron is stays open until volume 8.",
+  "rules": [
+   "the arc clue is found by solving the volume's own final puzzle, never handed out for free",
+   "an arc clue never spoils that volume's culprit",
+   "each volume's last line is a hook that points at the next stud",
+   "volume 8 answers the question fully and fairly: every piece was shown in an earlier volume",
+   "no element is taken from any existing detective series: names, secret, objects and plot are original"
+  ]
+ }
 }

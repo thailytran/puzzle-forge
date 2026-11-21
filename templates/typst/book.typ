@@ -445,26 +445,17 @@
 #let title-page(p) = {
   let img = cover-of(p)
   if img != none {
-    // themed book: the cover picture fills the page (page background); title on a dark band,
-    // the back-cover blurb on a parchment card at the foot (owner 2026-11-21)
+    // no designed title page yet: the cover picture fills the page (page background) and the
+    // title is set straight on a soft dusk gradient — no boxes, panels or strokes (owner 2026-11-21)
     let hf = if T != none { T.at("heading_font", default: L.fonts.sans) } else { L.fonts.sans }
-    let gold = rgb("#f3d58a")
-    block(width: 100%, fill: rgb("#14203a").transparentize(12%), radius: 10pt, inset: (x: 16pt, y: 14pt),
-      stroke: (paint: gold, thickness: 1.2pt), align(center, {
-        text(font: hf, size: 3.0 * base, fill: gold, L.title)
-        if L.subtitle != "" { v(0.35em); text(font: L.fonts.sans, size: 1.15 * base, fill: white, upper(L.subtitle)) }
-      }))
-    v(1fr)
-    let paras = p.blocks.filter(b => b.kind == "paragraph")
-    if paras.len() > 0 {
-      block(width: 100%, fill: rgb("#fffaf0").transparentize(8%), radius: 10pt, inset: 14pt,
-        stroke: (paint: rgb("#b8862b"), thickness: 1.2pt), {
-          set par(justify: true)
-          for (i, b) in paras.enumerate() {
-            if i == 0 { text(size: 1.05 * base, b.text) } else { v(0.4em); align(center, text(font: L.fonts.sans, weight: "bold", size: 0.95 * base, fill: rgb("#8a1c1c"), b.text)) }
-          }
-        })
-    }
+    place(top + left, dx: -L.margins.outside * inch, dy: -L.margins.top * inch,
+      rect(width: L.width_in * inch, height: 3.6in, stroke: none,
+        fill: gradient.linear(rgb("#0c1630").transparentize(18%), rgb("#0c1630").transparentize(100%), angle: 90deg)))
+    v(0.15in)
+    align(center, {
+      text(font: hf, size: 3.3 * base, fill: rgb("#f6e2a6"), L.title)
+      if L.subtitle != "" { v(0.5em); text(font: L.fonts.body, style: "italic", size: 1.25 * base, fill: rgb("#fff8e6"), tracking: 0.04em, L.subtitle) }
+    })
   } else {
     v(1fr)
     align(center)[
@@ -558,7 +549,7 @@
       place(top + left, image(cover-of(p).path, width: 100%, height: 100%, fit: "cover"))
     } else { page-background },
   )[
-    #if p.kind == "title" {
+    #if p.kind == "title" and tp == none {
       title-page(p)
     } else if p.kind == "notes" {
       panel(notes-page(p))  // writing area: knocks the watermark out

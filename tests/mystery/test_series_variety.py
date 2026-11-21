@@ -29,3 +29,9 @@ def test_no_new_types_is_rejected() -> None:
     s["volumes"][2]["games"] = ["maze", "sudoku", "numlock", "shift", "wordsearch", "cbn"]
     s["volumes"][2]["twists"] = {}
     assert any("new/twisted" in p for p in check_series(s))
+
+
+def test_missing_arc_clue_is_rejected() -> None:
+    s = copy.deepcopy(load_series(BIBLE))
+    s["volumes"][3].pop("arc_clue")
+    assert any("no arc_clue" in p for p in check_series(s))

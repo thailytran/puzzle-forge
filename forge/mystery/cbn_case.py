@@ -749,10 +749,7 @@ def layout_pages(
             title=frame.title,
             header=False,
             number=False,
-            blocks=[
-                {"kind": "paragraph", "text": frame.setting},
-                {"kind": "paragraph", "text": "Can you solve the case before dusk?"},
-            ],
+            blocks=[],
         ),
         f"Cover art for '{frame.title}': {frame.setting}",
         "cover_art",
@@ -1073,6 +1070,8 @@ def build_case_book(
         files.update(extra)
         if theme is not None:
             files.update(place_poster(pages, studio, "design:howto", HOWTO_TITLE, size))
+            # page 1: designed by the art model with the lettering painted into the picture
+            files.update(place_poster(pages, studio, "design:title", frame.title, size))
         art_report["theme"] = theme is not None
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
