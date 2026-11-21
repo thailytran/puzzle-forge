@@ -283,12 +283,14 @@ def place_art(
             missing.append(key)
             continue
         width = round(text_width_in * share, 2)
-        full_page = req.get("zone") == "cover_art"  # title page: the cover picture fills the page
+        full_page = req.get("zone") == "cover_art"  # title page: full-page cover picture
         if full_page:
             width = round(page_in[0], 2)
         data, height = print_jpeg(src, width)
         cap = text_height_in * MAX_HEIGHT.get(str(req.get("zone")), 0.42)
-        if height > cap and not full_page:  # tall pictures shrink so the page keeps its text / title
+        if (
+            height > cap and not full_page
+        ):  # tall pictures shrink so the page keeps its text / title
             width = round(width * cap / height, 2)
             data, height = print_jpeg(src, width)
         name = f"art/{key.replace(':', '_')}.jpg"
