@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 `apps/casevault/pyproject.toml`). New lines go under **Unreleased**; a release moves them under its version.
 
 ## [Unreleased]
+- P8.3l: designed puzzle pages are fitted into the opening of the shared frame (nothing hidden by it); storytelling pages melt into warm paper in their lower part so the story stays readable; a colour-by-number template with too small a panel is not used (cells must stay colourable).
 - P8.3k: one shared frame laid over every designed page (frame centre made transparent); storytelling pages - art `story:<key>` is a full-page painting with the story text set into its calm lower part, no white card.
 
 - P8.3h: CBN Mystery page theme from the Studio design kit - `design:frame` becomes the full-page background (text kept in its empty centre by wider margins), `design:plaque` the sign behind every page title (Young Serif, OFL); the plain layout stays when no kit is drawn. Puzzle Forge now runs inside HALOSPARK Desktop (owner 2026-11-20: the Ubuntu VM is retired for book building).

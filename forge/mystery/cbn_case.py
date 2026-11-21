@@ -601,6 +601,9 @@ def _evidence_rows(ch: Chapter) -> list[str]:
     return [f"{_row_label(k)}  →  {m}" for k, m, _r, _t in card_rows(ch)]
 
 
+CBN_PANEL_MIN_IN = 6.0  # shortest empty panel of a designed page that still holds a mosaic
+
+
 # designed puzzle pages (themed books): big sign title, how-to-play steps, tips and a slogan ribbon
 PAGE_STYLES: dict[str, dict[str, Any]] = {
     "cbn": {
@@ -1015,6 +1018,9 @@ def build_case_book(
         ),  # designed pages: how-to-play + tips row, slogan ribbon, card insets
     )
     tpl = (theme or {}).get("templates") or {}
+    if tpl.get("cbn", {}).get("h_in", 99.0) < CBN_PANEL_MIN_IN:
+        # a mosaic squeezed into a small panel has cells too small to colour: plain page instead
+        del tpl["cbn"]
     panel_in = {k: (t["w_in"], t["h_in"]) for k, t in tpl.items()} or None
     pages, files, art = layout_pages(frame, puzzles, ctx, panel_in)
     files.update(theme_files)
@@ -1022,7 +1028,9 @@ def build_case_book(
     if art_dir is not None:
         from forge.mystery.art import place_art
 
-        extra, art_report = place_art(pages, art, studio, ctx.width_in, ctx.height_in, Page)
+        extra, art_report = place_art(
+            pages, art, studio, ctx.width_in, ctx.height_in, Page, (t.width_in, t.height_in)
+        )
         files.update(extra)
         art_report["theme"] = theme is not None
     out = Path(out_dir)

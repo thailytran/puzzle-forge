@@ -76,6 +76,29 @@ def print_jpeg(src: Path, width_in: float) -> tuple[bytes, float]:
     return buf.getvalue(), width_in * rgb.height / rgb.width
 
 
+STORY_FADE = (0.40, 0.47, 0.86)  # veil starts / is full at (page share), its strength
+STORY_PAPER = (251, 244, 229)
+
+
+def story_jpeg(src: Path, width_in: float, height_in: float) -> bytes:
+    """Full-page storytelling picture: the lower part melts into warm paper (same picture, no
+    box) so the story printed there stays readable whatever was painted."""
+    from PIL import Image
+
+    w, h = round(width_in * 200), round(height_in * 200)
+    with Image.open(src) as im:
+        rgb = im.convert("RGB").resize((w, h), Image.Resampling.LANCZOS)
+    y0, y1, k = STORY_FADE
+    col = Image.new("L", (1, h))
+    col.putdata(
+        [round(255 * k * min(1.0, max(0.0, (y / h - y0) / (y1 - y0)))) for y in range(h)]
+    )
+    out = Image.composite(Image.new("RGB", (w, h), STORY_PAPER), rgb, col.resize((w, h)))
+    buf = io.BytesIO()
+    out.save(buf, "JPEG", quality=88, optimize=True, dpi=(200, 200))
+    return buf.getvalue()
+
+
 def place_art(
     pages: list[Any],
     requests: list[dict[str, Any]],
@@ -83,6 +106,7 @@ def place_art(
     text_width_in: float,
     text_height_in: float,
     make_page: Callable[..., Any],
+    page_in: tuple[float, float] = (8.5, 11.0),
 ) -> tuple[dict[str, bytes], dict[str, Any]]:
     """Insert an image block at the top of each requested page (title page: under the title).
 
@@ -104,7 +128,7 @@ def place_art(
         story = art.get(f"story:{key}")  # full-page storytelling picture (owner 2026-11-21)
         if story is not None and 1 <= n <= len(pages):
             name = f"art/story_{key}.jpg"
-            files[name] = print_jpeg(story, 8.5)[0]
+            files[name] = story_jpeg(story, *page_in)
             pages[n - 1].style = {"type": "story", "bg": name}
             placed.append(f"story:{key}")
             continue
@@ -220,7 +244,14 @@ def build_theme(
         )
     files["theme/frame_overlay.png"] = frame_overlay(frame)
     theme["overlay"] = "theme/frame_overlay.png"
-    tpl_files, tpls = build_templates(art, width_in, height_in)
+    window = frame_window(frame)
+    theme["window"] = {
+        "x": round(window[0], 4),
+        "y": round(window[1], 4),
+        "w": round(window[2] - window[0], 4),
+        "h": round(window[3] - window[1], 4),
+    }
+    tpl_files, tpls = build_templates(art, width_in, height_in, window)
     files.update(tpl_files)
     if tpls:
         theme["templates"] = tpls
@@ -349,9 +380,17 @@ def find_panel(src: Path) -> tuple[float, float, float, float] | None:
 
 
 def build_templates(
-    art: dict[str, Path], width_in: float, height_in: float
+    art: dict[str, Path],
+    width_in: float,
+    height_in: float,
+    window: tuple[float, float, float, float] = (0.0, 0.0, 1.0, 1.0),
 ) -> tuple[dict[str, bytes], dict[str, Any]]:
-    """`design:tpl_<type>` pages -> {type: {image, x_in, y_in, w_in, h_in}} (panel, inches)."""
+    """`design:tpl_<type>` pages -> {type: {image, x_in, y_in, w_in, h_in}} (panel, inches).
+
+    The designed page is fitted into `window` (the opening of the shared frame), so the panel
+    position is given on the printed page, not on the picture."""
+    wx, wy = window[0], window[1]
+    ww, wh = window[2] - window[0], window[3] - window[1]
     from PIL import Image
 
     files: dict[str, bytes] = {}
@@ -374,18 +413,17 @@ def build_templates(
         x0, y0, x1, y1 = rect
         tpls[kind] = {
             "image": name,
-            "x_in": round(x0 * width_in, 3),
-            "y_in": round(y0 * height_in, 3),
-            "w_in": round((x1 - x0) * width_in, 3),
-            "h_in": round((y1 - y0) * height_in, 3),
+            "x_in": round((wx + x0 * ww) * width_in, 3),
+            "y_in": round((wy + y0 * wh) * height_in, 3),
+            "w_in": round((x1 - x0) * ww * width_in, 3),
+            "h_in": round((y1 - y0) * wh * height_in, 3),
         }
     return files, tpls
 
 
-def frame_overlay(src: Path) -> bytes:
-    """The page frame with its empty parchment centre made transparent, laid over every designed
-    page so the whole book shares ONE frame (owner 2026-11-21)."""
-    from PIL import Image
+def _frame_mask(src: Path) -> tuple[Any, Any]:
+    """(frame as RGB, small "L" mask: 0 = empty parchment centre, 255 = frame)."""
+    from PIL import Image, ImageFilter
 
     with Image.open(src) as im:
         rgb = im.convert("RGB")
@@ -413,13 +451,40 @@ def frame_overlay(src: Path) -> bytes:
         for x in range(sw):
             if inside[y][x]:
                 mpx[x, y] = 0
-    from PIL import ImageFilter
+    # swallow stray parchment specks along the inner edge
+    return rgb, mask.filter(ImageFilter.MinFilter(3))
 
-    mask = mask.filter(ImageFilter.MinFilter(3))  # swallow stray parchment specks along the inner edge
-    mask = mask.resize((w, h), Image.Resampling.BILINEAR)
+
+def frame_overlay(src: Path) -> bytes:
+    """The page frame with its empty parchment centre made transparent, laid over every designed
+    page so the whole book shares ONE frame (owner 2026-11-21)."""
+    from PIL import Image
+
+    rgb, mask = _frame_mask(src)
     out = rgb.convert("RGBA")
-    out.putalpha(mask)
+    out.putalpha(mask.resize(rgb.size, Image.Resampling.BILINEAR))
     out = out.resize((1275, 1650))
     buf = io.BytesIO()
     out.save(buf, "PNG", optimize=True)
     return buf.getvalue()
+
+
+def frame_window(src: Path) -> tuple[float, float, float, float]:
+    """Opening of the frame between its bars (corner ornaments ignored) -> (x0, y0, x1, y1) as
+    page fractions. Designed pages are fitted into it, so the frame never hides their text."""
+    _, mask = _frame_mask(src)
+    sw, sh = mask.size
+    px = mask.load()
+    rows = range(round(sh * 0.3), round(sh * 0.7))
+    cols = range(round(sw * 0.3), round(sw * 0.7))
+    lefts = [next((x for x in range(sw) if px[x, y] == 0), 0) for y in rows]
+    rights = [next((x for x in range(sw - 1, -1, -1) if px[x, y] == 0), sw - 1) for y in rows]
+    tops = [next((y for y in range(sh) if px[x, y] == 0), 0) for x in cols]
+    bots = [next((y for y in range(sh - 1, -1, -1) if px[x, y] == 0), sh - 1) for x in cols]
+    pad = 0.008  # tuck the page edge slightly under the frame bars
+    return (
+        max(0.0, min(lefts) / sw - pad),
+        max(0.0, min(tops) / sh - pad),
+        min(1.0, (max(rights) + 1) / sw + pad),
+        min(1.0, (max(bots) + 1) / sh + pad),
+    )

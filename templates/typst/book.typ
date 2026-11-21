@@ -439,9 +439,17 @@
 } else {
   T.at("templates", default: (:)).at(p.style.type, default: none)
 }
-// one shared frame over every designed page (the frame with a transparent centre)
+// one shared frame over every designed page (the frame with a transparent centre); a designed
+// puzzle page is fitted into the opening of that frame, so the frame never hides its texts
 #let designed-bg(tp) = {
-  place(top + left, image(tp.image, width: 100%, height: 100%, fit: "stretch"))
+  let win = T.at("window", default: none)
+  if tp.at("x_in", default: none) != none and win != none {
+    place(top + left, image(T.background, width: 100%, height: 100%, fit: "stretch"))
+    place(top + left, dx: win.x * 100%, dy: win.y * 100%,
+      image(tp.image, width: win.w * 100%, height: win.h * 100%, fit: "stretch"))
+  } else {
+    place(top + left, image(tp.image, width: 100%, height: 100%, fit: "stretch"))
+  }
   if T.at("overlay", default: none) != none {
     place(top + left, image(T.overlay, width: 100%, height: 100%, fit: "stretch"))
   }
@@ -449,14 +457,14 @@
 // storytelling page: the painting is the page; the story is set on its calm lower part
 #let story-page(p) = {
   let side = L.margins.outside * inch
-  let bw = 0.79 * L.width_in * inch
-  let bh = 0.355 * L.height_in * inch
+  let bw = 0.80 * L.width_in * inch
+  let bh = 0.34 * L.height_in * inch
   let body(k) = {
     set text(size: k * base, fill: rgb("#24160c"))
     set par(leading: 0.5em, justify: true)
     for b in p.blocks { render-block(b) }
   }
-  place(top + left, dx: 0.105 * L.width_in * inch - side, dy: 0.52 * L.height_in * inch - L.margins.top * inch,
+  place(top + left, dx: 0.10 * L.width_in * inch - side, dy: 0.475 * L.height_in * inch - L.margins.top * inch,
     context {
       // largest size that fits the calm lower part of the painting (never spills over the frame)
       let k = (1.0, 0.93, 0.86, 0.8, 0.74, 0.68).find(k => measure(block(width: bw, body(k))).height <= bh)
