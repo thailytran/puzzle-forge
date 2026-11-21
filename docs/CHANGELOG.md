@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 `apps/casevault/pyproject.toml`). New lines go under **Unreleased**; a release moves them under its version.
 
 ## [Unreleased]
+- P8.3o (owner: nothing may cover a story picture - it can hold a clue): the whole landscape picture sits in the top 50-55% of the frame opening, untouched; the story is printed on the plain paper under it. `design:howto` = designed How To Play + Tips & Tricks page replaces the text page.
 - P8.3l: designed puzzle pages are fitted into the opening of the shared frame (nothing hidden by it); storytelling pages melt into warm paper in their lower part so the story stays readable; a colour-by-number template with too small a panel is not used (cells must stay colourable).
 - P8.3k: one shared frame laid over every designed page (frame centre made transparent); storytelling pages - art `story:<key>` is a full-page painting with the story text set into its calm lower part, no white card.
 

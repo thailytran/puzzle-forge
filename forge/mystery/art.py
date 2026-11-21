@@ -76,11 +76,12 @@ def print_jpeg(src: Path, width_in: float) -> tuple[bytes, float]:
     return buf.getvalue(), width_in * rgb.height / rgb.width
 
 
-# Owner 2026-11-21: the picture owns the top ~58% of a story page; the text is printed ONLY on
-# the plain paper of the lower ~40%, never across the picture. A story longer than STORY_WORDS
-# is split over two pictures (`story:<key>` and `story:<key>_2`).
-STORY_FADE = (0.545, 0.6, 1.0)  # paper starts / is plain at (page share), its strength
-STORY_PAPER = (251, 244, 229)
+# Owner 2026-11-21: a story page = the WHOLE picture in the top 50-55% of the frame opening and
+# the story on plain paper under it. Nothing is ever laid over the picture (a picture may hold a
+# clue) and no text is printed on it. A story longer than STORY_WORDS is split over two pictures
+# (`story:<key>` and `story:<key>_2`).
+STORY_PIC_MAX = 0.54  # tallest picture, as a share of the frame opening
+STORY_LEGACY_CROP = 0.58  # portrait pictures of the first draft: painted part = their top 58%
 STORY_WORDS = 150  # words that fit the plain part at a comfortable size
 
 
@@ -94,23 +95,53 @@ def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
     return blocks[:cut], blocks[cut:]
 
 
-def story_jpeg(src: Path, width_in: float, height_in: float) -> bytes:
-    """Full-page storytelling picture: the lower part melts into warm paper (same picture, no
-    box) so the story printed there stays readable whatever was painted."""
+def story_jpeg(src: Path, box_w_in: float, box_h_in: float) -> tuple[bytes, float, float]:
+    """The picture, complete and untouched, sized to fit the picture area of a story page.
+
+    Returns (jpeg, width, height) with the size as shares of the frame opening."""
     from PIL import Image
 
-    w, h = round(width_in * 200), round(height_in * 200)
     with Image.open(src) as im:
-        rgb = im.convert("RGB").resize((w, h), Image.Resampling.LANCZOS)
-    y0, y1, k = STORY_FADE
-    col = Image.new("L", (1, h))
-    col.putdata(
-        [round(255 * k * min(1.0, max(0.0, (y / h - y0) / (y1 - y0)))) for y in range(h)]
-    )
-    out = Image.composite(Image.new("RGB", (w, h), STORY_PAPER), rgb, col.resize((w, h)))
+        rgb = im.convert("RGB")
+    if rgb.height > rgb.width:  # first-draft portrait page: keep its painted top part only
+        rgb = rgb.crop((0, 0, rgb.width, round(rgb.height * STORY_LEGACY_CROP)))
+    max_h = box_h_in * STORY_PIC_MAX
+    w_in = min(box_w_in, max_h * rgb.width / rgb.height)
+    h_in = w_in * rgb.height / rgb.width
+    px = round(w_in * 220)
+    if rgb.width > px:
+        rgb = rgb.resize((px, round(px * rgb.height / rgb.width)), Image.Resampling.LANCZOS)
     buf = io.BytesIO()
-    out.save(buf, "JPEG", quality=88, optimize=True, dpi=(200, 200))
+    rgb.save(buf, "JPEG", quality=90, optimize=True, dpi=(220, 220))
+    return buf.getvalue(), round(w_in / box_w_in, 4), round(h_in / box_h_in, 4)
+
+
+def page_jpeg(src: Path, width_in: float, height_in: float) -> bytes:
+    """A designed full page (poster) at print size."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        rgb = im.convert("RGB").resize(
+            (round(width_in * 200), round(height_in * 200)), Image.Resampling.LANCZOS
+        )
+    buf = io.BytesIO()
+    rgb.save(buf, "JPEG", quality=88, optimize=True, dpi=(200, 200))
     return buf.getvalue()
+
+
+def place_poster(
+    pages: list[Any], art: dict[str, Path], key: str, title: str, page_in: tuple[float, float]
+) -> dict[str, bytes]:
+    """`key` (e.g. `design:howto`) is a whole page designed with its text: it replaces the text
+    page called `title`. The owner proof-reads such a page in the Studio before approving."""
+    src = art.get(key)
+    page = next((p for p in pages if getattr(p, "title", None) == title), None)
+    if src is None or page is None:
+        return {}
+    name = f"theme/{key.split(':', 1)[-1]}.jpg"
+    page.style = {"type": "poster", "bg": name}
+    page.blocks = []
+    return {name: page_jpeg(src, *page_in)}
 
 
 def place_art(
@@ -121,6 +152,7 @@ def place_art(
     text_height_in: float,
     make_page: Callable[..., Any],
     page_in: tuple[float, float] = (8.5, 11.0),
+    window: tuple[float, float, float, float] = (0.0, 0.0, 1.0, 1.0),
 ) -> tuple[dict[str, bytes], dict[str, Any]]:
     """Insert an image block at the top of each requested page (title page: under the title).
 
@@ -142,17 +174,18 @@ def place_art(
         story = art.get(f"story:{key}")  # full-page storytelling picture (owner 2026-11-21)
         if story is not None and 1 <= n <= len(pages):
             name = f"art/story_{key}.jpg"
-            files[name] = story_jpeg(story, *page_in)
-            pages[n - 1].style = {"type": "story", "bg": name}
+            box = (page_in[0] * window[2], page_in[1] * window[3])
+            files[name], pw, ph = story_jpeg(story, *box)
+            pages[n - 1].style = {"type": "story", "bg": name, "w": pw, "h": ph}
             placed.append(f"story:{key}")
             second = art.get(f"story:{key}_2")
             head, tail = split_story(pages[n - 1].blocks)
             if second is not None and tail:  # long story: two pictures, half the text under each
                 name2 = f"art/story_{key}_2.jpg"
-                files[name2] = story_jpeg(second, *page_in)
+                files[name2], pw, ph = story_jpeg(second, *box)
                 pages[n - 1].blocks = head
                 more = make_page(kind="text", title=pages[n - 1].title, blocks=tail)
-                more.style = {"type": "story", "bg": name2}
+                more.style = {"type": "story", "bg": name2, "w": pw, "h": ph}
                 inserts.append((n, more))
                 placed.append(f"story:{key}_2")
             continue

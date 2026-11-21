@@ -601,6 +601,7 @@ def _evidence_rows(ch: Chapter) -> list[str]:
     return [f"{_row_label(k)}  →  {m}" for k, m, _r, _t in card_rows(ch)]
 
 
+HOWTO_TITLE = "How To Play"
 CBN_PANEL_MIN_IN = 6.0  # shortest empty panel of a designed page that still holds a mosaic
 
 
@@ -731,7 +732,7 @@ def layout_pages(
     add(
         Page(
             kind="text",
-            title="How To Play",
+            title=HOWTO_TITLE,
             blocks=[
                 *_para(frame.intro),
                 {
@@ -1032,10 +1033,23 @@ def build_case_book(
     if art_dir is not None:
         from forge.mystery.art import place_art
 
+        from forge.mystery.art import place_poster
+
+        size = (t.width_in, t.height_in)
+        win = (theme or {}).get("window") or {"x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0}
         extra, art_report = place_art(
-            pages, art, studio, ctx.width_in, ctx.height_in, Page, (t.width_in, t.height_in)
+            pages,
+            art,
+            studio,
+            ctx.width_in,
+            ctx.height_in,
+            Page,
+            size,
+            (win["x"], win["y"], win["w"], win["h"]),  # x, y, width, height of the opening
         )
         files.update(extra)
+        if theme is not None:
+            files.update(place_poster(pages, studio, "design:howto", HOWTO_TITLE, size))
         art_report["theme"] = theme is not None
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)

@@ -435,32 +435,37 @@
 
 // Gemini-designed page for this puzzle type (forge/mystery/art.py build_templates), or none
 #let tpl-of(p) = if T == none or p.at("style", default: none) == none { none } else if p.style.type == "story" {
+  (image: p.style.bg, pic: (w: p.style.w, h: p.style.h))
+} else if p.style.type == "poster" {
   (image: p.style.bg)
 } else {
   T.at("templates", default: (:)).at(p.style.type, default: none)
 }
 // one shared frame over every designed page (the frame with a transparent centre); a designed
-// puzzle page is fitted into the opening of that frame, so the frame never hides its texts
+// page is fitted into the opening of that frame, so the frame never hides its texts. A story
+// picture sits complete at the top of the opening: nothing is laid over it.
 #let designed-bg(tp) = {
-  let win = T.at("window", default: none)
-  if win != none {  // puzzle templates and story pictures alike sit inside the frame opening
-    place(top + left, image(T.background, width: 100%, height: 100%, fit: "stretch"))
+  let win = T.at("window", default: (x: 0.0, y: 0.0, w: 1.0, h: 1.0))
+  place(top + left, image(T.background, width: 100%, height: 100%, fit: "stretch"))
+  let pic = tp.at("pic", default: none)
+  if pic != none {
+    place(top + left, dx: (win.x + (1 - pic.w) / 2 * win.w) * 100%, dy: win.y * 100%,
+      image(tp.image, width: pic.w * win.w * 100%, height: pic.h * win.h * 100%, fit: "stretch"))
+  } else {
     place(top + left, dx: win.x * 100%, dy: win.y * 100%,
       image(tp.image, width: win.w * 100%, height: win.h * 100%, fit: "stretch"))
-  } else {
-    place(top + left, image(tp.image, width: 100%, height: 100%, fit: "stretch"))
   }
   if T.at("overlay", default: none) != none {
     place(top + left, image(T.overlay, width: 100%, height: 100%, fit: "stretch"))
   }
 }
-// storytelling page: the painting is the page; the story is set on its calm lower part
+// storytelling page: the whole picture on top, the story on the plain paper under it
 #let story-page(p) = {
   let side = L.margins.outside * inch
   let win = T.at("window", default: (x: 0.0, y: 0.0, w: 1.0, h: 1.0))
-  // plain paper only: under the picture (top 60% of the opening), above the corner ornaments
+  // plain paper only: under the picture, above the corner ornaments
   let bx = (win.x + 0.06 * win.w) * L.width_in * inch
-  let by = (win.y + 0.615 * win.h) * L.height_in * inch
+  let by = (win.y + (p.style.h + 0.03) * win.h) * L.height_in * inch
   let bw = 0.88 * win.w * L.width_in * inch
   let bh = 0.815 * L.height_in * inch - by
   let body(k) = {
@@ -506,7 +511,9 @@
       if p.at("title", default: none) != none and not styled {
         render-block((kind: "heading", text: p.title, level: 1))
       }
-      if tp != none and p.style.type == "story" {
+      if tp != none and p.style.type == "poster" {
+        []  // the whole page is designed, text included
+      } else if tp != none and p.style.type == "story" {
         story-page(p)
       } else if tp != none {
         template-puzzle(p, tp)

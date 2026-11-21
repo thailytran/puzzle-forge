@@ -157,3 +157,18 @@ def test_long_story_is_split_between_paragraphs() -> None:
     assert head + tail == long and head and tail
     assert abs(len(head) - len(tail)) <= 1
     assert sum(len(b["text"].split()) for b in long) > STORY_WORDS
+
+
+def test_story_picture_stays_whole_in_the_top_of_the_page(tmp_path: Path) -> None:
+    from PIL import Image
+
+    from forge.mystery.art import STORY_PIC_MAX, story_jpeg
+
+    wide = tmp_path / "wide.png"
+    Image.new("RGB", (1500, 1000), "navy").save(wide)
+    _, w, h = story_jpeg(wide, 7.4, 9.8)
+    assert w == 1.0 and 0.45 < h <= STORY_PIC_MAX + 0.001  # full width, never past 54 %
+    tall = tmp_path / "tall.png"
+    Image.new("RGB", (900, 1200), "navy").save(tall)
+    _, w2, h2 = story_jpeg(tall, 7.4, 9.8)
+    assert h2 <= STORY_PIC_MAX + 0.001 and w2 <= 1.0
