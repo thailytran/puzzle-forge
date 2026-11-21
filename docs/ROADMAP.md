@@ -149,6 +149,18 @@ frames). Owner decisions: chapter = story + search page + 1–2 puzzles; hidden 
 object's position for the answer page) + owner ticks every object in the review UI (code cannot verify art);
 The Vanished Star stays a CBN Mystery, the first Adventure book is a new theme.
 
+Owner 2026-11-21 (second set of screenshots = the look to match for cover, listing images and interior; style reference
+only, no copied names, text or layouts):
+- Cover: vivid painted scene, big ornate title, a promise line, a round "story edition" seal; three ornate badges
+  PUZZLES / SEARCH / COLORING used on the listing images.
+- Interior is black-and-white LINE ART to colour. Chapter spread: left = "Chapter N | Title" heading + 5-6 short story
+  paragraphs set inside an ornate line-art border, with a line-art vignette of the scene in the lower part of the same
+  page; right = full-page line-art scene inside the same border, with a narrow side column "Puzzle N" listing the
+  hidden objects (icon + name).
+- Listing images: cover mock-up on a rich themed background; open spread; a HOW TO PLAY board (numbered rules + the
+  final challenge) over three page tiles DISCOVER (story page) / EXPLORE (line-art search page) / COLOR (the same page
+  coloured in); a bottom band naming the three activities.
+
 - [ ] P9.1 Adventure case frame: chapters, hidden-object lists (code picks objects + icons), key pieces, final challenge; logic lock reuses the mystery checks (every key needed, one answer)
 - [ ] P9.2 Search page layout: full-page line art + object column with icons + "found" boxes; answer key page (Gemini-marked circles, owner-confirmed)
 - [ ] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
