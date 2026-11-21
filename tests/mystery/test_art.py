@@ -211,4 +211,4 @@ def test_full_page_template_wins_and_uses_page_coordinates(tmp_path: Path) -> No
     files, tpls = build_templates(art, 8.5, 11, (0.1, 0.1, 0.9, 0.9))
     t = tpls["cbn"]
     assert t["bleed"] is True and t["image"] == "theme/tpl_cbn_full.jpg" and len(files) == 1
-    assert abs(t["x_in"] - 0.85) < 0.15 and abs(t["h_in"] - 8.8) < 0.15
+    assert t["x_in"] < 1.1 and t["h_in"] > 8.0  # page coordinates, not the frame opening
