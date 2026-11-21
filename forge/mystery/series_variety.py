@@ -1,4 +1,6 @@
-"""Variety gate for mystery series (owner 2026-11-21: every case must differ in puzzles, clue mechanic and games).
+"""Variety gate for mystery series (owner 2026-11-21).
+
+Every case must differ in puzzles, clue mechanic and games.
 
 `check_series` returns a list of problems; an empty list means the series bible may be used.
 Pure Python, no I/O besides `load_series`.
@@ -56,7 +58,8 @@ def check_series(series: dict[str, Any]) -> list[str]:
             sim = _jaccard(games, prev)
             if sim > max_sim:
                 bad.append(
-                    f"{tag}: game set too similar to vol {vols[i - 1]['no']} ({sim:.2f} > {max_sim})"
+                    f"{tag}: game set too similar to vol {vols[i - 1]['no']} "
+                    f"({sim:.2f} > {max_sim})"
                 )
             for k in range(1, lookback + 1):
                 if i - k >= 0 and v.get("final_form") == vols[i - k].get("final_form"):
