@@ -911,9 +911,10 @@ def build_case_book(
             theme_files, theme = build_theme(
                 studio, t.width_in, t.height_in, t.width_in - margins["inside"] - margins["outside"]
             )
+    sign = (theme or {}).get("plaque_h_in", 0.0)  # the title sign is taller than a plain heading
     ctx = RenderCtx(
         width_in=t.width_in - margins["inside"] - margins["outside"],
-        height_in=t.height_in - margins["top"] - margins["bottom"] - 0.9,
+        height_in=t.height_in - margins["top"] - margins["bottom"] - 0.9 - max(0.0, sign - 0.35),
     )
     pages, files, art = layout_pages(frame, puzzles, ctx)
     files.update(theme_files)

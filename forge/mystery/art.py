@@ -28,6 +28,8 @@ ZONE_WIDTH: dict[str, float | None] = {
     "character_sheet": None,
     "location_sheet": None,
 }
+# printed height cap as a share of the text height (scene pages keep room for the story)
+MAX_HEIGHT: dict[str, float] = {"cover_art": 0.68, "scene": 0.36, "portraits": 0.92}
 DPI = 300
 PORTRAITS_TITLE = "Faces of the Case"
 
@@ -104,8 +106,9 @@ def place_art(
             continue
         width = round(text_width_in * share, 2)
         data, height = print_jpeg(src, width)
-        if req.get("zone") == "portraits" and height > text_height_in * 0.92:
-            width = round(width * text_height_in * 0.92 / height, 2)
+        cap = text_height_in * MAX_HEIGHT.get(str(req.get("zone")), 0.42)
+        if height > cap:  # tall pictures shrink so the page keeps its text / title
+            width = round(width * cap / height, 2)
             data, height = print_jpeg(src, width)
         name = f"art/{key.replace(':', '_')}.jpg"
         files[name] = data
