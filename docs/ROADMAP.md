@@ -168,3 +168,9 @@ only, no copied names, text or layouts):
 - [ ] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
 - [ ] P9.4 HALOSPARK Studio: Adventure module tab (ChatGPT story + object lists, Gemini line art with objects, Gemini self-check, owner tick review), covers, listing images, SEO, deliverables
 - [ ] P9.5 First Adventure book: "The Snow Queen's Library" (owner 2026-11-20: adult, 8 chapters) — milestone review
+
+### P10 — Detective series (owner 2026-11-21)
+- [x] P10.0 series bible `configs/series/tamsin_hale.json` (8 volumes) + variety gate `forge/mystery/series_variety.py` (+tests)
+- [ ] P10.1 new verifiable puzzle types for volumes 2–8: sudoku6, bearings, wordladder, pigpen, morse, nonogram, acrostic, semaphore, bookcipher, rebus
+- [ ] P10.2 `forge series check|next` CLI; page-budget QA rule (every Escape/Adventure/Mystery book ≥ 48 content pages)
+- [ ] P10.3 Escape module tabs identical to Coloring Pages (HaloSpark Desktop)

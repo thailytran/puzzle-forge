@@ -338,5 +338,30 @@
   "no Frozen/Disney elements (no Elsa, Arendelle, talking snowman, ice-power songs)",
   "gentle tone: no violence, no romance",
   "AI never decides puzzle answers: code builds puzzles, independent solver verifies; proposed answers are intents"
- ]
+ ],
+ "page_plan": {
+  "min_content_pages": 48,
+  "front": [
+   "title",
+   "credit/inspired-by",
+   "how to play",
+   "cast",
+   "map"
+  ],
+  "per_chapter": {
+   "story_vignette": 1,
+   "search_page": 2,
+   "puzzle_a": 1,
+   "puzzle_b": 1,
+   "notes": 1
+  },
+  "chapters": 8,
+  "back": [
+   "final puzzle",
+   "epilogue",
+   "answer key (hidden objects)",
+   "answer key (puzzles)",
+   "case notes"
+  ]
+ }
 }
