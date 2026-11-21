@@ -465,7 +465,7 @@
   let win = T.at("window", default: (x: 0.0, y: 0.0, w: 1.0, h: 1.0))
   // plain paper only: under the picture, above the corner ornaments
   let bx = (win.x + 0.06 * win.w) * L.width_in * inch
-  let by = (win.y + (p.style.h + 0.005) * win.h) * L.height_in * inch
+  let by = (win.y + (p.style.h + 0.02) * win.h) * L.height_in * inch
   let bw = 0.88 * win.w * L.width_in * inch
   let bh = calc.min(0.815 * L.height_in * inch - by, 0.40 * win.h * L.height_in * inch)
   let body(k) = {

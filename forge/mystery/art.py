@@ -95,8 +95,8 @@ def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
     return blocks[:cut], blocks[cut:]
 
 
-STORY_FEATHER = 0.14  # soft colour wash under the picture, as a share of the picture height
-STORY_PAPER = (246, 240, 227)  # the paper colour the picture melts into
+STORY_FEATHER = 0.12  # soft colour wash under the picture, as a share of the picture height
+STORY_PAPER = (251, 246, 240)  # the paper colour the picture melts into
 
 
 def _feather(rgb: Any, share: float) -> Any:
@@ -112,7 +112,7 @@ def _feather(rgb: Any, share: float) -> Any:
     wash = edge.resize((w, fh), Image.Resampling.NEAREST)
     paper = Image.new("RGB", (w, fh), STORY_PAPER)
     mask = Image.linear_gradient("L").resize((w, fh))  # 0 (top) -> 255 (bottom)
-    mask = mask.point(lambda v: round(255 * (v / 255) ** 0.8))
+    mask = mask.point(lambda v: round(255 * (3 * (v / 255) ** 2 - 2 * (v / 255) ** 3) ** 0.8))
     wash = Image.composite(paper, wash, mask)
     out = Image.new("RGB", (w, h + fh), STORY_PAPER)
     out.paste(rgb, (0, 0))
