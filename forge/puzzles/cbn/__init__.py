@@ -541,7 +541,7 @@ class ColorByNumber:
         )
 
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
-        blk = self._block(puzzle, ctx, True, 0.85)
+        blk = self._block(puzzle, ctx, True, 1.0 if puzzle.data.get("art") else 0.85)
         code = str(puzzle.solution["code"])
         shown = f"Picture: {code[1:]}" if is_icon(code) or is_picture(code) else f"Code: {code}"
         return RenderedBlock(blocks=[blk, {"kind": "paragraph", "text": shown}])

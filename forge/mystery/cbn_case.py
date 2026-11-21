@@ -925,7 +925,8 @@ def layout_pages(
             )
         add(Page(kind="text", title="Hints", blocks=blocks))
     for ch, cp in zip(frame.chapters, puzzles, strict=True):
-        back = cb.render_solution(cp.cbn, half)
+        # owner 2026-11-21: the answer picture has the same cell size as the puzzle page
+        back = cb.render_solution(cp.cbn, ctx_for("cbn") if cp.cbn.data.get("art") else half)
         files.update(back.files)
         blocks = [{"kind": "heading", "text": f"Chapter {ch.no}", "level": 2}, *back.blocks]
         keys = ", ".join(sp.keyword.upper() for sp in ch.side)

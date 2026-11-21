@@ -50,3 +50,12 @@ def test_picture_cells_stay_at_or_above_the_floor_in_the_designed_panel() -> Non
     pz = cb.generate(_spec("scarf"), seed=1)
     blk = cb.render(pz, RenderCtx(width_in=5.07, height_in=4.13)).blocks[1]
     assert blk["cell_mm"] >= PICTURE_MIN_MM
+
+
+def test_answer_picture_has_the_puzzle_cell_size() -> None:
+    cb = ColorByNumber()
+    pz = cb.generate(_spec("boot"), seed=3)
+    ctx = RenderCtx(width_in=5.07, height_in=4.13)
+    front = cb.render(pz, ctx).blocks[1]
+    back = next(b for b in cb.render_solution(pz, ctx).blocks if b["kind"] == "cbn_poly")
+    assert back["cell_mm"] == front["cell_mm"] and back["w_in"] == front["w_in"]

@@ -306,7 +306,9 @@
             stroke: (paint: rgb("#3a2210"), thickness: 0.5pt), b.text))
       })))
     } else {
-      block(below: 0.8em, text(font: L.fonts.sans, weight: "bold", size: size, b.text))
+      let h = text(font: L.fonts.sans, weight: "bold", size: size, b.text)
+      // themed books: sub-headings sit centred, away from the ornaments on the frame sides
+      block(below: 0.8em, width: 100%, if T != none { align(center, h) } else { h })
     }
   } else if k == "paragraph" {
     let fp = b.at("font_pt", default: none)
@@ -579,12 +581,13 @@
           stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 1.2pt), radius: 10pt, inset: 12pt,
           { for b in p.blocks { render-block(b) } })
       } else if T != none {
-        block(width: 100%, height: 100% - 0.55in, fit({
+        // inset like the puzzle cards: text stays clear of the keys / lanterns on the frame sides
+        block(width: 100%, height: 100% - 0.55in, pad(x: 0.3in, fit({
           if p.at("title", default: none) != none {
             render-block((kind: "heading", text: p.title, level: 1))
           }
           for b in p.blocks { render-block(b) }
-        }))
+        })))
       } else {
         for b in p.blocks { render-block(b) }
       }
