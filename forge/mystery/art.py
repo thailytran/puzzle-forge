@@ -23,13 +23,13 @@ from typing import Any
 # printed width as a share of the text width; None = reference sheet, never printed
 ZONE_WIDTH: dict[str, float | None] = {
     "cover_art": 0.78,
-    "scene": 0.56,
+    "scene": 0.92,
     "portraits": 1.0,
     "character_sheet": None,
     "location_sheet": None,
 }
 # printed height cap as a share of the text height (scene pages keep room for the story)
-MAX_HEIGHT: dict[str, float] = {"cover_art": 0.68, "scene": 0.36, "portraits": 0.92}
+MAX_HEIGHT: dict[str, float] = {"cover_art": 0.68, "scene": 0.46, "portraits": 0.92}
 DPI = 300
 PORTRAITS_TITLE = "Faces of the Case"
 
@@ -198,6 +198,8 @@ def build_theme(
         "background": "theme/frame.jpg",
         "heading_font": "Young Serif",
         "heading_ink": "#fff3d6",  # cream letters on the wooden sign
+        "accent": "#b8862b",
+        "panel_fill": "#fffdf6",
         "margins": theme_margins(width_in, height_in),
     }
     if plaque is not None:

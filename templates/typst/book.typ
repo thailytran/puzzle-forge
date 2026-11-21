@@ -298,11 +298,12 @@
       // title on a carved sign (Studio design kit); long titles shrink to fit
       let w = T.at("plaque_w_in", default: 5.0) * inch
       let h = T.at("plaque_h_in", default: 0.9) * inch
-      let fs = if b.text.len() > 34 { 1.15 * base } else if b.text.len() > 24 { 1.35 * base } else { 1.6 * base }
+      let fs = if b.text.len() > 34 { 1.25 * base } else if b.text.len() > 24 { 1.5 * base } else { 1.85 * base }
       block(below: 0.7em, width: 100%, align(center, box(width: w, height: h, {
         place(center + horizon, image(T.plaque, width: w, height: h, fit: "stretch"))
-        place(center + horizon, dx: T.at("text_dx_in", default: 0.15) * inch,
-          text(font: T.at("heading_font", default: L.fonts.sans), size: fs, fill: rgb(T.at("heading_ink", default: "#3b2412")), b.text))
+        place(center + horizon, dx: T.at("text_dx_in", default: 0.0) * inch, dy: -0.02 * h,
+          text(font: T.at("heading_font", default: L.fonts.sans), size: fs, fill: rgb(T.at("heading_ink", default: "#3b2412")),
+            stroke: (paint: rgb("#3a2210"), thickness: 0.5pt), b.text))
       })))
     } else {
       block(below: 0.8em, text(font: L.fonts.sans, weight: "bold", size: size, b.text))
@@ -321,7 +322,13 @@
     align(center, text(font: L.fonts.mono, weight: "bold", size: 1.1 * base, b.text))
     v(0.3em)
   } else if k == "image" {
-    align(center, image(b.path, width: b.width_in * inch))
+    if T != none {  // themed book: picture in a rounded gold frame
+      align(center, box(radius: 8pt, clip: true, stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 2pt),
+        image(b.path, width: b.width_in * inch)))
+      v(0.3em)
+    } else {
+      align(center, image(b.path, width: b.width_in * inch))
+    }
   } else if k == "letter_grid" {
     letter-grid(b)
   } else if k == "sudoku_grid" {
@@ -397,7 +404,14 @@
       if p.at("title", default: none) != none {
         render-block((kind: "heading", text: p.title, level: 1))
       }
-      for b in p.blocks { render-block(b) }
+      if T != none and p.blocks.len() > 0 {
+        // themed book: the page content sits on a cream card with a gold rule (reads well on the parchment frame)
+        block(width: 100%, breakable: true, fill: rgb(T.at("panel_fill", default: "#fffdf6")),
+          stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 1.2pt), radius: 10pt, inset: 12pt,
+          { for b in p.blocks { render-block(b) } })
+      } else {
+        for b in p.blocks { render-block(b) }
+      }
     }
   ]
 }
