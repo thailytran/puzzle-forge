@@ -95,49 +95,54 @@ def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
     return blocks[:cut], blocks[cut:]
 
 
-STORY_FEATHER = 0.12  # soft colour wash under the picture, as a share of the picture height
+STORY_FADE = 0.045  # width of the soft edge on the sides and top, as a share of the picture width
+STORY_FADE_BOTTOM = 0.17  # height of the soft bottom edge, as a share of the picture height
 STORY_PAPER = (251, 246, 240)  # the paper colour the picture melts into
 
 
-def _feather(rgb: Any, share: float) -> Any:
-    """Extend the picture downwards by `share` of its height with a soft wash that melts the colours
-    of its lower edge into the paper: no hard line between picture and text, and nothing is laid
-    over the picture (the wash is added BELOW it)."""
-    from PIL import Image, ImageFilter
+def _soften(rgb: Any) -> Any:
+    """Melt the picture's outer rim into the paper: no hard edge on any side, and a long gentle
+    fade at the bottom where the story text starts. The pictures are painted with their important
+    objects away from the edges, so only the rim is softened."""
+    from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
     w, h = rgb.size
-    fh = max(2, round(h * share))
-    edge = rgb.crop((0, max(0, h - max(4, h // 25)), w, h)).resize((w, 1), Image.Resampling.BOX)
-    edge = edge.filter(ImageFilter.GaussianBlur(max(2, w // 14)))
-    wash = edge.resize((w, fh), Image.Resampling.NEAREST)
-    paper = Image.new("RGB", (w, fh), STORY_PAPER)
-    mask = Image.linear_gradient("L").resize((w, fh))  # 0 (top) -> 255 (bottom)
-    mask = mask.point(lambda v: round(255 * (3 * (v / 255) ** 2 - 2 * (v / 255) ** 3) ** 0.8))
-    wash = Image.composite(paper, wash, mask)
-    out = Image.new("RGB", (w, h + fh), STORY_PAPER)
-    out.paste(rgb, (0, 0))
-    out.paste(wash, (0, h))
-    return out
+    r = max(2.0, w * STORY_FADE / 2.2)
+    inset = round(r * 1.9)
+    side = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(side).rectangle((inset, inset, w - inset - 1, h - inset - 1), fill=255)
+    side = side.filter(ImageFilter.GaussianBlur(r))
+    side = side.point(lambda v: round(255 * min(1.0, (v / 255) * 1.15)))
+    fh = max(2, round(h * STORY_FADE_BOTTOM))
+    ramp = Image.new("L", (w, h), 255)
+    col = Image.new("L", (1, fh))
+    col.putdata(
+        [round(255 * (1 - (3 * t * t - 2 * t**3))) for t in (i / (fh - 1) for i in range(fh))]
+    )
+    ramp.paste(col.resize((w, fh)), (0, h - fh))
+    mask = ImageChops.multiply(side, ramp)
+    return Image.composite(rgb, Image.new("RGB", (w, h), STORY_PAPER), mask)
 
 
 def story_jpeg(src: Path, box_w_in: float, box_h_in: float) -> tuple[bytes, float, float]:
-    """The picture, complete and untouched, sized to fit the picture area of a story page, with a
-    soft wash below it that melts into the paper (the story text starts under that wash).
+    """The picture, complete and untouched, sized to fit the picture area of a story page, with soft
+    edges that melt into the paper (the story text starts under it).
 
-    Returns (jpeg, width, height) with the size as shares of the frame opening; the height already
-    includes the wash and never exceeds STORY_PIC_MAX."""
+    Returns (jpeg, width, height) with the size as shares of the frame opening; the height never
+    exceeds STORY_PIC_MAX."""
     from PIL import Image
 
     with Image.open(src) as im:
         rgb = im.convert("RGB")
     if rgb.height > rgb.width:  # first-draft portrait page: keep its painted top part only
         rgb = rgb.crop((0, 0, rgb.width, round(rgb.height * STORY_LEGACY_CROP)))
-    max_h = box_h_in * STORY_PIC_MAX / (1 + STORY_FEATHER)
-    w_in = min(box_w_in, max_h * rgb.width / rgb.height)
+    ratio = rgb.width / rgb.height
+    max_h = box_h_in * STORY_PIC_MAX
+    w_in = min(box_w_in, max_h * ratio)
     px = round(w_in * 220)
     if rgb.width > px:
         rgb = rgb.resize((px, round(px * rgb.height / rgb.width)), Image.Resampling.LANCZOS)
-    rgb = _feather(rgb, STORY_FEATHER)
+    rgb = _soften(rgb)
     h_in = w_in * rgb.height / rgb.width
     buf = io.BytesIO()
     rgb.save(buf, "JPEG", quality=92, optimize=True, dpi=(220, 220))
