@@ -37,8 +37,8 @@ from forge.puzzles.cbn.pictures import PICTURE_H, PICTURE_PALETTE, PICTURE_W, PI
 SOLVER = "cbn-block-read-v1"
 SOLVER_RASTER = "cbn-raster-read-v1"
 SOLVER_PICTURE = "cbn-picture-match-v1"
-# owner 2026-11-21: adult picture mosaics use ~4 mm cells so the picture is sharp
-PICTURE_MIN_MM = 3.8
+# owner 2026-11-21: adult picture mosaics use 3.4-4 mm cells so the picture is sharp
+PICTURE_MIN_MM = 3.4
 PICTURE_SHAPES = ("square", "circle")
 # Smallest cell (inscribed-circle diameter, mm) a reader is asked to colour, and smallest label.
 MIN_CELL_MM = {"kids_6_8": 8.0, "kids_9_12": 8.0}

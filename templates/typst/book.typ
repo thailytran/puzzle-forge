@@ -483,14 +483,17 @@
 #let tpl-of(p) = if T == none or p.at("style", default: none) == none { none } else if p.style.type == "story" {
   (image: p.style.bg, pic: (w: p.style.w, h: p.style.h))
 } else if p.style.type == "poster" {
-  (image: p.style.bg)
+  (image: p.style.bg, bleed: p.style.at("bleed", default: false))
 } else {
   T.at("templates", default: (:)).at(p.style.type, default: none)
 }
 // one shared frame over every designed page (the frame with a transparent centre); a designed
 // page is fitted into the opening of that frame, so the frame never hides its texts. A story
 // picture sits complete at the top of the opening: nothing is laid over it.
-#let designed-bg(tp) = {
+#let designed-bg(tp) = if tp.at("bleed", default: false) {
+  // a page designed edge to edge (title page): no shared frame over its lettering
+  place(top + left, image(tp.image, width: 100%, height: 100%, fit: "cover"))
+} else {
   let win = T.at("window", default: (x: 0.0, y: 0.0, w: 1.0, h: 1.0))
   place(top + left, image(T.background, width: 100%, height: 100%, fit: "stretch"))
   let pic = tp.at("pic", default: none)

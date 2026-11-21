@@ -220,7 +220,12 @@ def page_jpeg(src: Path, width_in: float, height_in: float) -> bytes:
 
 
 def place_poster(
-    pages: list[Any], art: dict[str, Path], key: str, title: str, page_in: tuple[float, float]
+    pages: list[Any],
+    art: dict[str, Path],
+    key: str,
+    title: str,
+    page_in: tuple[float, float],
+    bleed: bool = False,
 ) -> dict[str, bytes]:
     """`key` (e.g. `design:howto`) is a whole page designed with its text: it replaces the text
     page called `title`. The owner proof-reads such a page in the Studio before approving."""
@@ -229,7 +234,7 @@ def place_poster(
     if src is None or page is None:
         return {}
     name = f"theme/{key.split(':', 1)[-1]}.jpg"
-    page.style = {"type": "poster", "bg": name}
+    page.style = {"type": "poster", "bg": name, "bleed": bleed}
     page.blocks = []
     return {name: page_jpeg(src, *page_in)}
 

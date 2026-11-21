@@ -45,8 +45,8 @@ def test_a_wrong_cell_is_not_a_known_picture() -> None:
     assert read_picture(flat, PICTURE_H, PICTURE_W) == "?"
 
 
-def test_picture_cells_stay_at_or_above_four_mm_in_the_designed_panel() -> None:
+def test_picture_cells_stay_at_or_above_the_floor_in_the_designed_panel() -> None:
     cb = ColorByNumber()
     pz = cb.generate(_spec("scarf"), seed=1)
-    blk = cb.render(pz, RenderCtx(width_in=5.07, height_in=4.53)).blocks[1]
+    blk = cb.render(pz, RenderCtx(width_in=5.07, height_in=4.13)).blocks[1]
     assert blk["cell_mm"] >= PICTURE_MIN_MM

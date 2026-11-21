@@ -839,7 +839,7 @@ def layout_pages(
                 width_in=max(2.5, pw - (0.56 if kind == "cbn" else 0.3)),
                 # mosaic: subtitle, instruction and colour key above it; the frame hangs lanterns
                 # over the lower corners of the panel, so the last inch stays empty
-                height_in=max(2.5, ph - (2.3 if kind == "cbn" else 1.6)),
+                height_in=max(2.5, ph - (2.7 if kind == "cbn" else 1.6)),
             )
         return side_ctx
 
@@ -1079,7 +1079,7 @@ def build_case_book(
         if theme is not None:
             files.update(place_poster(pages, studio, "design:howto", HOWTO_TITLE, size))
             # page 1: designed by the art model with the lettering painted into the picture
-            files.update(place_poster(pages, studio, "design:title", frame.title, size))
+            files.update(place_poster(pages, studio, "design:title", frame.title, size, bleed=True))
         art_report["theme"] = theme is not None
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
