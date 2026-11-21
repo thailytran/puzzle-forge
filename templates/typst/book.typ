@@ -318,6 +318,7 @@
   } else if k == "writelog" {
     // Code Log: generous ruled lines to write on (owner 2026-11-21: lines were too close together)
     let rule = box(width: 100%, height: 0.27in, stroke: (bottom: 0.7pt + luma(130)))
+    v(0.45in)
     pad(x: 0.35in, for it in b.items {
       block(breakable: false, below: 0.2in, grid(columns: (auto, auto, 1fr, auto, 1fr, auto, 1fr), column-gutter: 7pt, row-gutter: 0.08in, align: bottom,
         text(weight: "bold", it.label), [evidence], rule, [it is], rule, [and], rule,
@@ -504,7 +505,12 @@
     block(width: tp.w_in * inch, height: tp.h_in * inch, inset: 0.12in, {
       align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(p.style.subtitle)))
       v(0.2em)
-      align(center + horizon, { for b in p.blocks { render-block(b) } })
+      if p.style.type == "cbn" {
+        // colour-by-number mosaic: keep every cell clear of the ornaments in the lower corners
+        align(center + top, scale(x: 93%, y: 93%, origin: top + center, reflow: true, { for b in p.blocks { render-block(b) } }))
+      } else {
+        align(center + horizon, { for b in p.blocks { render-block(b) } })
+      }
     }))
 }
 
@@ -540,12 +546,12 @@
           stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 1.2pt), radius: 10pt, inset: 12pt,
           { for b in p.blocks { render-block(b) } })
       } else if T != none {
-        fit({
+        block(width: 100%, height: 100% - 0.55in, fit({
           if p.at("title", default: none) != none {
             render-block((kind: "heading", text: p.title, level: 1))
           }
           for b in p.blocks { render-block(b) }
-        })
+        }))
       } else {
         for b in p.blocks { render-block(b) }
       }
