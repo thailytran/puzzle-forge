@@ -365,6 +365,45 @@
   }
 })
 
+// ---------------------------------------------------------------- designed puzzle page (themed books)
+#let styled-puzzle(p) = {
+  let S = p.style
+  let c = rgb(S.color)
+  let soft = c.lighten(86%)
+  // sign title (plaque from the design kit) + chapter line
+  render-block((kind: "heading", text: S.title, level: 1))
+  v(-0.45em)
+  align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(S.subtitle)))
+  v(0.35em)
+  // the puzzle itself on a white card with the type colour
+  block(width: 100%, breakable: false, fill: white, stroke: (paint: c, thickness: 2pt), radius: 10pt, inset: 10pt,
+    { for b in p.blocks { render-block(b) } })
+  v(0.4em)
+  // how to play + tips
+  grid(columns: (1.35fr, 1fr), column-gutter: 0.12in,
+    block(width: 100%, fill: soft, stroke: (paint: c, thickness: 1.2pt), radius: 8pt, inset: 8pt, {
+      text(font: L.fonts.sans, weight: "bold", size: 0.9 * base, fill: c, "HOW TO PLAY")
+      v(0.25em)
+      for (i, s) in S.steps.enumerate() {
+        grid(columns: (0.22in, 1fr), column-gutter: 0.06in,
+          box(width: 0.2in, height: 0.2in, radius: 50%, fill: c,
+            align(center + horizon, text(font: L.fonts.sans, weight: "bold", size: 0.75 * base, fill: white, str(i + 1)))),
+          text(size: 0.8 * base, s))
+        v(0.15em)
+      }
+    }),
+    block(width: 100%, fill: rgb("#fff6d8"), stroke: (paint: rgb("#e0a526"), thickness: 1.2pt), radius: 8pt, inset: 8pt, {
+      text(font: L.fonts.sans, weight: "bold", size: 0.9 * base, fill: rgb("#b7791f"), "TIPS")
+      v(0.25em)
+      for s in S.tips { text(size: 0.8 * base, [• #s]); v(0.1em) }
+    }),
+  )
+  v(0.35em)
+  // slogan ribbon
+  align(center, box(fill: c, radius: 14pt, inset: (x: 16pt, y: 6pt),
+    text(font: T.at("heading_font", default: L.fonts.sans), size: 1.05 * base, fill: white, S.slogan)))
+}
+
 // ---------------------------------------------------------------- pages
 #let title-page(p) = {
   v(1fr)
@@ -401,10 +440,13 @@
     } else if p.kind == "blank" {
       []
     } else {
-      if p.at("title", default: none) != none {
+      let styled = T != none and p.at("style", default: none) != none
+      if p.at("title", default: none) != none and not styled {
         render-block((kind: "heading", text: p.title, level: 1))
       }
-      if T != none and p.blocks.len() > 0 {
+      if styled {
+        styled-puzzle(p)
+      } else if T != none and p.blocks.len() > 0 {
         // themed book: the page content sits on a cream card with a gold rule (reads well on the parchment frame)
         block(width: 100%, breakable: true, fill: rgb(T.at("panel_fill", default: "#fffdf6")),
           stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 1.2pt), radius: 10pt, inset: 12pt,

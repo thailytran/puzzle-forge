@@ -153,4 +153,4 @@ The Vanished Star stays a CBN Mystery, the first Adventure book is a new theme.
 - [ ] P9.2 Search page layout: full-page line art + object column with icons + "found" boxes; answer key page (Gemini-marked circles, owner-confirmed)
 - [ ] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
 - [ ] P9.4 HALOSPARK Studio: Adventure module tab (ChatGPT story + object lists, Gemini line art with objects, Gemini self-check, owner tick review), covers, listing images, SEO, deliverables
-- [ ] P9.5 First Adventure book (theme chosen by owner) — milestone review
+- [ ] P9.5 First Adventure book: "The Snow Queen's Library" (owner 2026-11-20: adult, 8 chapters) — milestone review

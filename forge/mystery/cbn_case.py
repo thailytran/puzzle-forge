@@ -601,6 +601,71 @@ def _evidence_rows(ch: Chapter) -> list[str]:
     return [f"{_row_label(k)}  →  {m}" for k, m, _r, _t in card_rows(ch)]
 
 
+# designed puzzle pages (themed books): big sign title, how-to-play steps, tips and a slogan ribbon
+PAGE_STYLES: dict[str, dict[str, Any]] = {
+    "cbn": {
+        "title": "HIDDEN PICTURE",
+        "color": "#d9772b",
+        "steps": [
+            "Find each number's colour in the key.",
+            "Colour every square with its number's colour.",
+            "Step back: a hidden picture appears!",
+        ],
+        "tips": ["Colour one number at a time.", "Light colours first, dark ones last."],
+        "slogan": "COLOUR IT IN. THE CLUE APPEARS!",
+    },
+    "shift": {
+        "title": "CODE BREAKER",
+        "color": "#7b3fb5",
+        "steps": [
+            "Every letter moved the same number of places.",
+            "Find the shift with the shortest words.",
+            "Decode the message: one word describes the evidence.",
+        ],
+        "tips": ["Write the alphabet twice, shifted.", "A one-letter word is A or I."],
+        "slogan": "CRACK THE CODE!",
+    },
+    "maze": {
+        "title": "MAZE ESCAPE",
+        "color": "#2e8b57",
+        "steps": [
+            "Start at START.",
+            "Find the only path to FINISH.",
+            "Collect the letters on your path, in order.",
+        ],
+        "tips": ["Try working back from FINISH.", "Use a pencil for dead ends."],
+        "slogan": "THINK. PLAN. ESCAPE!",
+    },
+    "numlock": {
+        "title": "NUMBER LOCK",
+        "color": "#c0392b",
+        "steps": [
+            "Each dial holds one digit.",
+            "Every clue is a sum you can check.",
+            "Read the dials in order to open the lock.",
+        ],
+        "tips": ["Start with the clue that fixes one dial.", "Cross out digits that cannot fit."],
+        "slogan": "UNLOCK THE CLUE!",
+    },
+    "sudoku": {
+        "title": "SUDOKU VAULT",
+        "color": "#2563a8",
+        "steps": [
+            "Every row, column and box holds each number once.",
+            "Fill the grid with logic, never guess.",
+            "The shaded cells read the code.",
+        ],
+        "tips": ["Look for rows with one gap.", "Pencil small candidates in corners."],
+        "slogan": "LOGIC OPENS EVERY VAULT!",
+    },
+}
+
+
+def page_style(kind: str, subtitle: str) -> dict[str, Any] | None:
+    st = PAGE_STYLES.get(kind)
+    return None if st is None else {"type": kind, "subtitle": subtitle, **st}
+
+
 def layout_pages(
     frame: CaseFrame, puzzles: list[ChapterPuzzles], ctx: RenderCtx
 ) -> tuple[list[Page], dict[str, bytes], list[dict[str, Any]]]:
@@ -731,7 +796,14 @@ def layout_pages(
         )
         front = cb.render(cp.cbn, ctx)
         files.update(front.files)
-        add(Page(kind="puzzle", title=f"Chapter {ch.no}: The Hidden Evidence", blocks=front.blocks))
+        add(
+            Page(
+                kind="puzzle",
+                title=f"Chapter {ch.no}: The Hidden Evidence",
+                blocks=front.blocks,
+                style=page_style("cbn", f"Chapter {ch.no} · The Hidden Evidence"),
+            )
+        )
         for k, (sp, pz) in enumerate(zip(ch.side, cp.side, strict=True), 1):
             r = _side_type(sp.type).render(pz, ctx)
             files.update(r.files)
@@ -742,6 +814,7 @@ def layout_pages(
                     kind="puzzle",
                     title=f"Chapter {ch.no}: Keyword {k}",
                     blocks=[*intro, *r.blocks, tail],
+                    style=page_style(sp.type, f"Chapter {ch.no} · Keyword {k}"),
                 )
             )
         add(
@@ -914,7 +987,12 @@ def build_case_book(
     sign = (theme or {}).get("plaque_h_in", 0.0)  # the title sign is taller than a plain heading
     ctx = RenderCtx(
         width_in=t.width_in - margins["inside"] - margins["outside"],
-        height_in=t.height_in - margins["top"] - margins["bottom"] - 0.9 - max(0.0, sign - 0.35),
+        height_in=t.height_in
+        - margins["top"]
+        - margins["bottom"]
+        - 0.9
+        - max(0.0, sign - 0.35)
+        - (1.55 if theme else 0.0),  # designed pages: how-to-play + tips row and slogan ribbon
     )
     pages, files, art = layout_pages(frame, puzzles, ctx)
     files.update(theme_files)

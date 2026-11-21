@@ -35,6 +35,9 @@ class Page(BaseModel):
     blocks: list[dict[str, Any]] = Field(default_factory=list)
     header: bool = True
     number: bool = True
+    style: dict[str, Any] | None = (
+        None  # designed puzzle page (sign title, how-to-play, tips, slogan)
+    )
 
 
 class LayoutDoc(BaseModel):
