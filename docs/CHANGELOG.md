@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 `apps/casevault/pyproject.toml`). New lines go under **Unreleased**; a release moves them under its version.
 
 ## [Unreleased]
+- P8.3t: story picture 60-65 % of the opening (5:4 pictures, STORY_PIC_MAX 0.62), text block starts lower-ending at 0.835 H, STORY_WORDS 130.
 - P8.3s: story picture top edge stays sharp (the frame hides it; the chapter banner sits there); sides + bottom feathered.
 - P8.3r: story picture edges feathered on all four sides (rim melts into the paper, long fade at the bottom) — owner: border still too sharp.
 - P8.3q: wash tuned (paper colour matched, smoothstep fade, text starts 2% lower).

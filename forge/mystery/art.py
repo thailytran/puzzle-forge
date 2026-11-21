@@ -80,9 +80,9 @@ def print_jpeg(src: Path, width_in: float) -> tuple[bytes, float]:
 # the story on plain paper under it. Nothing is ever laid over the picture (a picture may hold a
 # clue) and no text is printed on it. A story longer than STORY_WORDS is split over two pictures
 # (`story:<key>` and `story:<key>_2`).
-STORY_PIC_MAX = 0.54  # tallest picture, as a share of the frame opening
+STORY_PIC_MAX = 0.62  # tallest picture, as a share of the frame opening (owner: 60-65 %)
 STORY_LEGACY_CROP = 0.58  # portrait pictures of the first draft: painted part = their top 58%
-STORY_WORDS = 150  # words that fit the plain part at a comfortable size
+STORY_WORDS = 130  # words that fit the plain part under a 62 % picture
 
 
 def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:

@@ -467,7 +467,7 @@
   let bx = (win.x + 0.06 * win.w) * L.width_in * inch
   let by = (win.y + (p.style.h + 0.02) * win.h) * L.height_in * inch
   let bw = 0.88 * win.w * L.width_in * inch
-  let bh = calc.min(0.815 * L.height_in * inch - by, 0.40 * win.h * L.height_in * inch)
+  let bh = calc.min(0.835 * L.height_in * inch - by, 0.40 * win.h * L.height_in * inch)
   let body(k) = {
     set text(size: k * base, fill: rgb("#24160c"))
     set par(leading: 0.5em, justify: true)
