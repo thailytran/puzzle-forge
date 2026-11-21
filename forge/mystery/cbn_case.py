@@ -805,7 +805,11 @@ def layout_pages(
         """Gemini-designed pages: the puzzle fills the empty panel of its type's template."""
         if panel_in and kind in panel_in:
             pw, ph = panel_in[kind]
-            return RenderCtx(width_in=max(2.5, pw - 0.3), height_in=max(2.5, ph - 0.9))
+            # the panel also holds the page subtitle and, on keyword pages, the instructions
+            return RenderCtx(
+                width_in=max(2.5, pw - 0.3),
+                height_in=max(2.5, ph - (0.9 if kind == "cbn" else 1.6)),
+            )
         return side_ctx
 
     for ch, cp in zip(frame.chapters, puzzles, strict=True):
