@@ -76,8 +76,22 @@ def print_jpeg(src: Path, width_in: float) -> tuple[bytes, float]:
     return buf.getvalue(), width_in * rgb.height / rgb.width
 
 
-STORY_FADE = (0.40, 0.47, 0.86)  # veil starts / is full at (page share), its strength
+# Owner 2026-11-21: the picture owns the top ~58% of a story page; the text is printed ONLY on
+# the plain paper of the lower ~40%, never across the picture. A story longer than STORY_WORDS
+# is split over two pictures (`story:<key>` and `story:<key>_2`).
+STORY_FADE = (0.545, 0.6, 1.0)  # paper starts / is plain at (page share), its strength
 STORY_PAPER = (251, 244, 229)
+STORY_WORDS = 150  # words that fit the plain part at a comfortable size
+
+
+def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """(first half, second half) cut between paragraphs near the middle; ([all], []) if short."""
+    words = [len(str(b.get("text", "")).split()) for b in blocks]
+    total = sum(words)
+    if total <= STORY_WORDS or len(blocks) < 2:
+        return blocks, []
+    cut = min(range(1, len(blocks)), key=lambda i: abs(sum(words[:i]) - total / 2))
+    return blocks[:cut], blocks[cut:]
 
 
 def story_jpeg(src: Path, width_in: float, height_in: float) -> bytes:
@@ -131,6 +145,16 @@ def place_art(
             files[name] = story_jpeg(story, *page_in)
             pages[n - 1].style = {"type": "story", "bg": name}
             placed.append(f"story:{key}")
+            second = art.get(f"story:{key}_2")
+            head, tail = split_story(pages[n - 1].blocks)
+            if second is not None and tail:  # long story: two pictures, half the text under each
+                name2 = f"art/story_{key}_2.jpg"
+                files[name2] = story_jpeg(second, *page_in)
+                pages[n - 1].blocks = head
+                more = make_page(kind="text", title=pages[n - 1].title, blocks=tail)
+                more.style = {"type": "story", "bg": name2}
+                inserts.append((n, more))
+                placed.append(f"story:{key}_2")
             continue
         if src is None or not 1 <= n <= len(pages):
             missing.append(key)

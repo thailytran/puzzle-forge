@@ -145,3 +145,15 @@ def test_find_panel_and_templates(tmp_path: Path) -> None:
     files, tpls = build_templates({"design:tpl_maze": tmp_path / "tpl.png"}, 8.5, 11)
     assert "theme/tpl_maze.jpg" in files and 5.5 < tpls["maze"]["w_in"] < 6.7
     assert find_panel(_png(tmp_path / "plain.png", 300, 400)) is None
+
+
+def test_long_story_is_split_between_paragraphs() -> None:
+    from forge.mystery.art import STORY_WORDS, split_story
+
+    short = [{"kind": "paragraph", "text": "word " * 40}]
+    assert split_story(short) == (short, [])
+    long = [{"kind": "paragraph", "text": "word " * 60} for _ in range(5)]
+    head, tail = split_story(long)
+    assert head + tail == long and head and tail
+    assert abs(len(head) - len(tail)) <= 1
+    assert sum(len(b["text"].split()) for b in long) > STORY_WORDS
