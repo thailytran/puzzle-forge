@@ -161,7 +161,8 @@ only, no copied names, text or layouts):
   final challenge) over three page tiles DISCOVER (story page) / EXPLORE (line-art search page) / COLOR (the same page
   coloured in); a bottom band naming the three activities.
 
-- [ ] P9.0 Script v1 for the first book written: `docs/adventures/snow_queens_library_script.md` (owner to review)
+- [x] P9.0 Script v1 for the first book written: `docs/adventures/snow_queens_library_script.md` (owner to review)
+- [x] P9.0b Case frame skeleton `configs/adventures/snow_queens_library.json` + `docs/adventures/INSPIRATION_BANK.md` + `AI_BRIEFS_snow_queens_library.md` (ChatGPT/Gemini briefs)
 - [ ] P9.1 Adventure case frame: chapters, hidden-object lists (code picks objects + icons), key pieces, final challenge; logic lock reuses the mystery checks (every key needed, one answer)
 - [ ] P9.2 Search page layout: full-page line art + object column with icons + "found" boxes; answer key page (Gemini-marked circles, owner-confirmed)
 - [ ] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
