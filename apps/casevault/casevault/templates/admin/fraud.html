@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block body %}
+{% include "admin/_nav.html" %}
+<div class="card"><h2>Fraud log</h2>
+<table><tr><th>When</th><th>Kind</th><th>E-mail</th><th>IP</th><th>Detail</th></tr>
+{% for f in items %}<tr><td>{{ f.at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ f.kind }}</td><td>{{ f.email }}</td><td>{{ f.ip }}</td><td>{{ f.detail }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

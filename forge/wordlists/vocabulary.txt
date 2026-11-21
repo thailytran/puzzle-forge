@@ -1,0 +1,12 @@
+# Project vocabulary accepted by the proofreader (QA L3.proofread) in addition to the dictionaries.
+Sudoku
+Sudokus
+Kakuro
+Nonogram
+Nonograms
+Futoshiki
+Hashi
+Cryptogram
+Cryptograms
+PDF
+website

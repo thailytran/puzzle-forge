@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ site }}{% endblock %}</title>
+<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+{% if turnstile_site_key %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}
+<style>
+:root { --ink:#1b2430; --muted:#5b6675; --accent:#1F4E79; --bg:#f6f4ef; --card:#fff; --err:#a3262a; --ok:#21633a; }
+* { box-sizing: border-box; }
+body { margin:0; font:16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color:var(--ink); background:var(--bg); }
+header { background:var(--accent); color:#fff; padding:14px 16px; }
+header a { color:#fff; text-decoration:none; font-weight:700; letter-spacing:.04em; }
+main { max-width:720px; margin:0 auto; padding:24px 16px 64px; }
+.card { background:var(--card); border-radius:10px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:16px; }
+label { display:block; font-weight:600; margin:14px 0 4px; }
+input[type=text], input[type=email], input[type=password], select { width:100%; padding:10px; border:1px solid #c9ced6; border-radius:6px; font-size:16px; }
+.check { display:flex; gap:10px; align-items:flex-start; font-weight:400; }
+.check input { margin-top:5px; }
+.hint { color:var(--muted); font-size:14px; }
+.error { color:var(--err); font-size:14px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:12px 20px; font-size:16px; cursor:pointer; margin-top:18px; }
+.ok { color:var(--ok); }
+.code { font:700 22px/1.2 ui-monospace, monospace; letter-spacing:.08em; background:#eef3f8; padding:8px 12px; border-radius:6px; display:inline-block; }
+table { border-collapse:collapse; width:100%; font-size:14px; }
+th, td { text-align:left; padding:6px 8px; border-bottom:1px solid #e3e6ea; vertical-align:top; }
+.progress { height:10px; background:#e3e6ea; border-radius:5px; overflow:hidden; }
+.progress > div { height:100%; background:var(--accent); }
+nav.admin a { margin-right:12px; }
+</style>
+</head>
+<body hx-boost="true">
+<header><a href="/">{{ site }}</a></header>
+<main>{% block body %}{% endblock %}</main>
+</body>
+</html>

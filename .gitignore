@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
+dist/
+build/
+
+# Secrets
+.env
+
+# Generated
+output/
+data/*
+!data/seeds/
+!data/fixtures/
+!data/.gitkeep
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Case Vault runtime data (db, Etsy tokens, backups)
+apps/casevault/data/
+apps/casevault/backups/

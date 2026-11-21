@@ -1,0 +1,160 @@
+# INTEGRATION — Puzzle Forge ⇄ HALOSPARK SUITE
+
+Goal: Puzzle Forge runs standalone today and becomes a **module of HALOSPARK SUITE** later
+(shared database, shared Research input and Listing output) **through adapters only**.
+The core never imports Halospark code. Facts below were read from `thailytran/halospark-suite`
+3.1.0 (`tools/product-hub`) on 2026-11-07.
+
+## 1. Ports & adapters
+
+| Port (`forge/ports`) | Purpose | Standalone adapter (now) | Suite adapter (P7) |
+|---|---|---|---|
+| `PuzzleRegistryPort` | catalog-wide puzzle dedupe | `forge.core.registry.Registry` (SQLite `data/forge.db`) | table `forge_puzzles` in the Suite Postgres |
+| `BookStatePort` | book state machine + history | `forge.qa.state.StateStore` (SQLite) | `forge_book_states` in Postgres, mirrored to Hub `product_events` |
+| `SkuPort` | SKU from the shared counter | `HubSkuProvider` (HTTP to Product Hub) — **primary**; `DevSkuProvider` (tests only, `DEV-` prefix) | same `HubSkuProvider`, or an in-process call when running inside the Suite |
+| `ResearchInputPort` | book ideas / niches in | CSV/YAML briefs (P2.5) | Hub `GET api/products?status=approved&line=PZL` (ideas created by Etsy Research → Hub) |
+| `ListingOutputPort` | approved book out | files in `output/<book_id>/` | Hub `POST api/products/{sku}/assets` + `POST api/products/{sku}/produced {title, book_json, listing_copy}` → Module 3 (SEO Listing) |
+| `NotificationPort` | job done / QA failed / budget alerts | Telegram bot (`forge/notify.py`) or console | Portal Telegram (`portal/app/telegram.py`) |
+| `AIGateway` (`forge/ai/gateway.py`) | every AI call (JSON, vision, image prompts) | `RoutedGateway` + Anthropic / OpenAI / Gemini adapters, `configs/ai_routing.yaml`, SQLite ledger + budgets | `HalosparkAIGatewayAdapter` → the Suite's shared AI gateway (§8) |
+| Case Vault admin API | approved books → rewards site | `forge/vault` outbox → `POST /api/admin/books` | unchanged; customer tables move into the Suite DB (§7) |
+
+Rules: core packages (`core`, `puzzles`, `book`, `qa`, `mystery`, `layout`) take ports as arguments;
+only `forge/cli.py` / `forge/api` wire concrete adapters (from `.env`). Tests use fakes.
+
+## 2. SKU contract (existing Hub API — no Hub change needed to start)
+
+```
+POST {HUB_URL}/api/products            HUB_URL = https://<portal>/hooks/product-hub
+Header: X-Hub-Token: <token>           (Product Hub: connection 'product-hub', env HUB_TOKEN, or data/hub_token.txt)
+Body:   {"topic": "<title>", "title": "<title>", "audience": "KID4", "line": "PZL", "format": "PBK",
+         "brand": "HSP", "source": "puzzle-forge", "keyword_main": "", "keywords": [],
+         "note": "puzzle-forge book_id=<id>", "series_id"?: n, "volume_no"?: n}
+200 →   product row: {"sku": "HSP-KID4-PZL-PBK-0007-SGL", "status": "idea", ...}
+401 →   bad / missing token
+```
+
+- Format: `BRAND-AUD-LINE-FMT-NNNN-SGL` or `...-NNNN-SERnnn-vv`; the counter is per prefix
+  `BRAND-AUD-LINE-FMT` in Postgres (`sku_counters`, `next_sku()`), safe under concurrency.
+- The Hub stores `audience` as given (it only maps `kids/adult/toddler/teen` words to codes), so new
+  codes work as soon as they exist in settings (for the UI and classification).
+- Puzzle Forge keeps the SKU in `output/<book_id>/sku.json`, so assigning is idempotent on our side.
+
+### 2.1 Endpoint additions proposed for the Hub
+1. **Idempotency**: accept `external_id` in `POST api/products` (unique per `source`); if a product
+   with the same `(source, external_id)` exists, return it instead of issuing a new SKU. Puzzle Forge
+   already sends `external_id = book_id`. Without it, a network retry could burn a number.
+2. `GET api/products?source=puzzle-forge&external_id=<book_id>` (lookup for recovery).
+3. Optional: `POST api/products/{sku}/events` so Puzzle Forge can mirror its QA states
+   (`QA_PASSED`, `APPROVED`, …) into `product_events`.
+
+## 3. Age-group codes — migration proposal (no existing SKU changes)
+
+New codes are named by the **starting age**; old SKUs keep their codes forever.
+
+| New code | Meaning | forge audience | Old Hub code (kept as alias) |
+|---|---|---|---|
+| `KID1` | 1–3 (reserved) | — | `TOD` |
+| `KID4` | 4–8 | `kids_6_8` | `KID` |
+| `KID9` | 9–12 | `kids_9_12` | — |
+| `TEEN` | 13–17 | `teen` | `TEE` |
+| `ADULT` | adults | `adult` | `ADU` |
+| `SENIOR` (or `LP`, owner to choose) | large print / seniors | `senior_large_print` | — |
+
+```sql
+-- Product Hub (Postgres) — additive only
+INSERT INTO settings_audiences(code, name, keywords, ord) VALUES
+ ('KID1','Trẻ 1–3 tuổi','toddler|baby',10), ('KID4','Trẻ 4–8 tuổi','kid|kids|children|preschool',11),
+ ('KID9','Trẻ 9–12 tuổi','tween|ages 9-12|middle grade',12), ('TEEN','Thiếu niên','teen|teens',13),
+ ('ADULT','Người lớn','adult|adults',14), ('SENIOR','Người cao tuổi / chữ lớn','large print|senior',15)
+ON CONFLICT (code) DO NOTHING;
+-- Optional alias table so reports group old+new codes together:
+CREATE TABLE IF NOT EXISTS settings_audience_aliases (alias TEXT PRIMARY KEY, code TEXT NOT NULL);
+INSERT INTO settings_audience_aliases VALUES ('KID','KID4'),('TOD','KID1'),('TEE','TEEN'),('ADU','ADULT')
+ON CONFLICT DO NOTHING;
+```
+
+Note: new codes start new counters (`HSP-ADULT-PZL-PBK-0001`), separate from old `HSP-ADU-…`
+prefixes; old SKUs are never re-numbered. Classification code in the Hub (`_prepare_idea`) should map
+`kids` → `KID4` once the migration is live.
+
+## 4. Shared data schema (Suite DB, P7)
+
+| Table | Key columns | Notes |
+|---|---|---|
+| `forge_books` | `book_id` PK, `sku` FK → `products.sku`, `kind` (classic/mystery), `spec_json`, `state` | 1 book ↔ 1 Hub product |
+| `forge_book_states` | `id`, `book_id`, `from_state`, `to_state`, `at`, `actor`, `note` | same as SQLite today |
+| `forge_puzzles` | `content_hash` PK, `puzzle_id`, `type`, `book_id`, `seed`, `level`, `data_json` | catalog dedupe across all books |
+| `forge_qa_reports` | `run_id` PK, `book_id`, `result`, `hashes_json`, `report_json` | hash-locked reports |
+| `forge_jobs` | `job_id`, `kind`, `payload`, `status` | P5 job queue |
+
+Files stay on disk / object storage under `products/<SKU>/…` (Hub layout) once a SKU exists:
+`interior.pdf`, `cover.pdf`, `book_card.json`, `marketing_brief.json`, `qa/qa_report.html`.
+
+## 5. Integration steps (ROADMAP P7)
+
+1. P7.1 Ports wired everywhere (core takes ports; CLI builds adapters from `.env`) — no behaviour change.
+2. P7.2 Hub migration (§3) + idempotent `external_id` (§2.1) merged in halospark-suite.
+3. P7.3 Postgres adapters for `PuzzleRegistryPort` / `BookStatePort` (+ one-off SQLite → Postgres import).
+4. P7.4 `ResearchInputPort` adapter: approved `PZL` ideas from the Hub become book briefs.
+5. P7.5 `ListingOutputPort` adapter: assets + `produced` call; Module 3 lists the book.
+6. P7.6 Run as a Suite tool (`tools/puzzle-forge/tool.json`, portal auth, `/hooks/puzzle-forge/api/...`),
+   NotificationPort → Portal Telegram.
+
+## 6. Shared colour-by-number engine
+
+`forge/puzzles/cbn` is written as an independent engine (regions + palette + glyph embedding + solver,
+no book/layout imports) so HALOSPARK's Colour-by-Number line can reuse it later through an adapter:
+input = region map (code-generated mosaic now, vectorised line art from the image tool in PB.6) +
+palette; output = numbered regions, legend, solution render, verification report.
+
+## 7. Case Vault customer data (merge into the Suite DB later)
+
+The Case Vault site (`apps/casevault`, docs/CASEVAULT.md) keeps its own Postgres now; tables are
+designed to move into the shared Suite DB with a `cv_` prefix and no renames:
+
+| Table | Key | Joins to the Suite |
+|---|---|---|
+| `cv_customers` | `email` (lower-case) | future `customers.email` of the Portal (one person across modules) |
+| `cv_consents` | `id`; `email`, `at`, `ip`, `wording`, `form_version`, `country`, `newsletter` | consent ledger reused by the Suite's marketing tools |
+| `cv_books` | `book_id` | `sku` → Hub `products.sku`; `book_id` → `forge_books.book_id` |
+| `cv_solves` / `cv_rewards` | `id` | per-customer history; Hub `product_events` can mirror `CASE_SOLVED` |
+| `cv_proofs` | `(kind, value_hash)` | Etsy receipt / Shopify order ids for the Suite's order sync |
+| `cv_coupon_pool`, `cv_fraud_log`, `cv_outbox` | `id` | Suite-wide coupon stock / audit / job queue |
+
+Rules: e-mail is the customer key everywhere; consent rows are append-only; answer hashes and Book
+Codes stay hashed. A one-off import (P7.3 style) copies the tables; the site then switches its
+`DATABASE_URL` to the Suite Postgres schema.
+
+## 8. Shared AI gateway (Suite) — contract for `HalosparkAIGatewayAdapter`
+
+Today Puzzle Forge owns its keys, routing, budgets and cost ledger (`forge/ai`, P10.3). When the Suite
+gets one AI gateway for every module, Forge keeps the **same port** and only switches the provider in
+`ai_routing.yaml` (`provider: halospark`); no core code changes.
+
+```
+POST {HALOSPARK_AI_URL}/v1/complete        Authorization: Bearer <HALOSPARK_AI_TOKEN>
+{ "app": "puzzle-forge", "task": "case_bible", "model": "<model or 'auto'>",
+  "system": "...", "prompt": "...", "images": [{"mime": "image/png", "b64": "..."}],
+  "json_schema": {...} | null, "max_tokens": 16000, "temperature": null, "effort": "high" }
+200 -> { "text": "...", "model": "...", "provider": "anthropic", "input_tokens": 1234,
+         "output_tokens": 567, "cost_usd": 0.0123 }
+4xx/5xx -> error (Forge falls back to the next provider of the task's route)
+GET  {HALOSPARK_AI_URL}/v1/models -> { "models": ["..."] }
+```
+
+Suite side owns: provider keys, per-app budgets, refusal fallbacks, a shared cache, cost reports per
+module. Forge keeps: JSON-schema validation + repair round, golden rule 1 (AI never decides answers),
+its per-book ledger (`cost_usd` from the Suite is recorded as-is).
+
+## 9. Plugging Puzzle Forge into the Suite (order of work)
+
+| Step | What changes | Forge side |
+|---|---|---|
+| 1 | Shared AI | `HALOSPARK_AI_URL` + token in forge.env, routing tasks → `provider: halospark` |
+| 2 | SKU | already `SkuPort` → `HubSkuProvider`; Hub adds idempotent `external_id` (§2.1) |
+| 3 | Shared DB | Postgres adapters for `PuzzleRegistryPort` / `BookStatePort` / jobs / AI ledger (tables `forge_*`, §4); `forge migrate` gains a Postgres path; one-off SQLite → Postgres import |
+| 4 | Research in / Listing out | `ResearchInputPort` (approved PZL ideas → book briefs = jobs), `ListingOutputPort` (assets + `produced`) |
+| 5 | Run as a Suite tool | the Forge web UI/API sits behind the Portal auth (`/hooks/puzzle-forge/…`); the VM install stays the runner (worker) or moves into the Suite host |
+| 6 | Case Vault customers | `cv_*` tables move into the Suite DB (§7); the site switches `DATABASE_URL` |
+
+Every step keeps the standalone adapters working (tests run without the Suite).

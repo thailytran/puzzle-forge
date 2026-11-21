@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block body %}
+<div class="grid">
+<div class="card"><h3>Hàng đợi</h3>{% for k in ["queued","running","done","failed"] %}<span class="pill st-{{ k }}">{{ k }}: {{ counts.get(k, 0) }}</span> {% endfor %}</div>
+<div class="card"><h3>Sách theo trạng thái</h3>{% for k, v in by_state.items() %}<span class="pill state-{{ k }}">{{ k }}: {{ v }}</span> {% else %}<span class="muted">Chưa có sách.</span>{% endfor %}</div>
+</div>
+<div class="card" hx-get="/" hx-select="#jobs" hx-target="#jobs" hx-trigger="every 10s" hx-swap="outerHTML">
+<h3>Công việc gần đây</h3>
+<table id="jobs"><tr><th>#</th><th>Loại</th><th>Tên</th><th>Trạng thái</th><th>Kết quả</th><th>Tạo lúc</th></tr>
+{% for j in jobs %}<tr><td>{{ j.id }}</td><td>{{ j.kind }}</td><td>{% if j.book_id %}<a href="/books/{{ j.book_id }}">{{ j.title }}</a>{% else %}{{ j.title }}{% endif %}</td>
+<td><span class="pill st-{{ j.status }}">{{ j.status }}</span></td><td>{{ j.result[:120] }}</td><td>{{ j.created_at[:16] }}</td></tr>
+{% else %}<tr><td colspan="6">Chưa có công việc. <a href="/new">Tạo sách</a></td></tr>{% endfor %}</table></div>
+<div class="card"><h3>Sách</h3><table><tr><th>Sách</th><th>Trạng thái</th><th>Trang</th></tr>
+{% for b in books %}<tr><td><a href="/books/{{ b.book_id }}">{{ b.title }}</a><br><small>{{ b.book_id }}</small></td><td><span class="pill state-{{ b.state }}">{{ b.state }}</span></td><td>{{ b.pages }}</td></tr>{% endfor %}
+</table></div>{% endblock %}

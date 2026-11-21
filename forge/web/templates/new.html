@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block body %}
+{% if error %}<div class="card err">{{ error }}</div>{% endif %}
+<div class="grid">
+<form class="card" method="post" action="/new"><h3>Tạo 1 cuốn</h3>
+<label>Dòng sách</label><select name="line">{% for k, v in lines.items() %}<option value="{{ k }}">{{ v[0] }}</option>{% endfor %}</select>
+<p class="muted"><small>Escape / mystery / CBN Mystery mở sau khi xong P3 / P8.</small></p>
+<label>Tên sách (tiếng Anh)</label><input name="title" required style="width:100%" value="{{ (form or {}).get('title','') }}">
+<label>Phụ đề</label><input name="subtitle" style="width:100%">
+<label>Độc giả</label><select name="audience">{% for a in audiences %}<option>{{ a }}</option>{% endfor %}</select>
+<label>Khổ</label><select name="trim">{% for t in trims %}<option>{{ t }}</option>{% endfor %}</select>
+<label>Số trang câu đố</label><input name="content_pages" type="number" value="100" min="4" max="300">
+<label>Độ khó</label><select name="mode"><option value="progressive">Tăng dần</option><option value="mixed">Trộn theo chương</option></select>
+<label>Chủ đề (phẩy, tuỳ chọn)</label><input name="themes" placeholder="animals, ocean, space" style="width:100%">
+<label>Seed (tuỳ chọn)</label><input name="seed" type="number">
+<p><button>Đưa vào hàng đợi</button></p></form>
+<div>
+<form class="card" method="post" action="/new/csv" enctype="multipart/form-data" hx-boost="false"><h3>Nhiều cuốn từ CSV</h3>
+<p><small>Cột: line,title,subtitle,audience,trim,content_pages,mode,themes,seed</small></p>
+<input type="file" name="file" accept=".csv" required><p><button>Tải lên</button></p></form>
+<form class="card" method="post" action="/new"><h3>Spec YAML (nâng cao)</h3>
+<textarea name="spec_yaml" rows="10" style="width:100%" placeholder="book: {title: ..., audience: adult, content_pages: 100, seed: 1}"></textarea>
+<p><button>Đưa vào hàng đợi</button></p></form></div></div>{% endblock %}

@@ -1,0 +1,17 @@
+# Brand used for watermark, footer microtext, corner logo and the copyright/licence page.
+# PLACEHOLDER values until the owner confirms (see the questions in the session report).
+placeholder: true
+brand_name: "HaloSpark"            # from the Product Hub default brand (HSP) — to confirm
+website: "halospark.example"        # placeholder domain — to confirm
+logo: assets/brand/logo.svg         # transparent SVG/PNG (placeholder drawn by Puzzle Forge)
+emblem: assets/brand/emblem.svg     # seal/badge used for the faint watermark (placeholder)
+primary_color: "#1F4E79"
+copyright_year: 2026
+license_line: "Personal use only. Do not share, copy or resell."
+classroom_copy_allowed: true        # printed escape-room editions: copies allowed for the buyer's family/classroom
+watermark:
+  opacity_color: 0.05               # emblem tint strength (no PDF transparency: colour is pre-mixed with white)
+  opacity_gray: 0.035
+  size_in: 2.6
+  position: bottom-outside          # decorative zone: lower outer corner of the text block
+microtext_pt: 6.8

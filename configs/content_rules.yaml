@@ -1,0 +1,60 @@
+# Content richness rules per puzzle type × level × audience (owner rules 2026-11-07).
+# Generators read their targets from here; QA (L3.richness_*) checks the minimums.
+# Levels: very_easy=Beginner, easy=Easy, medium=Intermediate/Medium, hard=Brain Teaser, expert=Expert.
+# Values marked "proposed" differ from the owner's brief and are pending approval.
+
+wordsearch:
+  # words: [min, max] per page ; grid: [rows_min..rows_max, cols] ; coverage = share of grid cells
+  # that belong to real words (the rest is filler letters)
+  kids:
+    very_easy: { words: [10, 12], grid: [10, 10], coverage: 0.45 }   # proposed 45 % (10x10 + 3-5 letter words cannot reach 50 %)
+    easy:      { words: [12, 16], grid: [12, 12], coverage: 0.50 }
+    medium:    { words: [20, 24], grid: [15, 15], coverage: 0.50 }   # proposed: kids 6-8 cells >= 0.45" -> max 15 columns
+  kids_9_12:
+    medium:    { words: [20, 30], grid: [15, 18], coverage: 0.50 }
+  adult:
+    very_easy: { words: [12, 16], grid: [12, 12], coverage: 0.45 }
+    easy:      { words: [16, 20], grid: [14, 14], coverage: 0.45 }
+    medium:    { words: [22, 28], grid: [15, 18], coverage: 0.40 }
+    hard:      { words: [28, 35], grid: [20, 22], coverage: 0.40 }   # 20 cols x 20-22 rows
+    expert:    { words: [35, 45], grid: [25, 28], coverage: 0.35 }   # proposed 25-28 (32x32 -> letters < 8 pt on 8.5x11)
+  large_print: { words: [15, 20], grid: [13, 15], coverage: 0.45 }
+
+cryptogram:
+  quotes_per_page: [5, 10]
+  min_cipher_letters:            # encrypted letters per page
+    kids: 120
+    adult: 250
+    adult_beginner: 180          # proposed: 10 short Beginner quotes ≈ 180 letters
+    large_print: 150
+
+scramble:
+  words_per_page: 20
+  word_length:
+    kids: [3, 6]                 # proposed 3-6 (owner 3-5: too few 3-5 letter words have a unique anagram)
+    adult: [6, 12]
+
+sudoku:
+  grids_per_page:
+    kids_4x4: [4, 6]
+    kids_6x6: [4, 4]
+    adult_9x9: 2
+    adult_9x9_easy: 4
+    large_print: 1
+
+maze:
+  per_page: 1
+  title: true
+  illustration: true             # slot filled from illustration_requests.json (P6)
+
+page:
+  min_fill: 0.65                 # body ink bounding box / printable area
+diversity:
+  max_word_repeats_per_book: 2
+  unique_subtheme_per_page: true
+relevance:
+  min_score: 0.7                 # AI relevance of word/quote/illustration to the page sub-theme (0-1)
+age_fit:
+  kids_max_word_len: 9           # kids words must be common (SCOWL <= 20) and short enough
+  kids_common_list: scowl20
+  expert_min_avg_len: 7.0        # Expert pages must not be all short/common words

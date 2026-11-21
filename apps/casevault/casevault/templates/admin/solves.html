@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+{% include "admin/_nav.html" %}
+<div class="card"><h2>Solves {{ status }}</h2>
+<table><tr><th>#</th><th>When</th><th>Book</th><th>E-mail</th><th>Place</th><th>Status</th><th>Reason</th><th></th></tr>
+{% for s in solves %}<tr><td>{{ s.id }}</td><td>{{ s.at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ s.book_id }}</td><td>{{ s.email }}</td><td>{{ s.purchase_place }}</td><td>{{ s.status }}</td><td>{{ s.reason }}</td>
+<td>{% if s.status == 'pending' %}<form method="post" action="/admin/solves/{{ s.id }}"><button name="action" value="approve">Approve</button> <button name="action" value="reject">Reject</button></form>{% endif %}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

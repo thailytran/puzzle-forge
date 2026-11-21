@@ -1,0 +1,20 @@
+book:
+  title: "Brain Workout Puzzle Collection"
+  subtitle: "Word Search, Sudoku, Mazes, Cryptograms and More for Adults"
+  author: "Pen Name"
+  audience: adult
+  trim: "8.5x11"
+  content_pages: 100
+  seed: 20261107
+puzzles:
+  mode: mixed
+  distribution: { easy: 30, medium: 40, hard: 30 }
+  types:
+    - { type: wordsearch, weight: 2 }
+    - { type: sudoku, weight: 2 }
+    - { type: maze, weight: 1 }
+    - { type: cryptogram, weight: 1 }
+    - { type: scramble, weight: 1 }
+    - { type: crossword, weight: 1 }
+  themes: auto
+solutions: { per_page: 6 }
