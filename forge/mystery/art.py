@@ -120,3 +120,90 @@ def place_art(
     for n, page in sorted(inserts, key=lambda x: -x[0]):
         pages.insert(n, page)
     return files, {"placed": placed, "missing": missing, "pages_added": len(inserts)}
+
+
+# ---------------------------------------------------------------- page theme (Studio design kit)
+FRAME_SHARE = (
+    0.115,
+    0.095,
+)  # frame border width / height as a share of the page (the centre is empty parchment)
+
+
+def theme_margins(width_in: float, height_in: float) -> dict[str, float]:
+    """Margins that keep text inside the empty centre of the page frame."""
+    sx, sy = FRAME_SHARE
+    side = round(max(0.75, width_in * sx), 2)
+    return {
+        "inside": side,
+        "outside": side,
+        "top": round(max(0.8, height_in * sy), 2),
+        "bottom": round(max(0.8, height_in * sy), 2),
+    }
+
+
+def _plaque_png(src: Path) -> tuple[bytes, float]:
+    """Crop the sign out of its white background (made transparent) -> (png, w/h)."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        rgb = im.convert("RGB")
+    px = rgb.load()
+    w, h = rgb.size
+    near = [[min(px[x, y]) > 238 for x in range(0, w, 4)] for y in range(0, h, 4)]
+    rows = [y for y, r in enumerate(near) if not all(r)]
+    cols = [x for x in range(len(near[0])) if not all(near[y][x] for y in range(len(near)))]
+    if not rows or not cols:
+        box = (0, 0, w, h)
+    else:
+        box = (
+            max(0, cols[0] * 4 - 4),
+            max(0, rows[0] * 4 - 4),
+            min(w, cols[-1] * 4 + 8),
+            min(h, rows[-1] * 4 + 8),
+        )
+    sign = rgb.crop(box).convert("RGBA")
+    data = [
+        (r, g, b, 0) if min(r, g, b) > 238 else (r, g, b, 255) for (r, g, b, _a) in sign.getdata()
+    ]
+    sign.putdata(data)
+    if sign.width > 1600:
+        sign = sign.resize((1600, max(1, round(sign.height * 1600 / sign.width))))
+    buf = io.BytesIO()
+    sign.save(buf, "PNG", optimize=True)
+    return buf.getvalue(), sign.width / max(sign.height, 1)
+
+
+def build_theme(
+    art: dict[str, Path], width_in: float, height_in: float, text_width_in: float
+) -> tuple[dict[str, bytes], dict[str, Any] | None]:
+    """Page frame (`design:frame`) + heading plaque (`design:plaque`) -> Typst theme + files.
+    None when the Studio has not drawn the kit yet (the book keeps the plain layout)."""
+    from PIL import Image
+
+    frame, plaque = art.get("design:frame"), art.get("design:plaque")
+    if frame is None:
+        return {}, None
+    files: dict[str, bytes] = {}
+    with Image.open(frame) as im:
+        bg = im.convert("RGB").resize(
+            (round(width_in * 150), round(height_in * 150)), Image.Resampling.LANCZOS
+        )
+    buf = io.BytesIO()
+    bg.save(buf, "JPEG", quality=88, optimize=True, dpi=(150, 150))
+    files["theme/frame.jpg"] = buf.getvalue()
+    theme: dict[str, Any] = {
+        "background": "theme/frame.jpg",
+        "heading_font": "Young Serif",
+        "heading_ink": "#3b2412",
+        "margins": theme_margins(width_in, height_in),
+    }
+    if plaque is not None:
+        png, ratio = _plaque_png(plaque)
+        files["theme/plaque.png"] = png
+        w = round(min(text_width_in, 5.6), 2)
+        theme.update(
+            plaque="theme/plaque.png",
+            plaque_w_in=w,
+            plaque_h_in=round(max(0.6, min(w / ratio, 1.1)), 2),
+        )
+    return files, theme

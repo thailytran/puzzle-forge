@@ -97,3 +97,23 @@ def test_missing_art_is_reported_not_fatal(tmp_path: Path) -> None:
     assert rep["placed"] == ["cover"]
     assert set(rep["missing"]) == {"prologue", "portraits", "ch1"}
     assert len(pages) == 5 and files.keys() == {"art/cover.jpg"}
+
+
+def test_theme_from_design_kit(tmp_path: Path) -> None:
+    from forge.mystery.art import build_theme, theme_margins
+
+    assert build_theme({}, 8.5, 11, 6.5) == ({}, None)
+    frame = _png(tmp_path / "frame.png", 900, 1200)
+    sign = Image.new("RGB", (1600, 900), (255, 255, 255))
+    sign.paste((150, 90, 40), (100, 350, 1500, 550))  # the wooden plank on white
+    sign.save(tmp_path / "plaque.png")
+    files, theme = build_theme(
+        {"design:frame": frame, "design:plaque": tmp_path / "plaque.png"}, 8.5, 11, 6.0
+    )
+    assert theme is not None and theme["background"] == "theme/frame.jpg"
+    assert set(files) == {"theme/frame.jpg", "theme/plaque.png"}
+    plaque = Image.open(__import__("io").BytesIO(files["theme/plaque.png"]))
+    assert plaque.mode == "RGBA" and plaque.width / plaque.height > 5  # cropped to the plank
+    assert plaque.getpixel((0, 0))[3] == 0 or plaque.getpixel((plaque.width // 2, 1))[3] == 255
+    m = theme_margins(8.5, 11)
+    assert m["inside"] >= 0.95 and m["top"] >= 1.0

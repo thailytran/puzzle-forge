@@ -896,19 +896,34 @@ def build_case_book(
         raise necessity.CaseError("reader simulation failed: " + "; ".join(run.problems))
     t = TRIMS[trim]
     m = margins_for(72)
+    margins = {"inside": m.inside, "outside": m.outside, "top": m.top, "bottom": m.bottom}
+    studio: dict[str, Path] = {}
+    theme: dict[str, Any] | None = None
+    theme_files: dict[str, bytes] = {}
+    if art_dir is not None:
+        from forge.mystery.art import build_theme, load_art, theme_margins
+
+        studio = load_art(Path(art_dir))
+        if (
+            "design:frame" in studio
+        ):  # Studio design kit: page frame -> text stays in its empty centre
+            margins = theme_margins(t.width_in, t.height_in)
+            theme_files, theme = build_theme(
+                studio, t.width_in, t.height_in, t.width_in - margins["inside"] - margins["outside"]
+            )
     ctx = RenderCtx(
-        width_in=t.width_in - m.inside - m.outside,
-        height_in=t.height_in - m.top - m.bottom - 0.9,
+        width_in=t.width_in - margins["inside"] - margins["outside"],
+        height_in=t.height_in - margins["top"] - margins["bottom"] - 0.9,
     )
     pages, files, art = layout_pages(frame, puzzles, ctx)
+    files.update(theme_files)
     art_report: dict[str, Any] | None = None
     if art_dir is not None:
-        from forge.mystery.art import load_art, place_art
+        from forge.mystery.art import place_art
 
-        extra, art_report = place_art(
-            pages, art, load_art(Path(art_dir)), ctx.width_in, ctx.height_in, Page
-        )
+        extra, art_report = place_art(pages, art, studio, ctx.width_in, ctx.height_in, Page)
         files.update(extra)
+        art_report["theme"] = theme is not None
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     man = manifest(frame, puzzles, rep)
@@ -923,7 +938,13 @@ def build_case_book(
         (out / "cast_lock.json").write_text(json.dumps(lock, indent=2), encoding="utf-8")
     if render:
         doc = make_layout(
-            title=frame.title, subtitle=frame.subtitle, trim=trim, pages=pages, min_pages=0
+            title=frame.title,
+            subtitle=frame.subtitle,
+            trim=trim,
+            pages=pages,
+            min_pages=0,
+            margins=margins if theme else None,
+            theme=theme,
         )
         render_pdf(doc, out / "interior.pdf", files=files)
     return man

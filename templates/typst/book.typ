@@ -4,6 +4,7 @@
 #let inch = 1in
 #let base = L.base_size_pt * 1pt
 #let E = L.at("edition", default: none)            // forge/editions/settings.py
+#let T = L.at("theme", default: none)              // page frame + heading plaque (CBN Mystery, forge/mystery/art.py)
 #let bleed = if E == none { 0pt } else { E.bleed_in * inch }
 #let wm-on = E != none and E.watermark
 // outer side of the current page: recto (odd) = right; simplex spiral books bind on the left
@@ -43,6 +44,9 @@
   }
 }
 #let page-background = context {
+  if T != none and T.at("background", default: none) != none {
+    place(top + left, dx: 0pt, dy: 0pt, image(T.background, width: 100%, height: 100%, fit: "stretch"))
+  }
   if wm-on {
     let size = E.wm_size_in * inch
     let dx = bleed + L.margins.outside * inch
@@ -290,7 +294,19 @@
   if k == "heading" {
     let lvl = b.at("level", default: 1)
     let size = if lvl == 1 { 1.8 * base } else { 1.3 * base }
-    block(below: 0.8em, text(font: L.fonts.sans, weight: "bold", size: size, b.text))
+    if lvl == 1 and T != none and T.at("plaque", default: none) != none {
+      // title on a carved sign (Studio design kit); long titles shrink to fit
+      let w = T.at("plaque_w_in", default: 5.0) * inch
+      let h = T.at("plaque_h_in", default: 0.9) * inch
+      let fs = if b.text.len() > 34 { 1.15 * base } else if b.text.len() > 24 { 1.35 * base } else { 1.6 * base }
+      block(below: 0.7em, width: 100%, align(center, box(width: w, height: h, {
+        place(center + horizon, image(T.plaque, width: w, height: h, fit: "stretch"))
+        place(center + horizon, dx: T.at("text_dx_in", default: 0.15) * inch,
+          text(font: T.at("heading_font", default: L.fonts.sans), size: fs, fill: rgb(T.at("heading_ink", default: "#3b2412")), b.text))
+      })))
+    } else {
+      block(below: 0.8em, text(font: L.fonts.sans, weight: "bold", size: size, b.text))
+    }
   } else if k == "paragraph" {
     let fp = b.at("font_pt", default: none)
     if fp != none { text(size: fp * 1pt, par(justify: true, b.text)) } else { par(justify: true, b.text) }
@@ -368,7 +384,7 @@
 
 #for p in L.pages {
   page(
-    header: if p.header and p.kind != "title" { running-header } else { none },
+    header: if p.header and p.kind != "title" and T == none { running-header } else { none },
     footer: if p.number and p.kind != "title" { page-footer } else { none },
   )[
     #if p.kind == "title" {
