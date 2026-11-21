@@ -675,7 +675,7 @@ def layout_pages(
     frame: CaseFrame,
     puzzles: list[ChapterPuzzles],
     ctx: RenderCtx,
-    panel_in: tuple[float, float] | None = None,
+    panel_in: dict[str, tuple[float, float]] | None = None,
 ) -> tuple[list[Page], dict[str, bytes], list[dict[str, Any]]]:
     """Pages of the book, side files (maze SVGs ...) and the art requests (page, zone, brief)."""
     cb = ColorByNumber()
