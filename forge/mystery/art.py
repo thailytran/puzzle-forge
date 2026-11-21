@@ -95,7 +95,7 @@ def split_story(blocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
     return blocks[:cut], blocks[cut:]
 
 
-STORY_FADE = 0.045  # width of the soft edge on the sides and top, as a share of the picture width
+STORY_FADE = 0.04  # width of the soft edge on the sides, as a share of the picture width
 STORY_FADE_BOTTOM = 0.17  # height of the soft bottom edge, as a share of the picture height
 STORY_PAPER = (251, 246, 240)  # the paper colour the picture melts into
 
@@ -110,7 +110,9 @@ def _soften(rgb: Any) -> Any:
     r = max(2.0, w * STORY_FADE / 2.2)
     inset = round(r * 1.9)
     side = Image.new("L", (w, h), 0)
-    ImageDraw.Draw(side).rectangle((inset, inset, w - inset - 1, h - inset - 1), fill=255)
+    ImageDraw.Draw(side).rectangle(
+        (inset, -h, w - inset - 1, h - inset - 1), fill=255
+    )  # top left sharp: the frame hides it
     side = side.filter(ImageFilter.GaussianBlur(r))
     side = side.point(lambda v: round(255 * min(1.0, (v / 255) * 1.15)))
     fh = max(2, round(h * STORY_FADE_BOTTOM))

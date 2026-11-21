@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 `apps/casevault/pyproject.toml`). New lines go under **Unreleased**; a release moves them under its version.
 
 ## [Unreleased]
+- P8.3s: story picture top edge stays sharp (the frame hides it; the chapter banner sits there); sides + bottom feathered.
 - P8.3r: story picture edges feathered on all four sides (rim melts into the paper, long fade at the bottom) — owner: border still too sharp.
 - P8.3q: wash tuned (paper colour matched, smoothstep fade, text starts 2% lower).
 - P8.3p: story page — text block capped at 40% of the frame opening; the picture melts into the paper through a soft colour wash added below it (no hard edge, nothing over the picture). Vivid/sharp rendering clause in the art prompts (HaloSpark side).
