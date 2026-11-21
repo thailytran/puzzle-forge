@@ -101,6 +101,13 @@ def place_art(
         key = request_key(req)
         src = art.get(key)
         n = int(req.get("page") or 0)
+        story = art.get(f"story:{key}")  # full-page storytelling picture (owner 2026-11-21)
+        if story is not None and 1 <= n <= len(pages):
+            name = f"art/story_{key}.jpg"
+            files[name] = print_jpeg(story, 8.5)[0]
+            pages[n - 1].style = {"type": "story", "bg": name}
+            placed.append(f"story:{key}")
+            continue
         if src is None or not 1 <= n <= len(pages):
             missing.append(key)
             continue
@@ -211,6 +218,8 @@ def build_theme(
             plaque_w_in=w,
             plaque_h_in=round(max(0.75, min(w / ratio, 1.15)), 2),
         )
+    files["theme/frame_overlay.png"] = frame_overlay(frame)
+    theme["overlay"] = "theme/frame_overlay.png"
     tpl_files, tpls = build_templates(art, width_in, height_in)
     files.update(tpl_files)
     if tpls:
@@ -371,3 +380,46 @@ def build_templates(
             "h_in": round((y1 - y0) * height_in, 3),
         }
     return files, tpls
+
+
+def frame_overlay(src: Path) -> bytes:
+    """The page frame with its empty parchment centre made transparent, laid over every designed
+    page so the whole book shares ONE frame (owner 2026-11-21)."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        rgb = im.convert("RGB")
+    w, h = rgb.size
+    sw, sh = 170, round(170 * h / w)
+    sm = rgb.resize((sw, sh))
+    px = sm.load()
+    seed = px[sw // 2, sh // 2]
+
+    def near(c: tuple[int, ...]) -> bool:
+        return sum(abs(c[i] - seed[i]) for i in range(3)) < 46
+
+    inside = [[False] * sw for _ in range(sh)]
+    stack = [(sw // 2, sh // 2)]
+    inside[sh // 2][sw // 2] = True
+    while stack:
+        x, y = stack.pop()
+        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if 0 <= nx < sw and 0 <= ny < sh and not inside[ny][nx] and near(px[nx, ny]):
+                inside[ny][nx] = True
+                stack.append((nx, ny))
+    mask = Image.new("L", (sw, sh), 255)
+    mpx = mask.load()
+    for y in range(sh):
+        for x in range(sw):
+            if inside[y][x]:
+                mpx[x, y] = 0
+    from PIL import ImageFilter
+
+    mask = mask.filter(ImageFilter.MinFilter(3))  # swallow stray parchment specks along the inner edge
+    mask = mask.resize((w, h), Image.Resampling.BILINEAR)
+    out = rgb.convert("RGBA")
+    out.putalpha(mask)
+    out = out.resize((1275, 1650))
+    buf = io.BytesIO()
+    out.save(buf, "PNG", optimize=True)
+    return buf.getvalue()

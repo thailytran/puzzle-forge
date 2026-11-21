@@ -5,6 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 `apps/casevault/pyproject.toml`). New lines go under **Unreleased**; a release moves them under its version.
 
 ## [Unreleased]
+- P8.3k: one shared frame laid over every designed page (frame centre made transparent); storytelling pages - art `story:<key>` is a full-page painting with the story text set into its calm lower part, no white card.
 
 - P8.3h: CBN Mystery page theme from the Studio design kit - `design:frame` becomes the full-page background (text kept in its empty centre by wider margins), `design:plaque` the sign behind every page title (Young Serif, OFL); the plain layout stays when no kit is drawn. Puzzle Forge now runs inside HALOSPARK Desktop (owner 2026-11-20: the Ubuntu VM is retired for book building).
 - P8.3g: Studio art in the CBN Mystery book - `forge mystery build --art <folder>` places the HALOSPARK Studio pictures (`<key>.png` + `art_manifest.json`): cover under the title, opening and chapter scenes at the top of their story pages, suspect portraits on their own page after the dossier; reference sheets (characters, locations) are never printed; pictures re-encoded as 300 dpi JPEG at the printed size; missing pictures are listed in `manifest["art"]`. Art requests carry Studio keys (`cover`, `prologue`, `portraits`, `ch1`...).

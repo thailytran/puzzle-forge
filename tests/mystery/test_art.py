@@ -111,7 +111,7 @@ def test_theme_from_design_kit(tmp_path: Path) -> None:
         {"design:frame": frame, "design:plaque": tmp_path / "plaque.png"}, 8.5, 11, 6.0
     )
     assert theme is not None and theme["background"] == "theme/frame.jpg"
-    assert set(files) == {"theme/frame.jpg", "theme/plaque.png"}
+    assert set(files) == {"theme/frame.jpg", "theme/plaque.png", "theme/frame_overlay.png"}
     plaque = Image.open(__import__("io").BytesIO(files["theme/plaque.png"]))
     assert plaque.mode == "RGBA" and plaque.width / plaque.height > 5  # cropped to the plank
     assert plaque.getpixel((0, 0))[3] == 0 or plaque.getpixel((plaque.width // 2, 1))[3] == 255

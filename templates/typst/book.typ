@@ -434,8 +434,27 @@
 }
 
 // Gemini-designed page for this puzzle type (forge/mystery/art.py build_templates), or none
-#let tpl-of(p) = if T == none or p.at("style", default: none) == none { none } else {
+#let tpl-of(p) = if T == none or p.at("style", default: none) == none { none } else if p.style.type == "story" {
+  (image: p.style.bg)
+} else {
   T.at("templates", default: (:)).at(p.style.type, default: none)
+}
+// one shared frame over every designed page (the frame with a transparent centre)
+#let designed-bg(tp) = {
+  place(top + left, image(tp.image, width: 100%, height: 100%, fit: "stretch"))
+  if T.at("overlay", default: none) != none {
+    place(top + left, image(T.overlay, width: 100%, height: 100%, fit: "stretch"))
+  }
+}
+// storytelling page: the painting is the page; the story is set on its calm lower part
+#let story-page(p) = {
+  let side = L.margins.outside * inch
+  place(top + left, dx: 0.105 * L.width_in * inch - side, dy: 0.52 * L.height_in * inch - L.margins.top * inch,
+    block(width: 0.79 * L.width_in * inch, height: 0.355 * L.height_in * inch, {
+      set text(size: 0.95 * base, fill: rgb("#24160c"))
+      set par(leading: 0.5em)
+      for b in p.blocks { render-block(b) }
+    }))
 }
 
 // the whole designed page is the background; the exact puzzle sits in its empty panel
@@ -455,7 +474,7 @@
   page(
     header: if p.header and p.kind != "title" and T == none { running-header } else { none },
     footer: if p.number and p.kind != "title" { page-footer } else { none },
-    background: if tp != none { image(tp.image, width: 100%, height: 100%, fit: "stretch") } else { page-background },
+    background: if tp != none { designed-bg(tp) } else { page-background },
   )[
     #if p.kind == "title" {
       title-page(p)
@@ -468,7 +487,9 @@
       if p.at("title", default: none) != none and not styled {
         render-block((kind: "heading", text: p.title, level: 1))
       }
-      if tp != none {
+      if tp != none and p.style.type == "story" {
+        story-page(p)
+      } else if tp != none {
         template-puzzle(p, tp)
       } else if styled {
         styled-puzzle(p)
