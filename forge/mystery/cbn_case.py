@@ -34,8 +34,9 @@ from forge.layout.document import Page
 from forge.mystery import logic_lock, necessity
 from forge.mystery.causal_graph import CausalGraph
 from forge.puzzles.base import GenerationError
-from forge.puzzles.cbn import ColorByNumber, plan_tiling, tiling, tiling_of
+from forge.puzzles.cbn import ColorByNumber, plan_tiling, read_picture, tiling, tiling_of
 from forge.puzzles.cbn.font import ICONS
+from forge.puzzles.cbn.pictures import PICTURES
 from forge.puzzles.cbn.tiling import SHAPES
 from forge.wordlists import is_blocked
 
@@ -131,8 +132,10 @@ class CaseFrame(_M):
 
 
 def code_of(ch: Chapter) -> str:
-    """Mosaic code of a chapter: the icon of its evidence object."""
-    return "@" + ch.object.strip().lower()
+    """Mosaic code of a chapter: the full-colour picture of its evidence object when one is
+    drawn ("#lantern"), else the small one-colour icon ("@lantern")."""
+    obj = ch.object.strip().lower()
+    return ("#" if obj in PICTURES else "@") + obj
 
 
 Key = tuple[str, frozenset[str]]
@@ -296,7 +299,7 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
         seen[obj] = ch.no
         if ch.shape not in SHAPES:
             p.append(f"{tag}: unknown cell shape {ch.shape!r} (use {', '.join(SHAPES)})")
-        else:
+        elif not code_of(ch).startswith("#"):  # a drawn picture brings its own grid
             try:
                 plan_tiling(ch.shape, code_of(ch), cbn_spec(frame, ch, i))
             except GenerationError as e:
@@ -555,8 +558,11 @@ def simulate_reader(frame: CaseFrame, puzzles: list[ChapterPuzzles]) -> ReaderRu
         tag = f"chapter {ch.no}"
         colours = (cb.solve(cp.cbn).solution or {"colors": [[]]})["colors"]
         t = tiling_of(cp.cbn)
-        seen = {tiling.read_raster(t, colours[0]), tiling.read_centres(t, colours[0])}
-        if len(seen) != 1 or not next(iter(seen)).startswith("@"):
+        if cp.cbn.data.get("art"):  # picture mosaic: the finished colouring is matched as a whole
+            seen = {read_picture(colours[0], t.rows, t.cols)}
+        else:
+            seen = {tiling.read_raster(t, colours[0]), tiling.read_centres(t, colours[0])}
+        if len(seen) != 1 or not next(iter(seen)).startswith(("@", "#")):
             run.problems.append(f"{tag}: the mosaic picture is not readable ({sorted(seen)})")
             break
         obj = next(iter(seen))[1:]
@@ -830,8 +836,10 @@ def layout_pages(
             pw, ph = panel_in[kind]
             # the panel also holds the page subtitle and, on keyword pages, the instructions
             return RenderCtx(
-                width_in=max(2.5, pw - 0.3),
-                height_in=max(2.5, ph - (0.9 if kind == "cbn" else 1.6)),
+                width_in=max(2.5, pw - (0.56 if kind == "cbn" else 0.3)),
+                # mosaic: subtitle, instruction and colour key above it; the frame hangs lanterns
+                # over the lower corners of the panel, so the last inch stays empty
+                height_in=max(2.5, ph - (2.35 if kind == "cbn" else 1.6)),
             )
         return side_ctx
 

@@ -68,7 +68,7 @@ def test_wrong_answer_and_bad_inputs(frame: CaseFrame) -> None:
         d["chapters"][2]["side"][1]["keyword"] = "two words"
         d["chapters"][3]["story"] = "A murder at the river."
         d["chapters"][5]["shape"] = "blob"
-        d["chapters"][6]["shape"] = "triangle"  # a 13 x 13 picture needs smaller cells than 5 mm
+        d["chapters"][6]["shape"] = "triangle"  # drawn pictures bring their own square grid
 
     probs = check_frame(edited(frame, bad), deep=False).problems
     for needle in (
@@ -76,7 +76,6 @@ def test_wrong_answer_and_bad_inputs(frame: CaseFrame) -> None:
         "one word",
         "family-friendly",
         "unknown cell shape",
-        "does not fit",
     ):
         assert any(needle in p for p in probs), (needle, probs)
 
@@ -180,11 +179,12 @@ def test_puzzles_carry_the_locked_answers(frame: CaseFrame) -> None:
     assert len(built) == 8 and sum(1 + len(b.side) for b in built) == 24
     for ch, cp in zip(frame.chapters, built, strict=True):
         assert cb.solve(cp.cbn).solution["code"] == code_of(ch)
-        assert cp.cbn.data["shape"] == ch.shape
+        want = ch.shape if ch.shape in ("square", "circle") else "square"  # picture lattice
+        assert cp.cbn.data["shape"] == want and cp.cbn.data["art"] is True
         assert cb.verify(cp.cbn).ok
     again = build_puzzles(frame, 7)
     assert [b.cbn.content_hash for b in built] == [b.cbn.content_hash for b in again]
-    assert {b.cbn.data["shape"] for b in built} == {"square", "hex"}
+    assert {b.cbn.data["shape"] for b in built} <= {"square", "circle"}
 
 
 def test_layout_has_five_pages_per_chapter(frame: CaseFrame) -> None:

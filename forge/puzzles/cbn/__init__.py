@@ -32,9 +32,15 @@ from forge.core.seeds import derive_seed, make_rng
 from forge.puzzles.base import GenerationError, find_constraint
 from forge.puzzles.cbn import tiling
 from forge.puzzles.cbn.font import H, W, bitmap, is_icon, known, match
+from forge.puzzles.cbn.pictures import PICTURE_H, PICTURE_PALETTE, PICTURE_W, PICTURES
 
 SOLVER = "cbn-block-read-v1"
 SOLVER_RASTER = "cbn-raster-read-v1"
+SOLVER_PICTURE = "cbn-picture-match-v1"
+PICTURE_MIN_MM = (
+    4.0  # owner 2026-11-21: adult picture mosaics use small cells so the picture is sharp
+)
+PICTURE_SHAPES = ("square", "circle")
 # Smallest cell (inscribed-circle diameter, mm) a reader is asked to colour, and smallest label.
 MIN_CELL_MM = {"kids_6_8": 8.0, "kids_9_12": 8.0}
 MIN_CELL_MM_DEFAULT = 5.0
@@ -233,6 +239,21 @@ def read_code(colors: list[list[int]]) -> str:
     return read_with(colors, "majority")
 
 
+def is_picture(code: str) -> bool:
+    """A code "#lantern": the whole mosaic is a multi-colour picture from `pictures.py`."""
+    return code.startswith("#")
+
+
+def read_picture(colors: list[int], rows: int, cols: int) -> str:
+    """Name the picture a finished colouring shows ("?" when it is none of the known ones).
+    Independent of the generator: it only looks at the colours the reader ends up with."""
+    if (cols, rows) != (PICTURE_W, PICTURE_H) or len(colors) != rows * cols:
+        return "?"
+    got = ["".join(str(v) for v in colors[r * cols : (r + 1) * cols]) for r in range(rows)]
+    hits = [name for name, pic in PICTURES.items() if list(pic) == got]
+    return "#" + hits[0] if len(hits) == 1 else "?"
+
+
 class ColorByNumber:
     name = "cbn"
 
@@ -243,7 +264,9 @@ class ColorByNumber:
         rng = make_rng(derive_seed(seed, "cbn"))
         ans = find_constraint(spec, AnswerIs)
         code = ans.word if ans else str(spec.options.get("code") or rng.randint(10, 99))
-        code = code.lower() if is_icon(code) else code.upper()
+        code = code.lower() if is_icon(code) or is_picture(code) else code.upper()
+        if is_picture(code):
+            return self._generate_picture(spec, seed, code)
         if not known(code):
             raise GenerationError(f"cbn: unsupported characters in code {code!r}")
         if kids and len(code) > 1 and not ans and not is_icon(code):
@@ -321,6 +344,38 @@ class ColorByNumber:
             raise GenerationError(f"cbn failed verification: {rep.messages}")
         return puzzle.model_copy(update={"verify": rep, "difficulty": self.difficulty(puzzle)})
 
+    def _generate_picture(self, spec: PuzzleSpec, seed: int, code: str) -> Puzzle:
+        """Full-page picture mosaic: every cell carries the palette number of its pixel."""
+        name = code[1:]
+        if name not in PICTURES:
+            raise GenerationError(f"cbn: no picture called {name!r} (known: {', '.join(PICTURES)})")
+        shape = str(spec.options.get("shape") or "square")
+        if shape not in PICTURE_SHAPES:
+            shape = "square"  # pictures need a square lattice (squares or dots)
+        colors = [int(ch) for row in PICTURES[name] for ch in row]
+        puzzle = build_puzzle(
+            spec,
+            seed,
+            data={
+                "mode": "A",
+                "art": True,
+                "shape": shape,
+                "rows": PICTURE_H,
+                "cols": PICTURE_W,
+                "cells": [[str(v) for v in colors]],
+                "palette": [
+                    {"n": i + 1, "name": n, "hex": h, "answer": i + 1}
+                    for i, (n, h) in enumerate(PICTURE_PALETTE)
+                ],
+            },
+            solution={"colors": [colors], "code": code},
+            token=code,
+        )
+        rep = self.verify(puzzle)
+        if not rep.ok:
+            raise GenerationError(f"cbn failed verification: {rep.messages}")
+        return puzzle.model_copy(update={"verify": rep, "difficulty": self.difficulty(puzzle)})
+
     def colours_from_cells(self, puzzle: Puzzle) -> list[list[int]] | None:
         pal = puzzle.data["palette"]
         by_answer = {e["answer"]: e["n"] for e in pal}
@@ -344,7 +399,9 @@ class ColorByNumber:
         colors = self.colours_from_cells(puzzle)
         if colors is None:
             return SolveResult(solved=False)
-        if "shape" in puzzle.data:
+        if puzzle.data.get("art"):
+            code = read_picture(colors[0], puzzle.data["rows"], puzzle.data["cols"])
+        elif "shape" in puzzle.data:
             code = tiling.read_raster(tiling_of(puzzle), colors[0])
         else:
             code = read_code(colors)
@@ -370,21 +427,28 @@ class ColorByNumber:
                 f"{puzzle.solution['code']!r}"
             )
         flat = [v for row in res.solution["colors"] for v in row]
+        pal = puzzle.data["palette"]
+        art = bool(puzzle.data.get("art"))
         if len(flat) != len(tiling_of(puzzle).cells):
             msgs.append("number of labelled cells differs from the tiling")
+        elif art:
+            if len({e["hex"].lower() for e in pal}) != len(pal):
+                msgs.append("two palette numbers share a colour")
+            if len(set(flat)) < 4:
+                msgs.append("picture uses fewer than four colours")
         elif tiling.read_raster(tiling_of(puzzle), flat) != puzzle.solution["code"]:
             msgs.append("the painted picture does not show the code clearly (raster read)")
-        pal = puzzle.data["palette"]
-        dark = _lum(pal[0]["hex"])
-        lightest_bg = min(_lum(e["hex"]) for e in pal[1:])
-        if lightest_bg - dark < MIN_CONTRAST:
-            msgs.append("code colour does not contrast enough with the background colours")
+        if not art:
+            dark = _lum(pal[0]["hex"])
+            lightest_bg = min(_lum(e["hex"]) for e in pal[1:])
+            if lightest_bg - dark < MIN_CONTRAST:
+                msgs.append("code colour does not contrast enough with the background colours")
         if len({e["answer"] for e in pal}) != len(pal):
             msgs.append("two colours share an answer value (type B ambiguous)")
         ans = find_constraint(puzzle.spec, AnswerIs)
         if ans and ans.word.upper() != str(puzzle.solution["code"]).upper():
             msgs.append("code differs from answer_is constraint")
-        solver = SOLVER_RASTER if "shape" in puzzle.data else SOLVER
+        solver = SOLVER_PICTURE if art else SOLVER_RASTER if "shape" in puzzle.data else SOLVER
         return VerifyReport(ok=not msgs, unique=True, solver=solver, messages=msgs)
 
     def difficulty(self, puzzle: Puzzle) -> DifficultyScore:
@@ -450,7 +514,9 @@ class ColorByNumber:
             "palette": puzzle.data["palette"],
             "mode": puzzle.data["mode"],
             "cell_mm": round(t.min_dim * k * 25.4, 2),
-            "min_mm": min_cell_mm(puzzle.spec.audience),
+            "min_mm": PICTURE_MIN_MM
+            if puzzle.data.get("art") and not puzzle.spec.audience.startswith("kids")
+            else min_cell_mm(puzzle.spec.audience),
             "label_in": round(t.min_dim * k, 4),
             "font_pt": round(font, 1),
             "legend": not solution,
@@ -460,7 +526,8 @@ class ColorByNumber:
         cell = {"hex": "hexagon", "triangle": "triangle", "circle": "dot"}.get(
             puzzle.data.get("shape", "square"), "square"
         )
-        picture = is_icon(str(puzzle.solution.get("code", "")))
+        code = str(puzzle.solution.get("code", ""))
+        picture = is_icon(code) or is_picture(code)
         reveal = " A hidden picture will appear." if picture else " A secret code will appear."
         how = (
             f"Colour each {cell} with the colour of its number."
@@ -470,15 +537,23 @@ class ColorByNumber:
         return RenderedBlock(
             blocks=[
                 {"kind": "paragraph", "text": how + reveal},
-                self._block(puzzle, ctx, False, 0.78),
+                self._block(puzzle, ctx, False, 1.0 if puzzle.data.get("art") else 0.78),
             ]
         )
 
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
         blk = self._block(puzzle, ctx, True, 0.85)
         code = str(puzzle.solution["code"])
-        shown = f"Picture: {code[1:]}" if is_icon(code) else f"Code: {code}"
+        shown = f"Picture: {code[1:]}" if is_icon(code) or is_picture(code) else f"Code: {code}"
         return RenderedBlock(blocks=[blk, {"kind": "paragraph", "text": shown}])
 
 
-__all__ = ["ColorByNumber", "Level", "min_cell_mm", "read_code", "tiling_of"]
+__all__ = [
+    "ColorByNumber",
+    "Level",
+    "is_picture",
+    "min_cell_mm",
+    "read_code",
+    "read_picture",
+    "tiling_of",
+]

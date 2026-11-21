@@ -384,13 +384,13 @@
 
 // Like fit(), but for the small panel of a designed page: the content is laid out wider and scaled
 // down as one piece, so a long line (number-lock chain, alphabet strip) never wraps or runs out.
-#let fit-wide(body, top: 1.0) = block(width: 100%, height: 100%, layout(size => {
+#let fit-wide(body, top: 1.0, pos: center + horizon) = block(width: 100%, height: 100%, layout(size => {
   let pick = 0.5
   for k in (1.0, 0.92, 0.85, 0.78, 0.72, 0.66, 0.6, 0.55, 0.5).filter(k => k <= top) {
     let m = measure(width: size.width / k, body)
     if m.height * k <= size.height { pick = k; break }
   }
-  align(center + horizon, scale(x: pick * 100%, y: pick * 100%, reflow: true, block(width: size.width / pick, body)))
+  align(pos, scale(x: pick * 100%, y: pick * 100%, reflow: true, block(width: size.width / pick, body)))
 }))
 
 // ---------------------------------------------------------------- designed puzzle page (themed books)
@@ -532,7 +532,8 @@
   let c = rgb(p.style.color)
   let side = L.margins.outside * inch
   place(top + left, dx: tp.x_in * inch - side, dy: tp.y_in * inch - L.margins.top * inch,
-    block(width: tp.w_in * inch, height: tp.h_in * inch, inset: (x: 0.26in, y: 0.2in), fit-wide(top: if p.style.type == "cbn" { 1.0 } else { 0.78 }, {
+    block(width: tp.w_in * inch, height: tp.h_in * inch, inset: (x: 0.26in, y: 0.2in), fit-wide(top: if p.style.type == "cbn" { 1.0 } else { 0.78 },
+      pos: if p.style.type == "cbn" { center + top } else { center + horizon }, {
       // fit(): the puzzle shrinks until it is inside the panel, never over the frame art
       align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(p.style.subtitle)))
       v(0.2em)
