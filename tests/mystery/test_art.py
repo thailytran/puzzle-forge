@@ -131,3 +131,17 @@ def test_split_icons_reading_order(tmp_path: Path) -> None:
     assert len(out) == 8
     first = Image.open(__import__("io").BytesIO(out[0]))
     assert first.mode == "RGBA" and first.getpixel((first.width // 2, first.height // 2))[0] == 20
+
+
+def test_find_panel_and_templates(tmp_path: Path) -> None:
+    from forge.mystery.art import PANEL_RGB, build_templates, find_panel
+
+    page = Image.new("RGB", (900, 1200), (150, 40, 40))  # colourful designed page
+    page.paste(PANEL_RGB, (100, 300, 800, 1000))  # the empty puzzle panel
+    page.paste((240, 200, 60), (120, 1050, 780, 1150))  # a tips box below
+    page.save(tmp_path / "tpl.png")
+    x0, _y0, _x1, y1 = find_panel(tmp_path / "tpl.png") or (0, 0, 0, 0)
+    assert abs(x0 - 100 / 900) < 0.03 and abs(y1 - 1000 / 1200) < 0.03
+    files, tpls = build_templates({"design:tpl_maze": tmp_path / "tpl.png"}, 8.5, 11)
+    assert "theme/tpl_maze.jpg" in files and 5.5 < tpls["maze"]["w_in"] < 6.7
+    assert find_panel(_png(tmp_path / "plain.png", 300, 400)) is None

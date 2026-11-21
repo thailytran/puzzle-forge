@@ -433,10 +433,29 @@
   v(1fr)
 }
 
+// Gemini-designed page for this puzzle type (forge/mystery/art.py build_templates), or none
+#let tpl-of(p) = if T == none or p.at("style", default: none) == none { none } else {
+  T.at("templates", default: (:)).at(p.style.type, default: none)
+}
+
+// the whole designed page is the background; the exact puzzle sits in its empty panel
+#let template-puzzle(p, tp) = {
+  let c = rgb(p.style.color)
+  let side = L.margins.outside * inch
+  place(top + left, dx: tp.x_in * inch - side, dy: tp.y_in * inch - L.margins.top * inch,
+    block(width: tp.w_in * inch, height: tp.h_in * inch, inset: 0.12in, {
+      align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(p.style.subtitle)))
+      v(0.2em)
+      align(center + horizon, { for b in p.blocks { render-block(b) } })
+    }))
+}
+
 #for p in L.pages {
+  let tp = tpl-of(p)
   page(
     header: if p.header and p.kind != "title" and T == none { running-header } else { none },
     footer: if p.number and p.kind != "title" { page-footer } else { none },
+    background: if tp != none { image(tp.image, width: 100%, height: 100%, fit: "stretch") } else { page-background },
   )[
     #if p.kind == "title" {
       title-page(p)
@@ -449,9 +468,11 @@
       if p.at("title", default: none) != none and not styled {
         render-block((kind: "heading", text: p.title, level: 1))
       }
-      if styled {
+      if tp != none {
+        template-puzzle(p, tp)
+      } else if styled {
         styled-puzzle(p)
-      } else if T != none and p.blocks.len() > 0 {
+      } else if T != none and p.blocks.len() > 0 and T.at("card", default: false) {  // owner: no white cards
         // themed book: the page content sits on a cream card with a gold rule (reads well on the parchment frame)
         block(width: 100%, breakable: true, fill: rgb(T.at("panel_fill", default: "#fffdf6")),
           stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 1.2pt), radius: 10pt, inset: 12pt,

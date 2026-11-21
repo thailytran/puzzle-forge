@@ -672,7 +672,10 @@ def page_style(kind: str, subtitle: str) -> dict[str, Any] | None:
 
 
 def layout_pages(
-    frame: CaseFrame, puzzles: list[ChapterPuzzles], ctx: RenderCtx
+    frame: CaseFrame,
+    puzzles: list[ChapterPuzzles],
+    ctx: RenderCtx,
+    panel_in: tuple[float, float] | None = None,
 ) -> tuple[list[Page], dict[str, bytes], list[dict[str, Any]]]:
     """Pages of the book, side files (maze SVGs ...) and the art requests (page, zone, brief)."""
     cb = ColorByNumber()
@@ -794,6 +797,11 @@ def layout_pages(
     ).left_after
     # side puzzles carry an intro paragraph and a keyword line on the same page
     side_ctx = RenderCtx(width_in=ctx.width_in, height_in=max(3.0, ctx.height_in - 0.6))
+    if (
+        panel_in is not None
+    ):  # Gemini-designed pages: the puzzle fills the empty panel of the template
+        pw, ph = panel_in
+        side_ctx = RenderCtx(width_in=max(3.0, pw - 0.3), height_in=max(3.0, ph - 1.0))
     for ch, cp in zip(frame.chapters, puzzles, strict=True):
         add(
             Page(kind="text", title=f"Chapter {ch.no}: {ch.title}", blocks=_para(ch.story)),
@@ -1003,7 +1011,9 @@ def build_case_book(
             2.4 if theme else 0.0
         ),  # designed pages: how-to-play + tips row, slogan ribbon, card insets
     )
-    pages, files, art = layout_pages(frame, puzzles, ctx)
+    panels = [(t["w_in"], t["h_in"]) for t in ((theme or {}).get("templates") or {}).values()]
+    panel_in = (min(w for w, _ in panels), min(h for _, h in panels)) if panels else None
+    pages, files, art = layout_pages(frame, puzzles, ctx, panel_in)
     files.update(theme_files)
     art_report: dict[str, Any] | None = None
     if art_dir is not None:

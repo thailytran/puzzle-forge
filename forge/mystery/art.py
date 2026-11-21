@@ -211,6 +211,10 @@ def build_theme(
             plaque_w_in=w,
             plaque_h_in=round(max(0.75, min(w / ratio, 1.15)), 2),
         )
+    tpl_files, tpls = build_templates(art, width_in, height_in)
+    files.update(tpl_files)
+    if tpls:
+        theme["templates"] = tpls
     icons = art.get("design:icons")
     if icons is not None:
         names = []
@@ -287,3 +291,83 @@ def split_icons(src: Path, n: int = len(ICON_ORDER)) -> list[bytes]:
         ic.save(buf, "PNG", optimize=True)
         out.append(buf.getvalue())
     return out
+
+
+# ---------------------------------------------------------------- Gemini-designed puzzle pages
+# (owner 2026-11-20) Gemini designs the WHOLE page of each puzzle type (title, how-to-play, tips,
+# slogan, ornaments, colours) and leaves one flat empty panel in PANEL_RGB; code finds that panel
+# and places the exact, verified puzzle inside it.
+PANEL_RGB = (255, 251, 240)  # "#FFFBF0" asked in the Studio prompt
+
+
+def find_panel(src: Path) -> tuple[float, float, float, float] | None:
+    """Largest flat area close to PANEL_RGB -> (x0, y0, x1, y1) as page fractions, or None."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        sm = im.convert("RGB").resize((160, 214))
+    w, h = sm.size
+    px = sm.load()
+
+    def near(c: tuple[int, ...]) -> bool:
+        return sum(abs(c[i] - PANEL_RGB[i]) for i in range(3)) < 34
+
+    ok = [[near(px[x, y]) for x in range(w)] for y in range(h)]
+    seen = [[False] * w for _ in range(h)]
+    best: tuple[int, int, int, int, int] | None = None
+    for y in range(h):
+        for x in range(w):
+            if not ok[y][x] or seen[y][x]:
+                continue
+            stack, n = [(x, y)], 0
+            x0, y0, x1, y1 = x, y, x, y
+            seen[y][x] = True
+            while stack:
+                cx, cy = stack.pop()
+                n += 1
+                x0, y0, x1, y1 = min(x0, cx), min(y0, cy), max(x1, cx), max(y1, cy)
+                for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                    if 0 <= nx < w and 0 <= ny < h and ok[ny][nx] and not seen[ny][nx]:
+                        seen[ny][nx] = True
+                        stack.append((nx, ny))
+            if best is None or n > best[4]:
+                best = (x0, y0, x1 + 1, y1 + 1, n)
+    if best is None or best[4] < w * h * 0.12:
+        return None
+    x0, y0, x1, y1, _ = best
+    m = 0.012  # stay off the panel border
+    return (x0 / w + m, y0 / h + m, x1 / w - m, y1 / h - m)
+
+
+def build_templates(
+    art: dict[str, Path], width_in: float, height_in: float
+) -> tuple[dict[str, bytes], dict[str, Any]]:
+    """`design:tpl_<type>` pages -> {type: {image, x_in, y_in, w_in, h_in}} (panel, inches)."""
+    from PIL import Image
+
+    files: dict[str, bytes] = {}
+    tpls: dict[str, Any] = {}
+    for key, src in art.items():
+        if not key.startswith("design:tpl_"):
+            continue
+        kind = key.split("design:tpl_", 1)[1]
+        rect = find_panel(src)
+        if rect is None:
+            continue
+        with Image.open(src) as im:
+            bg = im.convert("RGB").resize(
+                (round(width_in * 200), round(height_in * 200)), Image.Resampling.LANCZOS
+            )
+        buf = io.BytesIO()
+        bg.save(buf, "JPEG", quality=88, optimize=True, dpi=(200, 200))
+        name = f"theme/tpl_{kind}.jpg"
+        files[name] = buf.getvalue()
+        x0, y0, x1, y1 = rect
+        tpls[kind] = {
+            "image": name,
+            "x_in": round(x0 * width_in, 3),
+            "y_in": round(y0 * height_in, 3),
+            "w_in": round((x1 - x0) * width_in, 3),
+            "h_in": round((y1 - y0) * height_in, 3),
+        }
+    return files, tpls
