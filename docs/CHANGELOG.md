@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/). Versions follow semver:
 
 ## [Unreleased]
 
+- P8.3g: Studio art in the CBN Mystery book - `forge mystery build --art <folder>` places the HALOSPARK Studio pictures (`<key>.png` + `art_manifest.json`): cover under the title, opening and chapter scenes at the top of their story pages, suspect portraits on their own page after the dossier; reference sheets (characters, locations) are never printed; pictures re-encoded as 300 dpi JPEG at the printed size; missing pictures are listed in `manifest["art"]`. Art requests carry Studio keys (`cover`, `prologue`, `portraits`, `ch1`...).
 - P8.3c4: character lock - fixed look per character across pages and series, character sheets and references in every art request, `cast_lock.json`.
 - P8.3c3: CBN Mystery story layer - prologue, suspect motives, teasers, list-count check per card, spoiler lock; sample case rewritten with a full plot.
 - P8.3c2: CBN Mystery side puzzles limited to code puzzles (shift cipher of a case sentence - new type `shift` -, maze, number lock, sudoku); word scramble / word search removed from this line.

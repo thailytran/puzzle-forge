@@ -147,6 +147,7 @@ uv run forge edition trace <stamped.pdf>                   # read the order numb
 uv run forge blueprint preview escape_adult [--trim A4]    # page types with coloured zones -> output/blueprints/
 uv run forge mystery check configs/cases/vanished_star.json   # case frame: all clues needed, codes fit, keywords buildable
 uv run forge mystery build configs/cases/vanished_star.json --out output/mystery   # CBN Mystery book (interior.pdf, manifest, art requests)
+uv run forge mystery build <case_v2.json> --art <studio art folder> --out output/mystery   # + HALOSPARK Studio pictures on the pages
 uv run forge vault init output/<book_id>                    # vault.yaml: answer type, accepted answers, listings
 uv run forge vault codes output/<book_id> --count 200 [--channel print|shopify_digital]   # Book Codes CSV + code pages PDF
 uv run forge vault sync [--force]                          # send queued registrations (auto-queued on APPROVED)

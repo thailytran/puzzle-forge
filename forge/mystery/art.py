@@ -1,0 +1,122 @@
+"""Put the Studio art (Gemini pictures) into a CBN Mystery book (P8.3g).
+
+HALOSPARK Studio draws the art requests of `layout_pages` (cover, opening scene, chapter scenes) and
+composes the suspect portraits in code; it hands over a folder `art/` with `<key>.png` files and an
+`art_manifest.json` (key -> {file, zone, ...}). Keys: ``cover``, ``prologue``, ``portraits``,
+``ch1`` ... ``chN``; reference sheets (``char:<id>``, ``loc:<id>``) are never printed.
+
+Art never carries information the reader needs, so a missing picture only leaves its zone empty;
+the build reports which ones are missing. Pictures are re-encoded as 300 dpi JPEG at the printed
+size, so the PDF stays small.
+
+Pure module (Pillow only): `forge.mystery.cbn_case.build_case_book` calls `place_art`.
+"""
+
+from __future__ import annotations
+
+import io
+import json
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
+# printed width as a share of the text width; None = reference sheet, never printed
+ZONE_WIDTH: dict[str, float | None] = {
+    "cover_art": 0.78,
+    "scene": 0.64,
+    "portraits": 1.0,
+    "character_sheet": None,
+    "location_sheet": None,
+}
+DPI = 300
+PORTRAITS_TITLE = "Faces of the Case"
+
+
+def key_of(stem: str) -> str:
+    """File stem -> art key (``char_wren`` -> ``char:wren``, ``loc_fir`` -> ``loc:fir``)."""
+    for pre in ("char_", "loc_"):
+        if stem.startswith(pre):
+            return pre[:-1] + ":" + stem[len(pre) :]
+    return stem
+
+
+def load_art(art_dir: Path) -> dict[str, Path]:
+    """Key -> picture file. The manifest wins; other ``*.png`` / ``*.jpg`` files count by name."""
+    art_dir = Path(art_dir)
+    found: dict[str, Path] = {}
+    for f in sorted(art_dir.glob("*")):
+        if f.suffix.lower() in (".png", ".jpg", ".jpeg"):
+            found[key_of(f.stem)] = f
+    man = art_dir / "art_manifest.json"
+    if man.is_file():
+        for key, rec in json.loads(man.read_text(encoding="utf-8")).items():
+            f = art_dir / str((rec or {}).get("file") or "")
+            if f.is_file():
+                found[key] = f
+    return found
+
+
+def request_key(req: dict[str, Any]) -> str:
+    return str(req.get("id") or f"{req.get('zone')}@{req.get('page')}")
+
+
+def print_jpeg(src: Path, width_in: float) -> tuple[bytes, float]:
+    """Re-encode at 300 dpi for the printed width; returns (jpeg bytes, printed height in in)."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        rgb = im.convert("RGB")
+    px = max(1, round(width_in * DPI))
+    if rgb.width > px:
+        rgb = rgb.resize((px, max(1, round(rgb.height * px / rgb.width))), Image.Resampling.LANCZOS)
+    buf = io.BytesIO()
+    rgb.save(buf, "JPEG", quality=90, optimize=True, dpi=(DPI, DPI))
+    return buf.getvalue(), width_in * rgb.height / rgb.width
+
+
+def place_art(
+    pages: list[Any],
+    requests: list[dict[str, Any]],
+    art: dict[str, Path],
+    text_width_in: float,
+    text_height_in: float,
+    make_page: Callable[..., Any],
+) -> tuple[dict[str, bytes], dict[str, Any]]:
+    """Insert an image block at the top of each requested page (title page: under the title).
+
+    `requests[i]["page"]` is the 1-based page number from `layout_pages`. Portraits go on their
+    own page right after the suspects page (the dossier list fills that page). Pages are any
+    objects with a mutable ``blocks`` list; `make_page(kind=..., title=..., blocks=...)` builds the
+    extra portraits page. Returns the files for the Typst build dir and a report."""
+    files: dict[str, bytes] = {}
+    placed: list[str] = []
+    missing: list[str] = []
+    inserts: list[tuple[int, Any]] = []
+    for req in requests:
+        share = ZONE_WIDTH.get(str(req.get("zone")), 0.64)
+        if share is None:
+            continue
+        key = request_key(req)
+        src = art.get(key)
+        n = int(req.get("page") or 0)
+        if src is None or not 1 <= n <= len(pages):
+            missing.append(key)
+            continue
+        width = round(text_width_in * share, 2)
+        data, height = print_jpeg(src, width)
+        if req.get("zone") == "portraits" and height > text_height_in * 0.92:
+            width = round(width * text_height_in * 0.92 / height, 2)
+            data, height = print_jpeg(src, width)
+        name = f"art/{key.replace(':', '_')}.jpg"
+        files[name] = data
+        block = {"kind": "image", "path": name, "width_in": width}
+        if req.get("zone") == "portraits":
+            inserts.append((n, make_page(kind="text", title=PORTRAITS_TITLE, blocks=[block])))
+        else:
+            pages[n - 1].blocks.insert(0, block)
+            if req.get("zone") == "scene":
+                pages[n - 1].blocks.insert(1, {"kind": "spacer", "height_in": 0.15})
+        placed.append(key)
+    for n, page in sorted(inserts, key=lambda x: -x[0]):
+        pages.insert(n, page)
+    return files, {"placed": placed, "missing": missing, "pages_added": len(inserts)}

@@ -624,11 +624,15 @@ def layout_pages(
             }
         )
 
-    def add(page: Page, brief: str = "", zone: str = "scene", text: str = "") -> None:
+    def add(
+        page: Page, brief: str = "", zone: str = "scene", text: str = "", rid: str = ""
+    ) -> None:
         pages.append(page)
         if brief:
             who = cast_in(frame, f"{brief} {text}")
             req: dict[str, Any] = {"page": len(pages), "zone": zone, "brief": brief}
+            if rid:  # key of the picture in the Studio art folder (forge/mystery/art.py)
+                req["id"] = rid
             if frame.art_style:
                 req["style"] = frame.art_style
             if who:
@@ -646,6 +650,7 @@ def layout_pages(
         Page(kind="title", title=frame.title, header=False, number=False, blocks=[]),
         f"Cover art for '{frame.title}': {frame.setting}",
         "cover_art",
+        rid="cover",
     )
     add(
         Page(
@@ -679,6 +684,7 @@ def layout_pages(
         add(
             Page(kind="text", title=frame.prologue_title, blocks=_para(frame.prologue)),
             f"Opening scene: {frame.setting}",
+            rid="prologue",
         )
     who = [
         str(s[frame.answer_field])
@@ -701,6 +707,7 @@ def layout_pages(
         "Portrait strip of the suspects, in dossier order: "
         + ", ".join(str(s[frame.answer_field]) for s in frame.suspects),
         "portraits",
+        rid="portraits",
     )
     log = [
         f"Chapter {ch.no}:   evidence __________   it is __________ and __________   "
@@ -720,6 +727,7 @@ def layout_pages(
             Page(kind="text", title=f"Chapter {ch.no}: {ch.title}", blocks=_para(ch.story)),
             ch.scene,
             text=ch.story,
+            rid=f"ch{ch.no}",
         )
         front = cb.render(cp.cbn, ctx)
         files.update(front.files)
@@ -861,11 +869,18 @@ def load_frame(path: Any) -> CaseFrame:
 
 
 def build_case_book(
-    frame: CaseFrame, out_dir: Any, seed: int = 20261118, trim: str = "8.5x11", render: bool = True
+    frame: CaseFrame,
+    out_dir: Any,
+    seed: int = 20261118,
+    trim: str = "8.5x11",
+    render: bool = True,
+    art_dir: Any = None,
 ) -> dict[str, Any]:
     """Check the frame, generate + verify every puzzle, lay out and render the book.
 
-    Writes interior.pdf (when a Typst backend exists), manifest.json and art_requests.json."""
+    Writes interior.pdf (when a Typst backend exists), manifest.json and art_requests.json.
+    `art_dir`: the Studio art folder (`<key>.png` + art_manifest.json) -> pictures placed on the
+    pages (forge/mystery/art.py); missing pictures are listed in manifest["art"]."""
     import json
     from pathlib import Path
 
@@ -886,10 +901,20 @@ def build_case_book(
         height_in=t.height_in - m.top - m.bottom - 0.9,
     )
     pages, files, art = layout_pages(frame, puzzles, ctx)
+    art_report: dict[str, Any] | None = None
+    if art_dir is not None:
+        from forge.mystery.art import load_art, place_art
+
+        extra, art_report = place_art(
+            pages, art, load_art(Path(art_dir)), ctx.width_in, ctx.height_in, Page
+        )
+        files.update(extra)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     man = manifest(frame, puzzles, rep)
     man.update({"seed": seed, "trim": trim, "pages": len(pages)})
+    if art_report is not None:
+        man["art"] = art_report
     man["reader_sim"] = {"ok": run.ok, "left_after": run.left_after}
     (out / "manifest.json").write_text(json.dumps(man, indent=2), encoding="utf-8")
     (out / "art_requests.json").write_text(json.dumps(art, indent=2), encoding="utf-8")

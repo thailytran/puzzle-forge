@@ -349,6 +349,8 @@
     #text(font: L.fonts.sans, weight: "bold", size: 2.6 * base, L.title)
     #if L.subtitle != "" { v(0.8em); text(font: L.fonts.sans, size: 1.4 * base, L.subtitle) }
   ]
+  // cover art of a CBN Mystery book (forge/mystery/art.py) sits under the title
+  for b in p.at("blocks", default: ()) { v(0.8em); render-block(b) }
   v(1fr)
   if L.author != "" { align(center, text(size: 1.2 * base, L.author)) }
   v(0.5fr)

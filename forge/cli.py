@@ -786,6 +786,9 @@ def mystery_build(
     seed: int = typer.Option(20261118, help="Book seed"),
     trim: str = typer.Option("8.5x11", help="8.5x11 | A4"),
     no_render: bool = typer.Option(False, "--no-render", help="Puzzles + manifest only."),
+    art: Path | None = typer.Option(
+        None, "--art", help="Studio art folder (<key>.png + art_manifest.json) to place in the book"
+    ),
 ) -> None:
     """Build a CBN Mystery book from a checked case frame."""
     from forge.mystery.cbn_case import build_case_book, load_frame
@@ -793,13 +796,16 @@ def mystery_build(
 
     frame = load_frame(case)
     try:
-        man = build_case_book(frame, out / frame.id, seed, trim, render=not no_render)
+        man = build_case_book(frame, out / frame.id, seed, trim, render=not no_render, art_dir=art)
     except CaseError as e:
         typer.secho(str(e), fg=typer.colors.RED, err=True)
         raise typer.Exit(1) from e
     typer.echo(
         f"{frame.id}: {man['pages']} pages, {man['puzzle_pages']} puzzle pages -> {out / frame.id}"
     )
+    if "art" in man:
+        a = man["art"]
+        typer.echo(f"art: {len(a['placed'])} placed, missing: {a['missing'] or 'none'}")
 
 
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")

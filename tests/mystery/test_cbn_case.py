@@ -317,3 +317,22 @@ def test_characters_look_the_same_everywhere(frame: CaseFrame) -> None:
         d["cast"].pop(4)
 
     assert any("has no character sheet" in p for p in problems(frame, missing))
+
+
+def test_art_requests_carry_studio_keys(frame: CaseFrame) -> None:
+    _p, _f, art = layout_pages(frame, build_puzzles(frame, 7), RenderCtx(7.0, 9.0))
+    ids = {a.get("id") for a in art if a["zone"] != "character_sheet"}
+    assert {"cover", "prologue", "portraits"} <= ids
+    assert {f"ch{ch.no}" for ch in frame.chapters} <= ids
+
+
+def test_build_places_studio_art(frame: CaseFrame, tmp_path: Path) -> None:
+    from PIL import Image
+
+    art = tmp_path / "art"
+    art.mkdir()
+    for key in ("cover", "prologue", "ch1", "portraits"):
+        Image.new("RGB", (800, 600), (90, 120, 200)).save(art / f"{key}.png")
+    man = build_case_book(frame, tmp_path / "book", render=False, art_dir=art)
+    assert sorted(man["art"]["placed"]) == ["ch1", "cover", "portraits", "prologue"]
+    assert "ch2" in man["art"]["missing"] and man["art"]["pages_added"] == 1
