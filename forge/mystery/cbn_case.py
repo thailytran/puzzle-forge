@@ -1031,9 +1031,7 @@ def build_case_book(
     files.update(theme_files)
     art_report: dict[str, Any] | None = None
     if art_dir is not None:
-        from forge.mystery.art import place_art
-
-        from forge.mystery.art import place_poster
+        from forge.mystery.art import place_art, place_poster
 
         size = (t.width_in, t.height_in)
         win = (theme or {}).get("window") or {"x": 0.0, "y": 0.0, "w": 1.0, "h": 1.0}
