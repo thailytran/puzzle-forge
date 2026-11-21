@@ -210,7 +210,19 @@
   }))
 }
 
+// colour legend sits ABOVE the picture grid: the lower corners of the frame hold ornaments
+#let legend-row(b) = {
+  if b.at("legend", default: true) {
+    set text(font: L.fonts.sans, size: base)
+    align(center, b.palette.map(e => box(inset: 3pt, stack(dir: ltr, spacing: 4pt,
+      rect(width: 0.3in, height: 0.3in, fill: rgb(e.hex), stroke: 0.4pt),
+      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.6em)))
+    v(0.5em)
+  }
+}
+
 #let cbn-grid(b) = {
+  legend-row(b)
   let rows = b.cells
   let nr = rows.len()
   let nc = rows.at(0).len()
@@ -230,18 +242,12 @@
       }
     }
   }))
-  if b.at("legend", default: true) {
-    v(0.6em)
-    set text(font: L.fonts.sans, size: base)
-    align(center, b.palette.map(e => box(inset: 3pt, stack(dir: ltr, spacing: 4pt,
-      rect(width: 0.3in, height: 0.3in, fill: rgb(e.hex), stroke: 0.4pt),
-      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.6em)))
-  }
 }
 
 // Polygon colour-by-number mosaic (hexagons, triangles, dots…): every cell arrives as an outline
 // in inches plus its centre, label and (solution pages) colour index.
 #let cbn-poly(b) = {
+  legend-row(b)
   let fpt = b.font_pt * 1pt
   let lab = b.label_in * inch
   align(center, box(width: b.w_in * inch, height: b.h_in * inch, {
@@ -256,13 +262,6 @@
       }
     }
   }))
-  if b.at("legend", default: true) {
-    v(0.6em)
-    set text(font: L.fonts.sans, size: base)
-    align(center, b.palette.map(e => box(inset: 3pt, stack(dir: ltr, spacing: 4pt,
-      rect(width: 0.3in, height: 0.3in, fill: rgb(e.hex), stroke: 0.4pt),
-      align(horizon, (if b.mode == "B" { str(e.answer) } else { str(e.n) }) + " " + e.name)))).join(h(0.6em)))
-  }
 }
 
 #let word-list(b) = {
@@ -318,12 +317,12 @@
     if fp != none { text(size: fp * 1pt, body) } else { body }
   } else if k == "writelog" {
     // Code Log: generous ruled lines to write on (owner 2026-11-21: lines were too close together)
-    let rule = box(width: 100%, height: 0.3in, stroke: (bottom: 0.7pt + luma(130)))
-    for it in b.items {
-      block(breakable: false, below: 0.26in, grid(columns: (auto, auto, 1fr, auto, 1fr, auto, 1fr), column-gutter: 7pt, row-gutter: 0.08in, align: bottom,
+    let rule = box(width: 100%, height: 0.27in, stroke: (bottom: 0.7pt + luma(130)))
+    pad(x: 0.35in, for it in b.items {
+      block(breakable: false, below: 0.2in, grid(columns: (auto, auto, 1fr, auto, 1fr, auto, 1fr), column-gutter: 7pt, row-gutter: 0.08in, align: bottom,
         text(weight: "bold", it.label), [evidence], rule, [it is], rule, [and], rule,
         [], [fact], grid.cell(colspan: 5, rule)))
-    }
+    })
   } else if k == "spacer" {
     v(b.height_in * inch)
   } else if k == "url" {
@@ -483,7 +482,7 @@
   let bx = (win.x + 0.075 * win.w) * L.width_in * inch
   let by = (win.y + (p.style.h + 0.02) * win.h) * L.height_in * inch
   let bw = 0.85 * win.w * L.width_in * inch
-  let bh = calc.min(0.835 * L.height_in * inch - by, 0.40 * win.h * L.height_in * inch)
+  let bh = calc.min(0.79 * L.height_in * inch - by, 0.40 * win.h * L.height_in * inch)
   let body(k) = {
     set text(size: k * base, fill: rgb("#24160c"))
     set par(leading: 0.5em, justify: true)

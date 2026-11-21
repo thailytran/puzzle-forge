@@ -335,4 +335,4 @@ def test_build_places_studio_art(frame: CaseFrame, tmp_path: Path) -> None:
         Image.new("RGB", (800, 600), (90, 120, 200)).save(art / f"{key}.png")
     man = build_case_book(frame, tmp_path / "book", render=False, art_dir=art)
     assert sorted(man["art"]["placed"]) == ["ch1", "cover", "portraits", "prologue"]
-    assert "ch2" in man["art"]["missing"] and man["art"]["pages_added"] == 0
+    assert "ch2" in man["art"]["missing"] and man["art"]["pages_added"] == 1

@@ -158,6 +158,7 @@ BANNER_RATIO = 2.7  # width / height of the picture strip on text-only pages
 BANNER_PAGES: tuple[tuple[str, str | None], ...] = (
     ("Final Deduction", "cover"),
     ("Hints", "prologue"),
+    ("Suspect Files", "prologue"),
     ("Case Closed", "cover"),
 )
 
@@ -291,10 +292,17 @@ def place_art(
         files[name] = data
         block = {"kind": "image", "path": name, "width_in": width}
         if req.get("zone") == "portraits":  # same page as the suspects list: no picture-only page
-            width = round(width * 0.85, 2)
+            width = round(width * 0.9, 2)
             files[name], _h = print_jpeg(src, width)
-            pages[n - 1].blocks.insert(0, {**block, "width_in": width})
-            pages[n - 1].blocks.insert(1, {"kind": "spacer", "height_in": 0.1})
+            sus = pages[n - 1]
+            lists = [b for b in sus.blocks if b.get("kind") == "list"]
+            sus.blocks = [
+                {**block, "width_in": width},
+                {"kind": "spacer", "height_in": 0.1},
+                *[b for b in sus.blocks if b not in lists],
+            ]
+            if lists:  # the dossier list gets its own page, full size
+                inserts.append((n, make_page(kind="text", title="Suspect Files", blocks=lists)))
         else:
             pages[n - 1].blocks.insert(0, block)
             if req.get("zone") == "scene":
