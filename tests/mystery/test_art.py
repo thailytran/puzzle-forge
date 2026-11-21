@@ -116,4 +116,4 @@ def test_theme_from_design_kit(tmp_path: Path) -> None:
     assert plaque.mode == "RGBA" and plaque.width / plaque.height > 5  # cropped to the plank
     assert plaque.getpixel((0, 0))[3] == 0 or plaque.getpixel((plaque.width // 2, 1))[3] == 255
     m = theme_margins(8.5, 11)
-    assert m["inside"] >= 0.95 and m["top"] >= 1.0
+    assert m["inside"] >= 0.8 and m["top"] >= 1.0 and m["bottom"] >= 1.2

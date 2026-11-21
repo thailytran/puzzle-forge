@@ -23,7 +23,7 @@ from typing import Any
 # printed width as a share of the text width; None = reference sheet, never printed
 ZONE_WIDTH: dict[str, float | None] = {
     "cover_art": 0.78,
-    "scene": 0.64,
+    "scene": 0.56,
     "portraits": 1.0,
     "character_sheet": None,
     "location_sheet": None,
@@ -124,7 +124,7 @@ def place_art(
 
 # ---------------------------------------------------------------- page theme (Studio design kit)
 FRAME_SHARE = (
-    0.115,
+    0.1,
     0.095,
 )  # frame border width / height as a share of the page (the centre is empty parchment)
 
@@ -137,7 +137,7 @@ def theme_margins(width_in: float, height_in: float) -> dict[str, float]:
         "inside": side,
         "outside": side,
         "top": round(max(0.8, height_in * sy), 2),
-        "bottom": round(max(0.8, height_in * sy), 2),
+        "bottom": round(max(1.2, height_in * 0.145), 2),  # corner ornaments (lantern, pine) sit low
     }
 
 
@@ -194,7 +194,7 @@ def build_theme(
     theme: dict[str, Any] = {
         "background": "theme/frame.jpg",
         "heading_font": "Young Serif",
-        "heading_ink": "#3b2412",
+        "heading_ink": "#fff3d6",  # cream letters on the wooden sign
         "margins": theme_margins(width_in, height_in),
     }
     if plaque is not None:
@@ -204,6 +204,6 @@ def build_theme(
         theme.update(
             plaque="theme/plaque.png",
             plaque_w_in=w,
-            plaque_h_in=round(max(0.6, min(w / ratio, 1.1)), 2),
+            plaque_h_in=round(max(0.75, min(w / ratio, 1.15)), 2),
         )
     return files, theme
