@@ -235,7 +235,15 @@ def split_icons(src: Path, n: int = len(ICON_ORDER)) -> list[bytes]:
     sm = rgb.resize((300, max(1, round(h * k))))
     px = sm.load()
     sw, sh = sm.size
-    ink = [[min(px[x, y]) < 235 for x in range(sw)] for y in range(sh)]
+    corners = [px[0, 0], px[sw - 1, 0], px[0, sh - 1], px[sw - 1, sh - 1]]
+    bg = tuple(
+        sorted(c[i] for c in corners)[1] for i in range(3)
+    )  # sheet background (white or light grey)
+
+    def far(c: tuple[int, ...]) -> bool:
+        return sum(abs(c[i] - bg[i]) for i in range(3)) > 30
+
+    ink = [[far(px[x, y]) for x in range(sw)] for y in range(sh)]
     seen = [[False] * sw for _ in range(sh)]
     boxes = []
     for y in range(sh):
@@ -270,7 +278,7 @@ def split_icons(src: Path, n: int = len(ICON_ORDER)) -> list[bytes]:
         ic = rgb.crop(box).convert("RGBA")
         ic.putdata(
             [
-                (r, g, b, 0) if min(r, g, b) > 240 else (r, g, b, 255)
+                (r, g, b, 0) if not far((r, g, b)) else (r, g, b, 255)
                 for (r, g, b, _a) in ic.getdata()
             ]
         )

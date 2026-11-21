@@ -801,7 +801,7 @@ def layout_pages(
             text=ch.story,
             rid=f"ch{ch.no}",
         )
-        front = cb.render(cp.cbn, ctx)
+        front = cb.render(cp.cbn, side_ctx)
         files.update(front.files)
         add(
             Page(
