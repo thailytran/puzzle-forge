@@ -375,14 +375,19 @@
   v(-0.45em)
   align(center, text(font: L.fonts.sans, size: 0.85 * base, weight: "bold", fill: c, upper(S.subtitle)))
   v(0.35em)
-  // the puzzle itself on a white card with the type colour
-  block(width: 100%, breakable: false, fill: white, stroke: (paint: c, thickness: 2pt), radius: 10pt, inset: 8pt,
-    { for b in p.blocks { render-block(b) } })
+  let I = T.at("icons", default: (:))
+  let icon(name, w) = if name in I { image(I.at(name), width: w) } else { none }
+  // the puzzle itself on a white card with the type colour; a sticker icon sits on its corner
+  block(width: 100%, breakable: false, fill: white, stroke: (paint: c, thickness: 2pt), radius: 10pt, inset: 8pt, {
+    for b in p.blocks { render-block(b) }
+    let ic = icon(S.at("icon", default: "key"), 0.62in)
+    if ic != none { place(top + right, dx: 0.28in, dy: -0.42in, ic) }
+  })
   v(0.4em)
   // how to play + tips
   grid(columns: (1.35fr, 1fr), column-gutter: 0.12in,
     block(width: 100%, fill: soft, stroke: (paint: c, thickness: 1.2pt), radius: 8pt, inset: 8pt, {
-      text(font: L.fonts.sans, weight: "bold", size: 0.9 * base, fill: c, "HOW TO PLAY")
+      box(icon("watch", 0.22in)) + h(0.3em) + text(font: L.fonts.sans, weight: "bold", size: 0.9 * base, fill: c, "HOW TO PLAY")
       v(0.25em)
       for (i, s) in S.steps.enumerate() {
         grid(columns: (0.22in, 1fr), column-gutter: 0.06in,
@@ -393,7 +398,7 @@
       }
     }),
     block(width: 100%, fill: rgb("#fff6d8"), stroke: (paint: rgb("#e0a526"), thickness: 1.2pt), radius: 8pt, inset: 8pt, {
-      text(font: L.fonts.sans, weight: "bold", size: 0.9 * base, fill: rgb("#b7791f"), "TIPS")
+      box(icon("bulb", 0.22in)) + h(0.3em) + text(font: L.fonts.sans, weight: "bold", size: 0.9 * base, fill: rgb("#b7791f"), "TIPS")
       v(0.25em)
       for s in S.tips { text(size: 0.8 * base, [• #s]); v(0.1em) }
     }),

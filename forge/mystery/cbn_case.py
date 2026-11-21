@@ -604,6 +604,7 @@ def _evidence_rows(ch: Chapter) -> list[str]:
 # designed puzzle pages (themed books): big sign title, how-to-play steps, tips and a slogan ribbon
 PAGE_STYLES: dict[str, dict[str, Any]] = {
     "cbn": {
+        "icon": "magnifier",
         "title": "HIDDEN PICTURE",
         "color": "#d9772b",
         "steps": [
@@ -615,6 +616,7 @@ PAGE_STYLES: dict[str, dict[str, Any]] = {
         "slogan": "COLOUR IT IN. THE CLUE APPEARS!",
     },
     "shift": {
+        "icon": "key",
         "title": "CODE BREAKER",
         "color": "#7b3fb5",
         "steps": [
@@ -626,6 +628,7 @@ PAGE_STYLES: dict[str, dict[str, Any]] = {
         "slogan": "CRACK THE CODE!",
     },
     "maze": {
+        "icon": "map",
         "title": "MAZE ESCAPE",
         "color": "#2e8b57",
         "steps": [
@@ -637,6 +640,7 @@ PAGE_STYLES: dict[str, dict[str, Any]] = {
         "slogan": "THINK. PLAN. ESCAPE!",
     },
     "numlock": {
+        "icon": "padlock",
         "title": "NUMBER LOCK",
         "color": "#c0392b",
         "steps": [
@@ -648,6 +652,7 @@ PAGE_STYLES: dict[str, dict[str, Any]] = {
         "slogan": "UNLOCK THE CLUE!",
     },
     "sudoku": {
+        "icon": "chest",
         "title": "SUDOKU VAULT",
         "color": "#2563a8",
         "steps": [

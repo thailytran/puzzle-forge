@@ -117,3 +117,17 @@ def test_theme_from_design_kit(tmp_path: Path) -> None:
     assert plaque.getpixel((0, 0))[3] == 0 or plaque.getpixel((plaque.width // 2, 1))[3] == 255
     m = theme_margins(8.5, 11)
     assert m["inside"] >= 0.8 and m["top"] >= 1.0 and m["bottom"] >= 1.2
+
+
+def test_split_icons_reading_order(tmp_path: Path) -> None:
+    from forge.mystery.art import split_icons
+
+    sheet = Image.new("RGB", (1200, 600), (255, 255, 255))
+    for i in range(8):
+        x, y = 60 + (i % 4) * 290, 80 + (i // 4) * 280
+        sheet.paste((20 + i * 25, 80, 160), (x, y, x + 150 + i * 5, y + 150))
+    sheet.save(tmp_path / "icons.png")
+    out = split_icons(tmp_path / "icons.png")
+    assert len(out) == 8
+    first = Image.open(__import__("io").BytesIO(out[0]))
+    assert first.mode == "RGBA" and first.getpixel((first.width // 2, first.height // 2))[0] == 20

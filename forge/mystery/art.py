@@ -211,4 +211,71 @@ def build_theme(
             plaque_w_in=w,
             plaque_h_in=round(max(0.75, min(w / ratio, 1.15)), 2),
         )
+    icons = art.get("design:icons")
+    if icons is not None:
+        names = []
+        for name, png in zip(ICON_ORDER, split_icons(icons), strict=False):
+            files[f"theme/icon_{name}.png"] = png
+            names.append(name)
+        theme["icons"] = {n: f"theme/icon_{n}.png" for n in names}
     return files, theme
+
+
+ICON_ORDER = ("lantern", "key", "padlock", "magnifier", "chest", "watch", "bulb", "map")
+
+
+def split_icons(src: Path, n: int = len(ICON_ORDER)) -> list[bytes]:
+    """Sticker sheet (icons on white, 2 rows of 4) -> transparent PNGs in reading order."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        rgb = im.convert("RGB")
+    w, h = rgb.size
+    k = 300 / w
+    sm = rgb.resize((300, max(1, round(h * k))))
+    px = sm.load()
+    sw, sh = sm.size
+    ink = [[min(px[x, y]) < 235 for x in range(sw)] for y in range(sh)]
+    seen = [[False] * sw for _ in range(sh)]
+    boxes = []
+    for y in range(sh):
+        for x in range(sw):
+            if not ink[y][x] or seen[y][x]:
+                continue
+            stack, xs, ys = [(x, y)], [], []
+            seen[y][x] = True
+            while stack:
+                cx, cy = stack.pop()
+                xs.append(cx)
+                ys.append(cy)
+                for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                    if 0 <= nx < sw and 0 <= ny < sh and ink[ny][nx] and not seen[ny][nx]:
+                        seen[ny][nx] = True
+                        stack.append((nx, ny))
+            if len(xs) > sw * sh * 0.004:
+                boxes.append((min(xs), min(ys), max(xs) + 1, max(ys) + 1, len(xs)))
+    boxes = sorted(boxes, key=lambda b: -b[4])[:n]
+    rows = sorted(boxes, key=lambda b: b[1])
+    half = len(rows) // 2 or 1
+    ordered = sorted(rows[:half], key=lambda b: b[0]) + sorted(rows[half:], key=lambda b: b[0])
+    out = []
+    for x0, y0, x1, y1, _ in ordered:
+        pad = 3
+        box = (
+            max(0, round((x0 - pad) / k)),
+            max(0, round((y0 - pad) / k)),
+            min(w, round((x1 + pad) / k)),
+            min(h, round((y1 + pad) / k)),
+        )
+        ic = rgb.crop(box).convert("RGBA")
+        ic.putdata(
+            [
+                (r, g, b, 0) if min(r, g, b) > 240 else (r, g, b, 255)
+                for (r, g, b, _a) in ic.getdata()
+            ]
+        )
+        ic.thumbnail((360, 360))
+        buf = io.BytesIO()
+        ic.save(buf, "PNG", optimize=True)
+        out.append(buf.getvalue())
+    return out
