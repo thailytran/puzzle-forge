@@ -365,6 +365,14 @@
   }
 })
 
+// themed pages: whatever does not fit the clear area of the frame shrinks to fit (never runs into
+// the corner ornaments or onto the next page)
+#let fit(body) = block(width: 100%, height: 100%, layout(size => {
+  let m = measure(width: size.width, body)
+  let k = if m.height > size.height { size.height / m.height } else { 1.0 }
+  scale(x: k * 100%, y: k * 100%, origin: top + center, reflow: true, block(width: size.width, body))
+}))
+
 // ---------------------------------------------------------------- designed puzzle page (themed books)
 #let styled-puzzle(p) = {
   let S = p.style
@@ -464,9 +472,9 @@
   let side = L.margins.outside * inch
   let win = T.at("window", default: (x: 0.0, y: 0.0, w: 1.0, h: 1.0))
   // plain paper only: under the picture, above the corner ornaments
-  let bx = (win.x + 0.06 * win.w) * L.width_in * inch
+  let bx = (win.x + 0.075 * win.w) * L.width_in * inch
   let by = (win.y + (p.style.h + 0.02) * win.h) * L.height_in * inch
-  let bw = 0.88 * win.w * L.width_in * inch
+  let bw = 0.85 * win.w * L.width_in * inch
   let bh = calc.min(0.835 * L.height_in * inch - by, 0.40 * win.h * L.height_in * inch)
   let body(k) = {
     set text(size: k * base, fill: rgb("#24160c"))
@@ -508,7 +516,7 @@
       []
     } else {
       let styled = T != none and p.at("style", default: none) != none
-      if p.at("title", default: none) != none and not styled {
+      if p.at("title", default: none) != none and not styled and T == none {
         render-block((kind: "heading", text: p.title, level: 1))
       }
       if tp != none and p.style.type == "poster" {
@@ -518,12 +526,19 @@
       } else if tp != none {
         template-puzzle(p, tp)
       } else if styled {
-        styled-puzzle(p)
+        fit(styled-puzzle(p))
       } else if T != none and p.blocks.len() > 0 and T.at("card", default: false) {  // owner: no white cards
         // themed book: the page content sits on a cream card with a gold rule (reads well on the parchment frame)
         block(width: 100%, breakable: true, fill: rgb(T.at("panel_fill", default: "#fffdf6")),
           stroke: (paint: rgb(T.at("accent", default: "#b8862b")), thickness: 1.2pt), radius: 10pt, inset: 12pt,
           { for b in p.blocks { render-block(b) } })
+      } else if T != none {
+        fit({
+          if p.at("title", default: none) != none {
+            render-block((kind: "heading", text: p.title, level: 1))
+          }
+          for b in p.blocks { render-block(b) }
+        })
       } else {
         for b in p.blocks { render-block(b) }
       }

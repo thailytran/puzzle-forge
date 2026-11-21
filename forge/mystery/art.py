@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import io
 import json
+import re
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -151,6 +152,63 @@ def story_jpeg(src: Path, box_w_in: float, box_h_in: float) -> tuple[bytes, floa
     return buf.getvalue(), round(w_in / box_w_in, 4), round(h_in / box_h_in, 4)
 
 
+BANNER_RATIO = 2.7  # width / height of the picture strip on text-only pages
+# owner 2026-11-21: no page may be only text + frame -> these pages get a picture strip
+# (a crop of an existing scene) under their title: page title prefix -> art key
+BANNER_PAGES: tuple[tuple[str, str | None], ...] = (
+    ("Code Log", "prologue"),
+    ("Final Deduction", "cover"),
+    ("Hints", "prologue"),
+    ("Case Closed", "cover"),
+)
+
+
+def banner_jpeg(src: Path, width_in: float) -> tuple[bytes, float]:
+    """A wide strip cut from the middle of a picture, rim softened -> (jpeg, height in in)."""
+    from PIL import Image
+
+    with Image.open(src) as im:
+        rgb = im.convert("RGB")
+    h = min(rgb.height, round(rgb.width / BANNER_RATIO))
+    top = round((rgb.height - h) * 0.45)
+    rgb = rgb.crop((0, top, rgb.width, top + h))
+    px = round(width_in * 200)
+    if rgb.width > px:
+        rgb = rgb.resize((px, round(px * rgb.height / rgb.width)), Image.Resampling.LANCZOS)
+    rgb = _soften(rgb)
+    buf = io.BytesIO()
+    rgb.save(buf, "JPEG", quality=90, optimize=True, dpi=(200, 200))
+    return buf.getvalue(), width_in * rgb.height / rgb.width
+
+
+def decorate_plain_pages(
+    pages: list[Any], art: dict[str, Path], text_width_in: float
+) -> dict[str, bytes]:
+    """A picture strip at the top of every page that would be only text on the frame."""
+    files: dict[str, bytes] = {}
+    width = round(text_width_in * 0.9, 2)
+    for i, page in enumerate(pages):
+        if getattr(page, "style", None) is not None or getattr(page, "kind", "") != "text":
+            continue
+        title = str(getattr(page, "title", "") or "")
+        key = None
+        m = re.match(r"Evidence Card (\d+)", title)
+        if m:
+            key = f"ch{m.group(1)}"
+        else:
+            key = next((k for pre, k in BANNER_PAGES if title.startswith(pre)), None)
+        src = art.get(key) if key else None
+        if src is None or any(b.get("kind") == "image" for b in page.blocks):
+            continue
+        name = f"art/banner_{i + 1}.jpg"
+        files[name], _h = banner_jpeg(src, width)
+        page.blocks[:0] = [
+            {"kind": "image", "path": name, "width_in": width},
+            {"kind": "spacer", "height_in": 0.12},
+        ]
+    return files
+
+
 def page_jpeg(src: Path, width_in: float, height_in: float) -> bytes:
     """A designed full page (poster) at print size."""
     from PIL import Image
@@ -236,8 +294,11 @@ def place_art(
         name = f"art/{key.replace(':', '_')}.jpg"
         files[name] = data
         block = {"kind": "image", "path": name, "width_in": width}
-        if req.get("zone") == "portraits":
-            inserts.append((n, make_page(kind="text", title=PORTRAITS_TITLE, blocks=[block])))
+        if req.get("zone") == "portraits":  # same page as the suspects list: no picture-only page
+            width = round(width * 0.85, 2)
+            files[name], _h = print_jpeg(src, width)
+            pages[n - 1].blocks.insert(0, {**block, "width_in": width})
+            pages[n - 1].blocks.insert(1, {"kind": "spacer", "height_in": 0.1})
         else:
             pages[n - 1].blocks.insert(0, block)
             if req.get("zone") == "scene":
@@ -245,13 +306,14 @@ def place_art(
         placed.append(key)
     for n, page in sorted(inserts, key=lambda x: -x[0]):
         pages.insert(n, page)
+    files.update(decorate_plain_pages(pages, art, text_width_in))
     return files, {"placed": placed, "missing": missing, "pages_added": len(inserts)}
 
 
 # ---------------------------------------------------------------- page theme (Studio design kit)
 FRAME_SHARE = (
-    0.1,
-    0.095,
+    0.125,
+    0.105,
 )  # frame border width / height as a share of the page (the centre is empty parchment)
 
 
@@ -263,7 +325,7 @@ def theme_margins(width_in: float, height_in: float) -> dict[str, float]:
         "inside": side,
         "outside": side,
         "top": round(max(0.8, height_in * sy), 2),
-        "bottom": round(max(1.15, height_in * 0.13), 2),  # corner ornaments (lantern, pine) sit low
+        "bottom": round(max(1.15, height_in * 0.16), 2),  # corner ornaments (lantern, pine) sit low
     }
 
 

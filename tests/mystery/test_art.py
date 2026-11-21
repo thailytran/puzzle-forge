@@ -9,7 +9,7 @@ from typing import Any
 
 from PIL import Image
 
-from forge.mystery.art import PORTRAITS_TITLE, key_of, load_art, place_art
+from forge.mystery.art import key_of, load_art, place_art
 
 
 @dataclass
@@ -69,13 +69,13 @@ def test_place_art_puts_pictures_on_their_pages(tmp_path: Path) -> None:
         "char:wren": _png(tmp_path / "w.png", 300, 200),
     }
     files, rep = place_art(pages, reqs, art, 6.5, 9.0, P)
-    assert rep["missing"] == [] and rep["pages_added"] == 1
+    assert rep["missing"] == [] and rep["pages_added"] == 0
     assert sorted(rep["placed"]) == ["ch1", "cover", "portraits", "prologue"]
     assert "art/char_wren.jpg" not in files  # reference sheets are never printed
     assert pages[0].blocks[0]["path"] == "art/cover.jpg"
     assert pages[2].blocks[0]["kind"] == "image" and pages[2].blocks[2]["text"] == "x"
-    assert pages[4].title == PORTRAITS_TITLE and pages[3].title == "The Suspects"
-    assert pages[5].blocks[0]["path"] == "art/ch1.jpg"
+    assert pages[3].title == "The Suspects" and pages[3].blocks[0]["path"] == "art/portraits.jpg"
+    assert pages[4].blocks[0]["path"] == "art/ch1.jpg"
     for name, data in files.items():
         im = Image.open(__import__("io").BytesIO(data))
         assert im.format == "JPEG"
@@ -87,7 +87,7 @@ def test_portraits_fit_the_page_height(tmp_path: Path) -> None:
     pages, reqs = _book()
     art = {"portraits": _png(tmp_path / "p.png", 1000, 2000)}  # very tall
     place_art(pages, reqs, art, 6.5, 9.0, P)
-    blk = pages[4].blocks[0]
+    blk = pages[3].blocks[0]
     assert blk["width_in"] * 2 <= 9.0 * 0.92 + 0.01
 
 
@@ -178,3 +178,21 @@ def test_story_picture_stays_whole_in_the_top_of_the_page(tmp_path: Path) -> Non
     Image.new("RGB", (900, 1200), "navy").save(tall)
     _, w2, h2 = story_jpeg(tall, 7.4, 9.8)
     assert h2 <= STORY_PIC_MAX + 0.001 and w2 <= 1.0
+
+
+def test_plain_pages_get_a_picture_strip(tmp_path: Path) -> None:
+    from forge.mystery.art import decorate_plain_pages
+
+    class Pg:
+        def __init__(self, title: str) -> None:
+            self.kind, self.title, self.style = "text", title, None
+            self.blocks: list[dict] = [{"kind": "paragraph", "text": "x"}]
+
+    pages = [Pg("Evidence Card 2"), Pg("Code Log"), Pg("Other")]
+    art = {
+        "ch2": _png(tmp_path / "c.png", 2400, 1800),
+        "prologue": _png(tmp_path / "p.png", 2400, 1800),
+    }
+    files = decorate_plain_pages(pages, art, 6.4)
+    assert pages[0].blocks[0]["kind"] == "image" and pages[1].blocks[0]["kind"] == "image"
+    assert pages[2].blocks[0]["kind"] == "paragraph" and len(files) == 2
