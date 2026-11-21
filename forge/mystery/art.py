@@ -567,6 +567,12 @@ def build_templates(
         if not key.startswith("design:tpl_"):
             continue
         kind = key.split("design:tpl_", 1)[1]
+        # "<type>_full": a page designed edge to edge with its own clean frame (owner 2026-11-21:
+        # the Hidden Picture page has no ornaments in its lower corners, so the mosaic can grow)
+        full = kind.endswith("_full")
+        kind = kind.removesuffix("_full")
+        if not full and f"design:tpl_{kind}_full" in art:
+            continue
         rect = find_panel(src)
         if rect is None:
             continue
@@ -576,15 +582,17 @@ def build_templates(
             )
         buf = io.BytesIO()
         bg.save(buf, "JPEG", quality=88, optimize=True, dpi=(200, 200))
-        name = f"theme/tpl_{kind}.jpg"
+        name = f"theme/tpl_{kind}{'_full' if full else ''}.jpg"
         files[name] = buf.getvalue()
         x0, y0, x1, y1 = rect
+        ox, oy, sw, sh = (0.0, 0.0, 1.0, 1.0) if full else (wx, wy, ww, wh)
         tpls[kind] = {
             "image": name,
-            "x_in": round((wx + x0 * ww) * width_in, 3),
-            "y_in": round((wy + y0 * wh) * height_in, 3),
-            "w_in": round((x1 - x0) * ww * width_in, 3),
-            "h_in": round((y1 - y0) * wh * height_in, 3),
+            "x_in": round((ox + x0 * sw) * width_in, 3),
+            "y_in": round((oy + y0 * sh) * height_in, 3),
+            "w_in": round((x1 - x0) * sw * width_in, 3),
+            "h_in": round((y1 - y0) * sh * height_in, 3),
+            "bleed": full,
         }
     return files, tpls
 

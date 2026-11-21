@@ -196,3 +196,19 @@ def test_plain_pages_get_a_picture_strip(tmp_path: Path) -> None:
     files = decorate_plain_pages(pages, art, 6.4)
     assert pages[0].blocks[0]["kind"] == "image" and pages[1].blocks[0]["kind"] == "image"
     assert pages[2].blocks[0]["kind"] == "paragraph" and len(files) == 2
+
+
+def test_full_page_template_wins_and_uses_page_coordinates(tmp_path: Path) -> None:
+    from PIL import Image, ImageDraw
+
+    from forge.mystery.art import PANEL_RGB, build_templates
+
+    im = Image.new("RGB", (300, 400), (30, 60, 40))
+    ImageDraw.Draw(im).rectangle([30, 60, 269, 379], fill=PANEL_RGB)
+    im.save(tmp_path / "full.png")
+    im.save(tmp_path / "framed.png")
+    art = {"design:tpl_cbn": tmp_path / "framed.png", "design:tpl_cbn_full": tmp_path / "full.png"}
+    files, tpls = build_templates(art, 8.5, 11, (0.1, 0.1, 0.9, 0.9))
+    t = tpls["cbn"]
+    assert t["bleed"] is True and t["image"] == "theme/tpl_cbn_full.jpg" and len(files) == 1
+    assert abs(t["x_in"] - 0.85) < 0.15 and abs(t["h_in"] - 8.8) < 0.15

@@ -696,6 +696,12 @@ def _no_howto(blocks: list[dict[str, Any]], kind: str) -> list[dict[str, Any]]:
     return out
 
 
+def _cbn_head(kind: str, clean: set[str] | None) -> float:
+    """Height (in) of the mosaic panel that is not mosaic: subtitle, instruction, colour key, and
+    on the shared frame also the lanterns hanging over the lower corners."""
+    return 1.3 if clean and kind in clean else 2.7
+
+
 def page_style(kind: str, subtitle: str) -> dict[str, Any] | None:
     st = PAGE_STYLES.get(kind)
     return None if st is None else {"type": kind, "subtitle": subtitle, **st}
@@ -706,6 +712,7 @@ def layout_pages(
     puzzles: list[ChapterPuzzles],
     ctx: RenderCtx,
     panel_in: dict[str, tuple[float, float]] | None = None,
+    clean: set[str] | None = None,
 ) -> tuple[list[Page], dict[str, bytes], list[dict[str, Any]]]:
     """Pages of the book, side files (maze SVGs ...) and the art requests (page, zone, brief)."""
     cb = ColorByNumber()
@@ -839,7 +846,7 @@ def layout_pages(
                 width_in=max(2.5, pw - (0.56 if kind == "cbn" else 0.3)),
                 # mosaic: subtitle, instruction and colour key above it; the frame hangs lanterns
                 # over the lower corners of the panel, so the last inch stays empty
-                height_in=max(2.5, ph - (2.7 if kind == "cbn" else 1.6)),
+                height_in=max(2.5, ph - (_cbn_head(kind, clean) if kind == "cbn" else 1.6)),
             )
         return side_ctx
 
@@ -1058,7 +1065,8 @@ def build_case_book(
         # a mosaic squeezed into a small panel has cells too small to colour: plain page instead
         del tpl["cbn"]
     panel_in = {k: (t["w_in"], t["h_in"]) for k, t in tpl.items()} or None
-    pages, files, art = layout_pages(frame, puzzles, ctx, panel_in)
+    clean = {k for k, t in tpl.items() if t.get("bleed")}  # own frame: no lanterns over the panel
+    pages, files, art = layout_pages(frame, puzzles, ctx, panel_in, clean)
     files.update(theme_files)
     art_report: dict[str, Any] | None = None
     if art_dir is not None:
