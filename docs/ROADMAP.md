@@ -139,3 +139,18 @@ P10.5 needs P10.4; P10.6 needs P9; P10.7 needs P10.5 + P10.6; P10.8 needs everyt
 - [x] P10.6 Case Vault packaging: `deploy/casevault/` compose (app, postgres, caddy, backup), `scripts/casevault/install_oracle.sh`, `casevault update|backup|restore|logs`, staging stack, security headers + access log + Telegram alerts, docs/DEPLOY_CASEVAULT.md rewrite.
 - [x] P10.7 Smoke test (`scripts/smoke_test.sh`: doctor → word search + escape sample in test mode → QA_PASSED → sync to staging → redeem → e-mail mock/test), docs/GO_LIVE.md, INTEGRATION_HALOSPARK.md (shared AI gateway, SkuPort, DB, plugging Forge into the Suite).
 - [ ] P10.8 **Milestone** (owner): install on the VM + Oracle, run the smoke test, go-live checklist.
+
+## Phase 9 — Adventure line: Puzzle + Search + Coloring (owner 2026-11-20)
+
+Reference look (owner screenshots): story-driven hidden-object coloring books — each chapter = story page with a line-art
+illustration, a full-page line-art scene to colour with a side column of 12–20 hidden objects to find, and 1–2 code
+puzzles that give a key piece; all keys open the final challenge. Vivid, luminous covers; designed pages (banners,
+frames). Owner decisions: chapter = story + search page + 1–2 puzzles; hidden objects: Gemini self-check (marks each
+object's position for the answer page) + owner ticks every object in the review UI (code cannot verify art);
+The Vanished Star stays a CBN Mystery, the first Adventure book is a new theme.
+
+- [ ] P9.1 Adventure case frame: chapters, hidden-object lists (code picks objects + icons), key pieces, final challenge; logic lock reuses the mystery checks (every key needed, one answer)
+- [ ] P9.2 Search page layout: full-page line art + object column with icons + "found" boxes; answer key page (Gemini-marked circles, owner-confirmed)
+- [ ] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
+- [ ] P9.4 HALOSPARK Studio: Adventure module tab (ChatGPT story + object lists, Gemini line art with objects, Gemini self-check, owner tick review), covers, listing images, SEO, deliverables
+- [ ] P9.5 First Adventure book (theme chosen by owner) — milestone review
