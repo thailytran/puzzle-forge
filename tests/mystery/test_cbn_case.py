@@ -339,3 +339,19 @@ def test_build_places_studio_art(frame: CaseFrame, tmp_path: Path) -> None:
     man = build_case_book(frame, tmp_path / "book", render=False, art_dir=art)
     assert sorted(man["art"]["placed"]) == ["ch1", "cover", "portraits", "prologue"]
     assert "ch2" in man["art"]["missing"] and man["art"]["pages_added"] == 1
+
+
+def test_mini_edition_free_case_passes_and_full_rules_still_apply() -> None:
+    """Free sample case (owner 2026-11-22): 5 suspects, 3 chapters, same logic lock."""
+    import json
+    from pathlib import Path
+
+    from forge.mystery.cbn_case import CaseFrame, check_frame
+
+    raw = json.loads(Path("configs/cases/missing_snow_globe.json").read_text(encoding="utf-8"))
+    frame = CaseFrame.model_validate(raw)
+    assert frame.edition == "mini"
+    assert check_frame(frame, deep=False).problems == []
+    full = CaseFrame.model_validate({**raw, "edition": ""})
+    probs = check_frame(full, deep=False).problems
+    assert any("suspects" in p for p in probs) and any("chapters" in p for p in probs)

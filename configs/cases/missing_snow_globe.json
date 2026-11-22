@@ -1,0 +1,113 @@
+{
+  "id": "missing-snow-globe",
+  "edition": "mini",
+  "title": "The Missing Snow Globe",
+  "subtitle": "A Free Mini Mystery to Colour and Solve",
+  "audience": "adult",
+  "season": "winter",
+  "series": "Larkspur Hollow Mysteries",
+  "setting": "Larkspur Hollow, a river town of crooked roofs. In the window of the market hall stands the town's musical snow globe: a little glass world of tiny houses that plays a waltz when you wind it. Tomorrow is the Winter Market, and the globe has gone.",
+  "intro": "You are the town's volunteer detective. Each chapter hides one piece of evidence inside a colour-by-number picture: colour it to see WHAT was found. Solve the two puzzles to learn WHAT IT WAS LIKE. The evidence card then tells you what that proves, and you cross out the neighbours who no longer fit. Three chapters, five neighbours, one name left.",
+  "prologue_title": "The Empty Window",
+  "prologue": "Seven o'clock, the evening before the Winter Market. The lamps of the market hall are lit, the stalls are half built, and the big front window is empty.\nOld Mrs Hazel, who keeps the hall, holds the brass winding key in her open hand. \"It was here at four,\" she says. \"The snow globe. Fifty winters it has played for the Market, and now there is only a ring in the dust.\"\nNobody broke the glass. Nobody heard a sound. Five neighbours were in and out of the hall this afternoon, helping with the stalls.\n\"Find it before the Market opens,\" Mrs Hazel says, \"and let us find out why.\" You pull your collar up and step out into the snow.",
+  "suspects": [
+    {"name": "Bramble the beekeeper", "mittens": "red", "dog": true, "boots": "rubber", "about": "sells honey cakes; helped carry trestle tables all afternoon"},
+    {"name": "Tilly the postmistress", "mittens": "red", "dog": false, "boots": "hobnail", "about": "brought the Market posters; always the first to know any news"},
+    {"name": "Silas the toymaker", "mittens": "red", "dog": true, "boots": "hobnail", "about": "mends clocks and toys; repaired the hall's music stand last spring"},
+    {"name": "Juniper the skating teacher", "mittens": "green", "dog": true, "boots": "hobnail", "about": "runs the skating pond; wants the globe moved to her ice hut"},
+    {"name": "Rowan the chestnut seller", "mittens": "blue", "dog": false, "boots": "rubber", "about": "roasts chestnuts by the door; saw everyone come and go"}
+  ],
+  "answer": "Silas the toymaker",
+  "answer_field": "name",
+  "chapters": [
+    {
+      "no": 1,
+      "title": "Frost on the Window",
+      "story": "The window of the market hall is white with frost, except for one spot by the latch. Somebody pressed a hand there, hard, to lift the old sash from outside.\nRowan wanders over with a paper cone of hot chestnuts. \"Funny,\" he says. \"I thought I saw someone at that window around five. Too dark to see a face.\"\nYou breathe on the glass and the print comes back, clear as a stamp. Colour the picture to see what made it, then solve the two puzzles to learn what it was like.",
+      "scene": "The frosted front window of a small snowy market hall at dusk, warm light inside, a print pressed into the frost near the latch",
+      "shape": "square",
+      "object": "glove",
+      "meaning": "The print was made by a red knitted mitten. Whoever lifted the window wore red mittens.",
+      "clue": {"field": "mittens", "op": "eq", "value": "red"},
+      "decoys": [
+        {"object": "scarf", "keywords": ["KNITTED", "SCARLET"], "meaning": "A red knitted scarf brushed the glass. Half the town wears one. It tells you nothing.", "clue": null},
+        {"object": "glove", "keywords": ["LEATHER", "SCARLET"], "meaning": "A red leather driving glove: the coachman's. He was not in town today. It tells you nothing.", "clue": null},
+        {"object": "glove", "keywords": ["KNITTED", "GOLDEN"], "meaning": "A yellow knitted mitten made the print. Whoever lifted the window wore yellow mittens.", "clue": {"field": "mittens", "op": "eq", "value": "yellow"}}
+      ],
+      "side": [
+        {"type": "shift", "keyword": "KNITTED", "intro": "Decode what Mrs Hazel noticed in the frost. One word in it describes the evidence: the evidence card shows which.", "message": "the print showed tiny loops just like knitted wool stitches on the glass"},
+        {"type": "starbattle", "keyword": "SCARLET", "intro": "Look at the night sky over the market hall. The letters under your stars give a word that describes the evidence."}
+      ],
+      "evidence": "What made the print, and what was it like?",
+      "hints": [
+        "Colour every cell marked 1 first: the darkest colour draws the picture.",
+        "The picture is something you wear on your hands in winter. The cipher tells you how it was made.",
+        "The picture is a GLOVE (a mitten). The keywords are KNITTED and SCARLET."
+      ],
+      "teaser": "Three neighbours wear red mittens. But the snow outside the window holds more than one kind of track, and the smaller ones run in circles."
+    },
+    {
+      "no": 2,
+      "title": "Tracks Under the Lamp",
+      "story": "Under the lamp by the side door, the snow is churned up. Between the footprints runs a second line of little marks, darting left and right, the way an excited friend runs ahead and back again.\nTilly the postmistress hurries past with a bundle of posters. \"Don't look at me,\" she laughs. \"I can't even keep a goldfish.\"\nYou kneel and brush the fresh snow away. Colour the picture to see what left the marks, then solve the two puzzles to learn what they were like.",
+      "scene": "A snowy lane beside the market hall at night under a street lamp, a trail of small marks weaving between footprints",
+      "shape": "square",
+      "object": "paw",
+      "meaning": "The marks are a terrier's muddy pawprints. Whoever took the globe had a dog at their heels.",
+      "clue": {"field": "dog", "op": "eq", "value": true},
+      "decoys": [
+        {"object": "note", "keywords": ["MUDDY", "TERRIER"], "meaning": "A muddy note about a lost terrier, pinned to the lamp post weeks ago. It tells you nothing.", "clue": null},
+        {"object": "paw", "keywords": ["SANDY", "TERRIER"], "meaning": "Sandy pawprints from the riverbank path, days old. They tell you nothing.", "clue": null},
+        {"object": "paw", "keywords": ["MUDDY", "SPANIEL"], "meaning": "A spaniel's pawprints. The only spaniel in town belongs to the Mayor, who was away all day. They tell you nothing.", "clue": null}
+      ],
+      "side": [
+        {"type": "maze", "keyword": "MUDDY", "intro": "Follow the tracks from the lamp to the gate. The letters on the way give a word that describes the evidence."},
+        {"type": "lightup", "keyword": "TERRIER", "intro": "Light the lanterns along the side lane. The letters under your lanterns give a word that describes the evidence."}
+      ],
+      "evidence": "What left the marks, and what were they like?",
+      "hints": [
+        "Colour the darkest number first; the shape is small and has four toes.",
+        "The picture belongs to an animal that loves to run ahead in the snow. The maze letters say what was on its feet.",
+        "The picture is a PAW. The keywords are MUDDY and TERRIER."
+      ],
+      "teaser": "Two names are left on your list. Then Rowan points at the doorstep of the hall, where somebody stamped the snow off before going in."
+    },
+    {
+      "no": 3,
+      "title": "The Last Footprint",
+      "story": "On the step of the market hall there is one clear print, pressed deep where somebody stood still to stamp off the snow. Little round dots run around its edge in a neat ring.\nJuniper glides up on her skates, cheeks pink. \"Whoever it was stood right there for a while,\" she says. \"Long enough to think twice.\"\nYou fetch Mrs Hazel's measuring tape. Colour the picture to see what made the print, then solve the two puzzles to learn what it was like.",
+      "scene": "The stone doorstep of a small market hall at night, a single deep print in fresh snow, a lantern beside the door",
+      "shape": "square",
+      "object": "boot",
+      "meaning": "The print is a hobnailed boot, size 11. Whoever took the globe wears hobnail boots.",
+      "clue": {"field": "boots", "op": "eq", "value": "hobnail"},
+      "decoys": [
+        {"object": "ladder", "keywords": ["HOBNAILED", "11"], "meaning": "The foot of the hall's old ladder, eleven rungs, studded with nails. It has not moved in years. It tells you nothing.", "clue": null},
+        {"object": "boot", "keywords": ["RUBBER", "11"], "meaning": "A rubber boot, size 11: the snow clearer's, who comes every morning. It tells you nothing.", "clue": null},
+        {"object": "boot", "keywords": ["HOBNAILED", "14"], "meaning": "A huge hobnailed boot, size 14: the blacksmith's, who shod the market ponies this morning. It tells you nothing.", "clue": null}
+      ],
+      "side": [
+        {"type": "pigpen", "keyword": "HOBNAILED", "intro": "Decode the note in the hall's visitor book. One word in it describes the evidence.", "message": "Mrs Hazel wrote that the step was scratched by hobnailed soles again today"},
+        {"type": "numlock", "keyword": "11", "intro": "Open the lock on Mrs Hazel's measuring box. The number on the dials is the size of the evidence."}
+      ],
+      "evidence": "What made the print on the step, and what size was it?",
+      "hints": [
+        "Colour cell 1 first: the outline is something you wear on your feet.",
+        "The cipher tells you what the sole was studded with; the lock gives the size.",
+        "The picture is a BOOT. The keywords are HOBNAILED and 11."
+      ],
+      "teaser": ""
+    }
+  ],
+  "finale": "Midnight. Five neighbours, three facts. Go through your notes and cross out everyone who does not fit a fact. One name stays.\nBefore you knock, remember: nothing else was taken, and the glass was never broken. Whoever carried the snow globe out of the hall handled it with great care. Why?",
+  "epilogue": "The workshop light is still on. Inside, on a bench covered in tiny springs and cogs, sits the snow globe, its base opened like a pocket watch.\n\"The waltz stopped last winter,\" the toymaker says, his terrier asleep on his feet. \"Mrs Hazel never said a word, but I saw her face when it went silent. I meant to have it back before dawn. Then the snow came down.\"\nAt nine the next morning the Winter Market opens, and in the window of the hall the little glass town plays its waltz again, for the first time in a year.\nYou know the name. Enter it at the Case Vault to read the last page of the story.",
+  "art_style": "Warm storybook illustration, clean ink outlines, soft flat colours, snowy winter evening light, friendly and cosy, no text in the picture",
+  "cast": [
+    {"id": "bramble", "name": "Bramble the beekeeper", "role": "beekeeper", "look": "Man of about sixty, broad and cheerful, white beard, ruddy cheeks, bushy eyebrows, kind blue eyes.", "outfit": "Brown waxed coat, honey-coloured knitted hat, red knitted mittens, tall black rubber boots; a shaggy grey sheepdog beside him."},
+    {"id": "tilly", "name": "Tilly the postmistress", "role": "postmistress", "look": "Woman of about forty, small and quick, black bob haircut, round rosy face, bright dark eyes.", "outfit": "Navy post office coat with brass buttons, red knitted mittens, sturdy hobnail boots, a satchel of posters."},
+    {"id": "silas", "name": "Silas the toymaker", "role": "toymaker", "look": "Man of about seventy, tall and thin, long grey ponytail, neat grey moustache, deep smile lines, gentle hazel eyes.", "outfit": "Patched green work coat with many pockets, red knitted mittens, old hobnail boots; a small brown terrier at his heels."},
+    {"id": "juniper", "name": "Juniper the skating teacher", "role": "skating teacher", "look": "Young woman of about twenty-five, athletic, long blonde plait, freckles, wide bright smile.", "outfit": "White wool jumper, green knitted mittens, hobnail boots with skates slung over one shoulder; a fluffy white dog beside her."},
+    {"id": "rowan", "name": "Rowan the chestnut seller", "role": "chestnut seller", "look": "Man of about thirty-five, stocky, curly brown hair, short beard, warm brown eyes, cheerful face.", "outfit": "Red-and-black check jacket, blue knitted mittens, rubber boots, a long apron, a small chestnut roaster."},
+    {"id": "hazel", "name": "Mrs Hazel", "role": "keeper of the market hall", "look": "Elderly woman of about eighty, tiny and upright, silver hair in a bun, round spectacles, lively grey eyes.", "outfit": "Long plum-coloured coat, lace collar, a ring of brass keys at her belt."}
+  ]
+}

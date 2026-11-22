@@ -59,6 +59,7 @@ NUMBER_TYPES = ("numlock", "sudoku")  # their keyword is a number (shoe size, ho
 SUDOKU_CELLS = [(0, 0), (1, 3), (2, 6), (3, 1)]  # different row, column and box: any digits fit
 SUDOKU_CELLS_6 = [(0, 0), (1, 3), (2, 1), (3, 4)]
 MIN_SUSPECTS, MAX_SUSPECTS = 9, 12  # owner decision 2026-11-19
+MINI = {"suspects": (5, 6), "chapters": (3, 3)}  # free sample case (owner 2026-11-22): 5 suspects, 3 chapters
 MAX_ROUNDS = 3  # frame goes back to the writer at most this many times (owner spec §6.4)
 UNSAFE = re.compile(
     r"\b(murder|murdered|kill|killed|killer|blood|bloody|corpse|dead body|gun|stab|poison|"
@@ -151,6 +152,7 @@ class CaseFrame(_M):
     cast_lock: dict[str, str] = Field(default_factory=dict)  # id -> look fixed by an earlier book
     prologue_title: str = "Prologue"
     prologue: str = ""  # opening scene before the suspects: stakes, deadline, the detective
+    edition: Literal["", "mini"] = ""  # "mini" = free sample book (MINI limits), same logic rules
 
 
 def code_of(ch: Chapter) -> str:
@@ -327,14 +329,19 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
     rep = FrameReport()
     p = rep.problems
     names = [str(s.get(frame.answer_field, "")) for s in frame.suspects]
-    if not MIN_SUSPECTS <= len(frame.suspects) <= MAX_SUSPECTS:
-        p.append(f"need {MIN_SUSPECTS}-{MAX_SUSPECTS} suspects, got {len(frame.suspects)}")
+    smin, smax = MINI["suspects"] if frame.edition == "mini" else (MIN_SUSPECTS, MAX_SUSPECTS)
+    if not smin <= len(frame.suspects) <= smax:
+        p.append(f"need {smin}-{smax} suspects, got {len(frame.suspects)}")
     if len(set(names)) != len(names) or "" in names:
         p.append("every suspect needs a unique name")
     if frame.answer not in names:
         p.append(f"answer {frame.answer!r} is not one of the suspects")
     p.extend(answer_problems("culprit_name", [frame.answer], [], None, _kids(frame.audience)))
-    lo, hi = CHAPTERS["kids" if _kids(frame.audience) else "adult"]
+    lo, hi = (
+        MINI["chapters"]
+        if frame.edition == "mini"
+        else CHAPTERS["kids" if _kids(frame.audience) else "adult"]
+    )
     if not lo <= len(frame.chapters) <= hi:
         p.append(f"{frame.audience} books have {lo}-{hi} chapters, got {len(frame.chapters)}")
     if [c.no for c in frame.chapters] != list(range(1, len(frame.chapters) + 1)):
