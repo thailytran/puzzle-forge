@@ -20,6 +20,7 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
     from forge.puzzles.maze import Maze
     from forge.puzzles.nonogram import Nonogram
     from forge.puzzles.numlock import NumLock
+    from forge.puzzles.pigpen import Pigpen
     from forge.puzzles.scramble import Scramble
     from forge.puzzles.shift import Shift
     from forge.puzzles.starbattle import StarBattle
@@ -45,5 +46,6 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
             StarBattle(),
             LightUp(),
             WordLadder(),
+            Pigpen(),
         )
     }
