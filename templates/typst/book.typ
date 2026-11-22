@@ -384,6 +384,25 @@
   }))
 }
 
+// Word ladder: one row of letter boxes per rung, arrow under the letter that changes next
+#let wordladder(b) = {
+  let cell = b.cell_in * inch
+  let n = b.letters
+  align(center, stack(dir: ttb, spacing: cell * 0.55, ..b.rungs.enumerate().map(((k, r)) => {
+    let row = range(n).map(i => box(width: cell, height: cell,
+      stroke: if r.key { 2pt + rgb("#b8862b") } else { 1pt },
+      fill: if r.key { rgb("#fff4d6") } else { white },
+      align(center + horizon, text(font: L.fonts.sans, weight: "bold", size: cell * 0.55,
+        if r.word != "" { r.word.at(i) } else { "" }))))
+    let marks = if k + 1 < b.rungs.len() {
+      let ch = b.rungs.at(k + 1).change
+      range(n).map(i => box(width: cell, height: cell * 0.4, align(center, text(size: cell * 0.36, fill: rgb("#a0322c"),
+        if i == ch { "▼" } else { "" }))))
+    } else { () }
+    stack(dir: ttb, spacing: 2pt, stack(dir: ltr, spacing: 3pt, ..row), stack(dir: ltr, spacing: 3pt, ..marks))
+  })))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -469,6 +488,8 @@
     starbattle(b)
   } else if k == "lightup" {
     lightup(b)
+  } else if k == "wordladder" {
+    wordladder(b)
   } else if k == "maze" {
     maze(b)
   } else if k == "answer_lines" {

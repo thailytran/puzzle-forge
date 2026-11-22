@@ -24,6 +24,7 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
     from forge.puzzles.shift import Shift
     from forge.puzzles.starbattle import StarBattle
     from forge.puzzles.sudoku import Sudoku
+    from forge.puzzles.wordladder import WordLadder
     from forge.puzzles.wordoku import Wordoku
     from forge.puzzles.wordsearch import WordSearch
 
@@ -43,5 +44,6 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
             Nonogram(),
             StarBattle(),
             LightUp(),
+            WordLadder(),
         )
     }
