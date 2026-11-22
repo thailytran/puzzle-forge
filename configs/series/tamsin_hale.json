@@ -23,15 +23,16 @@
    "look": "cream and brown, one ear up, one ear down, red collar with a tiny brass bell",
    "skill": "finds the thing that is out of place; comic relief; never in danger"
   },
-  "tone": "cozy, witty, gentle: no gore, no on-page violence, no romance; crimes are thefts, forgeries, disappearances, impostors, sabotage",
+  "tone": "cozy, witty, gentle: no murder, no gore, no on-page violence, no romance; crimes are thefts, forgeries, disappearances, impostors, sabotage, pranks gone wrong",
   "recurring": [
    "each volume ends with Tamsin pressing a flower from the place into her casebook",
-   "a running letter from a mysterious patron, one fragment per volume, revealed in volume 8"
+   "a running letter from a mysterious patron, one fragment per volume, revealed in volume 12"
   ],
   "rules": [
    "every volume has a new setting, a new cast of suspects and a new way of combining clues",
    "inspired by a public-domain story or legend; credit line on cover and first page; all names, plots and puzzles are new",
-   "puzzle answers are built by code and verified by an independent solver; AI never decides an answer"
+   "puzzle answers are built by code and verified by an independent solver; AI never decides an answer",
+   "each volume borrows ONE general trick of the genre (listed as `method`) and at most the idea of a public-domain story (US publication 1930 or earlier); plot, names, solution and puzzles are new"
   ]
  },
  "variety_rules": {
@@ -74,7 +75,8 @@
    "arc_clue": {
     "letter": "H",
     "found": "the stud is sewn into the lining of the stolen jewel's travelling case; engraved with a tiny mapmaker's mark Tamsin knows from home"
-   }
+   },
+   "method": "the unknowing culprit (someone moved the jewel in their sleep, so every alibi is honest)"
   },
   {
    "no": 2,
@@ -108,7 +110,8 @@
    "arc_clue": {
     "letter": "O",
     "found": "a stud fixed under the heel of the twelfth slipper; Barnaby notices the same mark on a manor floor plan dated the year Odile vanished"
-   }
+   },
+   "method": "the secret route (a hidden passage makes the impossible journey possible)"
   },
   {
    "no": 3,
@@ -140,14 +143,15 @@
    "arc_clue": {
     "letter": "L",
     "found": "the brig's ledger lists a passenger 'O. H., cartographer' who paid with a brass stud"
-   }
+   },
+   "method": "the contradicting record (one of two official documents was quietly rewritten)"
   },
   {
    "no": 4,
    "title": "The Lamp-Lit Locked Room",
    "setting": "a music conservatory at night",
    "inspired_by": {
-    "work": "The Murders in the Rue Morgue (locked-room idea only, non-violent)",
+    "work": "The Murders in the Rue Morgue (locked-room idea only; no violence, a theft)",
     "author": "Edgar Allan Poe",
     "year": 1841
    },
@@ -172,7 +176,8 @@
    "arc_clue": {
     "letter": "L",
     "found": "the locked room's music stand hides a stud; the conservatory's founder once ordered a map 'of a place that keeps moving'"
-   }
+   },
+   "method": "the locked room with a non-human entrant (something small came through a gap no person could use)"
   },
   {
    "no": 5,
@@ -204,7 +209,8 @@
    "arc_clue": {
     "letter": "O",
     "found": "the clockwork nightingale sings eight notes; the second stud of its kind sits in its key, and the notes match the compass bearings so far"
-   }
+   },
+   "method": "the mechanical impostor (a machine performs while its owner is elsewhere)"
   },
   {
    "no": 6,
@@ -237,7 +243,8 @@
    "arc_clue": {
     "letter": "W",
     "found": "a portrait in the gallery shows a woman in a grey shawl holding Odile's unfinished atlas, a stud painted on its clasp"
-   }
+   },
+   "method": "the swapped identity (two look-alike people trade places for one evening)"
   },
   {
    "no": 7,
@@ -271,7 +278,8 @@
    "arc_clue": {
     "letter": "A",
     "found": "a carving on the island fort repeats the mapmaker's mark and gives the first true bearing: the compass was never broken"
-   }
+   },
+   "method": "the message left behind (a carved word that means something else to the right reader)"
   },
   {
    "no": 8,
@@ -283,7 +291,7 @@
     "year": 1530
    },
    "clue_mechanic": "stacked cipher layers (each layer opens the next)",
-   "final_form": "layered decode that reveals the patron",
+   "final_form": "layered decode that names the patron's courier",
    "games": [
     "shift",
     "cryptogram",
@@ -304,23 +312,161 @@
    },
    "arc_clue": {
     "letter": "Y",
-    "found": "the patron's last letter fragment and the eighth stud; the eight letters and bearings lead to the hidden valley where the atlas ends"
-   }
+    "found": "the patron's courier carries the eighth stud and a sealed note: 'four more, and you will find her'"
+   },
+   "method": "the layered cipher (each solved layer is the key to the next)"
+  },
+  {
+   "no": 9,
+   "title": "The Bell That Rang Itself",
+   "setting": "an alpine bell foundry and its clock tower, winter fair night",
+   "inspired_by": {
+    "work": "The Adventure of the Speckled Band (mechanism idea only)",
+    "author": "Arthur Conan Doyle",
+    "year": 1892
+   },
+   "clue_mechanic": "sound-and-timing chart (who could hear which bell, when)",
+   "final_form": "cord-and-pulley diagram of how it was done",
+   "games": [
+    "sudoku",
+    "wordladder",
+    "logicgrid",
+    "maze",
+    "morse",
+    "kakuro"
+   ],
+   "new_types": [
+    "kakuro"
+   ],
+   "twists": {
+    "logicgrid": "bells, ringers and minutes",
+    "maze": "rope paths through the tower",
+    "morse": "bell strokes long and short",
+    "wordladder": "BELL to ROPE"
+   },
+   "arc_clue": {
+    "letter": "M",
+    "found": "the ninth stud is cast into the smallest bell; its maker's ledger shows Odile ordered it"
+   },
+   "method": "the remote mechanism (the bell is rung from far away by a hidden cord)"
+  },
+  {
+   "no": 10,
+   "title": "The Postmark in Plain Sight",
+   "setting": "a canal city's grand sorting office the week before New Year",
+   "inspired_by": {
+    "work": "The Purloined Letter",
+    "author": "Edgar Allan Poe",
+    "year": 1844
+   },
+   "clue_mechanic": "hidden-in-plain-sight search (the obvious object is the disguise)",
+   "final_form": "spot-the-disguise picture board",
+   "games": [
+    "wordsearch",
+    "nonogram",
+    "shift",
+    "acrostic",
+    "scramble",
+    "spotdiff"
+   ],
+   "new_types": [
+    "spotdiff"
+   ],
+   "twists": {
+    "wordsearch": "words hidden in a page of postmarks",
+    "nonogram": "draws a stamp design",
+    "shift": "postcode shift",
+    "acrostic": "first letters of addresses"
+   },
+   "arc_clue": {
+    "letter": "E",
+    "found": "a letter addressed to Tamsin, posted fifteen years ago and never delivered, carries the tenth stud"
+   },
+   "method": "hidden in plain sight (the missing item was never hidden, only disguised as something ordinary)"
+  },
+  {
+   "no": 11,
+   "title": "The Bookbinders' Odd Job",
+   "setting": "a bookbinders' guild hall next to a private bank vault",
+   "inspired_by": {
+    "work": "The Red-Headed League (decoy-job idea only)",
+    "author": "Arthur Conan Doyle",
+    "year": 1891
+   },
+   "clue_mechanic": "schedule overlap (why was one person kept busy at exactly that hour)",
+   "final_form": "timetable showing the empty hour",
+   "games": [
+    "logicgrid",
+    "crossword",
+    "pigpen",
+    "numlock",
+    "calcudoku",
+    "maze"
+   ],
+   "new_types": [
+    "calcudoku"
+   ],
+   "twists": {
+    "crossword": "bookbinding words",
+    "pigpen": "tooled on a leather cover",
+    "numlock": "vault dials",
+    "maze": "the tunnel under the hall"
+   },
+   "arc_clue": {
+    "letter": "R",
+    "found": "the decoy job was copying a page of Odile's atlas; the copy holds the eleventh stud"
+   },
+   "method": "the decoy errand (a well-paid odd job keeps one person away while the real plan runs)"
+  },
+  {
+   "no": 12,
+   "title": "The Lighthouse at the Edge of the Map",
+   "setting": "a storm lighthouse and observatory on an island that is on no map",
+   "inspired_by": {
+    "work": "The Problem of Cell 13 (escape idea only)",
+    "author": "Jacques Futrelle",
+    "year": 1905
+   },
+   "clue_mechanic": "impossible escape (only the objects in the room, used in the right order)",
+   "final_form": "compass route built from all twelve studs",
+   "games": [
+    "bookcipher",
+    "bearings",
+    "logicgrid",
+    "semaphore",
+    "shift",
+    "wordoku"
+   ],
+   "new_types": [
+    "wordoku"
+   ],
+   "twists": {
+    "bookcipher": "keyed to Odile's atlas",
+    "bearings": "the twelve stud bearings",
+    "shift": "double shift seeded by the place name",
+    "semaphore": "lighthouse flags"
+   },
+   "arc_clue": {
+    "letter": "E",
+    "found": "the twelfth stud; the twelve letters spell HOLLOWAYMERE and the bearings lead to Odile, alive, keeping the atlas safe"
+   },
+   "method": "the impossible escape (getting out of a locked tower with only what is in the room)"
   }
  ],
  "series_arc": {
   "model": "Each volume is a complete case. Under it runs ONE long mystery about the detective herself; every volume ends by handing the reader one small, real piece of it. The pieces only make sense together, and the last volume cannot be solved without the pieces from the earlier ones.",
   "secret": "Fifteen years ago Tamsin's mother, the mapmaker Odile Hale, walked out of the family map shop with an unfinished atlas and was never seen again. Tamsin keeps Odile's brass travelling compass: its lid holds eight empty sockets and its needle does not point north.",
   "question": "Where did Odile Hale go, and why does her compass point somewhere that is on no map?",
-  "collectible": "a small engraved brass compass stud: one is hidden in each case, each carries one letter and one bearing",
-  "mechanic": "The last page of every volume is the Compass Page: the reader records the stud's letter and bearing. Volume 8's final puzzle needs all eight (the letters spell a place name, the bearings draw the route).",
-  "patron_link": "The mysterious patron who sends the letter fragments is tied to Odile; who the patron is stays open until volume 8.",
+  "collectible": "a small engraved brass compass stud: one is hidden in each of the 12 cases, each carries one letter and one bearing",
+  "mechanic": "The last page of every volume is the Compass Page: the reader records the stud's letter and bearing. Volume 12's final puzzle needs all twelve: the letters spell a place name (HOLLOWAYMERE), the bearings draw the route.",
+  "patron_link": "The mysterious patron who sends the letter fragments is Odile's old partner; the courier appears in volume 8, the patron in volume 12.",
   "rules": [
    "the arc clue is found by solving the volume's own final puzzle, never handed out for free",
    "an arc clue never spoils that volume's culprit",
    "each volume's last line is a hook that points at the next stud",
-   "volume 8 answers the question fully and fairly: every piece was shown in an earlier volume",
+   "volume 12 answers the question fully and fairly: every piece was shown in an earlier volume",
    "no element is taken from any existing detective series: names, secret, objects and plot are original"
-  ]
+  ],
+  "answer": "HOLLOWAYMERE"
  }
 }

@@ -35,3 +35,12 @@ def test_missing_arc_clue_is_rejected() -> None:
     s = copy.deepcopy(load_series(BIBLE))
     s["volumes"][3].pop("arc_clue")
     assert any("no arc_clue" in p for p in check_series(s))
+
+
+def test_twelve_volumes_spell_the_arc_answer() -> None:
+    s = load_series(BIBLE)
+    vols = sorted(s["volumes"], key=lambda v: v["no"])
+    assert len(vols) == 12
+    assert "".join(v["arc_clue"]["letter"] for v in vols) == s["series_arc"]["answer"]
+    assert all(v.get("method") for v in vols)
+    assert all(int(v["inspired_by"]["year"]) <= 1930 for v in vols)  # public domain in the US
