@@ -17,9 +17,14 @@ async function route(req, env) {
   const url = new URL(req.url);
   const p = url.pathname.replace(/\/+$/, "") || "/";
   const m = req.method;
-  if (p === "/robots.txt") return new Response("User-agent: *\nDisallow: /admin\nDisallow: /account\nDisallow: /claim\n", { headers: { "content-type": "text/plain" } });
+  if (p === "/robots.txt") return new Response("User-agent: *\nDisallow: /admin\nDisallow: /account\nDisallow: /claim\nDisallow: /free-book/\n", { headers: { "content-type": "text/plain" } });
   if (p === "/healthz") return json({ ok: true, version: VERSION });
   await ensureSchema(env);
+  if (p === "/free-book/claim") {                       // Free Book (colorilax.com/pages/free-book)
+    if (m === "OPTIONS") return new Response(null, { status: 204, headers: fbCors(req) });
+    if (m === "POST") return freebookClaim(env, req);
+  }
+  if (p === "/free-book/books" && m === "GET") return freebookList(env, req);
   if (p.startsWith("/api/")) return internalApi(env, req, p);
   if (p === "/admin" || p.startsWith("/admin/")) {
     if (p === "/admin/logout") return redirect("/admin", { "set-cookie": setCookie("cv_admin", "", 0, "/admin") });
@@ -52,6 +57,7 @@ async function route(req, env) {
     if (sid) await run(env, "DELETE FROM sessions WHERE sid_hash=?", await sha256(sid));
     res = redirect("/", { "set-cookie": setCookie("cv_sid", "", 0) });
   } else if (p.startsWith("/dl/")) res = await download(env, ctx, decodeURIComponent(p.slice(4)));
+  else if (p.startsWith("/free-book/dl/")) res = await freebookDownload(env, ctx, decodeURIComponent(p.slice(14)));
   else if (p === "/notify" && m === "POST") res = await notifyMe(env, ctx, req);
   else if (p.startsWith("/assets/")) {   // site identity drawn by Gemini (logo, emblem, hero, icons), stored in R2 casevault/site/
     const name = p.slice(8).replace(/[^a-z0-9_.-]/gi, "");
@@ -97,5 +103,5 @@ export default {
 };
 
 export const _test = { route, bookCodeHash, normalizeAnswer, answerHash, newBookCode, codeLooksValid, normEmail, parseCsv, totpAt, totpOk,
-  pwHash, pwCheck, processOutbox, dailyJobs, releaseDue, recheckPending, importBooks, ensureSchema, setSetting, getSetting, tierFor,
+  pwHash, pwCheck, processOutbox, fbCatalog, dailyJobs, releaseDue, recheckPending, importBooks, ensureSchema, setSetting, getSetting, tierFor,
   resetSchemaFlag: () => { schemaReady = false; } };

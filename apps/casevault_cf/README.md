@@ -36,6 +36,13 @@ pending Etsy re-check, backup to R2 kept 30 days).
 Shopify, Klaviyo, Turnstile, Telegram and mail keys are typed by the owner in /admin → Settings
 (stored AES-GCM encrypted, never shown again).
 
+## Free Book (1.3.0)
+
+- `POST /free-book/claim {email, handle, source, consent}` — from colorilax.com/pages/free-book (CORS: colorilax.com, *.myshopify.com, *.shopifypreview.com). One book per e-mail (Gmail dots / +tags, case ignored); a repeat gets the old book link again. 5 requests / hour / IP; disposable domains refused.
+- Books are read from Shopify (product type `Free Book`, ACTIVE, metafield `free_book.file_key` under `free/`) every 10 minutes into D1 `free_books`.
+- `GET /free-book/dl/<token>` streams the PDF from R2 `BOOKS` for 7 days. `GET /free-book/books` lists the books.
+- Outbox: mail "Your free book is ready", Klaviyo event `Claimed Free Book` with profile `freebook_choice`, `interest`, `source`; consent → list subscription. Needs in /admin → Settings: Shopify shop + token (read_products), mail provider + token, Klaviyo key + list.
+
 ## Internal API (Bearer VAULT_ADMIN_TOKEN)
 
 - `POST /api/admin/books` — Puzzle Forge book package(s) (`forge vault sync`): hashes only.

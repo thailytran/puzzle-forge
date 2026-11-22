@@ -11,3 +11,6 @@
 
 ## 1.0.0 — 2026-11-21
 - First version: answer check + extended ending, Etsy order / Book Code verification, 15% next-book coupons, Case Points and ranks, series gift, redeem, Klaviyo events, owner admin, daily backup.
+
+## 1.3.0 (2026-11-22)
+- Free Book: POST /free-book/claim, GET /free-book/dl/<token>, GET /free-book/books; D1 free_books + free_claims; Klaviyo "Claimed Free Book"; tests.

@@ -291,7 +291,7 @@ async function dailyJobs(env) {
 }
 
 const BACKUP_TABLES = ["settings", "series", "books", "book_codes", "etsy_orders", "accounts", "solves", "points_ledger",
-  "rewards", "referrals", "etsy_coupon_pool", "consents", "notify", "flags", "audit_log"];
+  "rewards", "referrals", "etsy_coupon_pool", "consents", "notify", "flags", "audit_log", "free_books", "free_claims"];
 async function backup(env) {
   if (!env.FILES) return null;
   const dump = { version: VERSION, at: nowIso(), tables: {} };

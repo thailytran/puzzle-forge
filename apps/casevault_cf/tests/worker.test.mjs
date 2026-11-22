@@ -248,7 +248,7 @@ test("newsletter tick -> subscription queued + consent stored; password sign-in;
   assert.equal(cons.value, 1);
   assert.match(cons.text, /Unsubscribe anytime/);
   // wrong password refused, right one accepted
-  const c2 = new Client(env, "198.51.100.9");
+  const c2 = new Client(env, "203.0.114.9");
   assert.match((await c2.post("/login", { mode: "signin", email: "ann@example.com", password: "nope-nope" })).text_, /not right/);
   assert.equal((await c2.post("/login", { mode: "signin", email: "ann@example.com", password: "s3cret-pass" })).status, 303);
   // duplicate sign-up refused
@@ -344,4 +344,75 @@ test("one Etsy order with two books: each book rewarded once, the same order+boo
   // an order that does not contain book 3 is refused
   const claim3 = await solveAndSignIn(c, "PF-CASE-003");
   assert.match((await c.post("/claim", { s: claim3, channel: "etsy", order: "4000000001" })).text_, /does not contain this book/);
+});
+
+// ---- Free Book claim (Luồng Free Book §4): one book per e-mail, Klaviyo profile, 7-day R2 link ----
+function freeEnv() {
+  const { env, log } = makeEnv();
+  env.FETCH = async (url, init = {}) => {
+    log.push({ url: String(url), body: init.body && typeof init.body === "string" ? JSON.parse(init.body) : null });
+    if (String(url).includes("graphql")) return new Response(JSON.stringify({ data: { products: { nodes: [
+      { handle: "free-cozy-christmas-village", title: "Free: Cozy Christmas Village – 12 Coloring Pages", tags: ["free-book", "interest:cozy"], status: "ACTIVE",
+        fk: { value: "free/COL-FREE-07_Village_web.pdf" }, cn: { value: "COL-FREE-07" } },
+      { handle: "free-ocean-life", title: "Free: Ocean Life – 10 Ink Tracing Pages", tags: [], status: "ACTIVE", fk: { value: "free/COL-FREE-16_Ocean_web.pdf" }, cn: { value: "COL-FREE-16" } },
+      { handle: "free-broken", title: "Free: Broken", tags: [], status: "ACTIVE", fk: null, cn: null } ] } } }), { status: 200 });
+    return new Response("{}", { status: 202 });
+  };
+  return { env, log };
+}
+async function claim(env, body, ip = "198.51.100.7", origin = "https://colorilax.com") {
+  const r = await worker.fetch(new Request("https://cv.test/free-book/claim", { method: "POST",
+    headers: { "content-type": "application/json", "cf-connecting-ip": ip, origin }, body: JSON.stringify(body) }), env, null);
+  return { r, j: await r.json() };
+}
+
+test("free book: claim, one per e-mail (gmail dots / + / case), link works 7 days, Klaviyo + consent", async () => {
+  const { env, log } = freeEnv();
+  await _test.ensureSchema(env);
+  await _test.setSetting(env, "shopify_shop", "colorilax.myshopify.com");
+  await _test.setSetting(env, "shopify_token", "shpat_test");
+  await env.BOOKS.put("free/COL-FREE-07_Village_web.pdf", "PDFDATA", { httpMetadata: { contentType: "application/pdf" } });
+  const a = await claim(env, { email: "Jane.Doe+x@gmail.com", handle: "free-cozy-christmas-village", source: "freebook_web", consent: true });
+  assert.equal(a.j.ok, true, JSON.stringify(a.j));
+  assert.equal(a.r.headers.get("access-control-allow-origin"), "https://colorilax.com");
+  assert.equal(a.j.title, "Cozy Christmas Village – 12 Coloring Pages");
+  const tok = a.j.download_url.split("/").pop();
+  const dl = await worker.fetch(new Request(`https://cv.test/free-book/dl/${tok}`), env, null);
+  assert.equal(dl.status, 200); assert.equal(await dl.text(), "PDFDATA");
+  const b = await claim(env, { email: "janedoe@GMAIL.com", handle: "free-ocean-life" });
+  assert.equal(b.j.ok, false); assert.equal(b.j.already, true); assert.match(b.j.error, /already claimed/);
+  assert.equal(b.j.handle, "free-cozy-christmas-village");
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM free_claims").first();
+  assert.equal(n.n, 1);
+  await _test.processOutbox(env, 50);
+  const ev = log.find((x) => x.url.includes("klaviyo") && x.url.endsWith("/events"));
+  // Klaviyo key is not set in tests → events are skipped, but the outbox rows are done
+  const pending = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE done=0").first();
+  assert.equal(pending.n, 0, String(ev));
+  const ob = await env.DB.prepare("SELECT kind, payload FROM outbox ORDER BY id").all();
+  const kinds = ob.results.map((x) => x.kind);
+  assert.deepEqual(kinds.filter((k) => k !== "mail"), ["klaviyo_event", "klaviyo_sub"]);
+  const evp = JSON.parse(ob.results.find((x) => x.kind === "klaviyo_event").payload);
+  assert.equal(evp.profile.freebook_choice, "Cozy Christmas Village – 12 Coloring Pages");
+  assert.equal(evp.profile.interest, "cozy"); assert.equal(evp.profile.source, "freebook_web");
+});
+
+test("free book: unknown book, bad / disposable e-mail, 5 per hour per IP, expired link, no CORS for other sites", async () => {
+  const { env } = freeEnv();
+  await _test.ensureSchema(env);
+  await _test.setSetting(env, "shopify_shop", "colorilax.myshopify.com");
+  await _test.setSetting(env, "shopify_token", "shpat_test");
+  assert.equal((await claim(env, { email: "x@example.com", handle: "free-broken" })).r.status, 404);
+  assert.equal((await claim(env, { email: "nope", handle: "free-ocean-life" }, "192.0.2.8")).r.status, 400);
+  assert.equal((await claim(env, { email: "a@mailinator.com", handle: "free-ocean-life" }, "192.0.2.8")).r.status, 400);
+  const other = await claim(env, { email: "o1@example.com", handle: "free-ocean-life" }, "203.0.114.9", "https://evil.example");
+  assert.equal(other.j.ok, true); assert.equal(other.r.headers.get("access-control-allow-origin"), null);
+  for (let i = 2; i <= 5; i++) assert.equal((await claim(env, { email: `o${i}@example.com`, handle: "free-ocean-life" }, "203.0.114.9")).r.status, 200);
+  assert.equal((await claim(env, { email: "o6@example.com", handle: "free-ocean-life" }, "203.0.114.9")).r.status, 429);
+  await env.DB.prepare("UPDATE free_claims SET expires='2000-01-01T00:00:00Z'").run();
+  const c = await env.DB.prepare("SELECT token FROM free_claims LIMIT 1").first();
+  const dl = await worker.fetch(new Request(`https://cv.test/free-book/dl/${c.token}`), env, null);
+  assert.match(await dl.text(), /expired/);
+  const pre = await worker.fetch(new Request("https://cv.test/free-book/claim", { method: "OPTIONS", headers: { origin: "https://colorilax.com" } }), env, null);
+  assert.equal(pre.status, 204); assert.equal(pre.headers.get("access-control-allow-methods"), "POST, OPTIONS");
 });
