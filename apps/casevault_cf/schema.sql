@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   tier TEXT NOT NULL DEFAULT 'Rookie', points_total INTEGER NOT NULL DEFAULT 0,
   points_avail INTEGER NOT NULL DEFAULT 0, newsletter INTEGER NOT NULL DEFAULT 0,
   locked INTEGER NOT NULL DEFAULT 0, name_consent INTEGER NOT NULL DEFAULT 0, birthday_year INTEGER,
-  signup_ip TEXT, created TEXT, last_active TEXT);
+  signup_ip TEXT, password_hash TEXT, google_sub TEXT, created TEXT, last_active TEXT);
 CREATE INDEX IF NOT EXISTS ix_acc_norm ON accounts(email_norm);
 CREATE TABLE IF NOT EXISTS login_tokens (
   token_hash TEXT PRIMARY KEY, email TEXT NOT NULL, data TEXT, expires TEXT NOT NULL, used INTEGER DEFAULT 0);

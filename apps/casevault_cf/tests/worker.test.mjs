@@ -63,10 +63,9 @@ async function solveAndSignIn(c, bookId, answer = "captain reed", signup = {}) {
   assert.match(r.text_, /CASE SOLVED/);
   const claim = /\/claim\?s=([^"&]+)/.exec(r.text_)[1];
   if (!c.signedIn) {
-    const l = await c.post("/login", { email: signup.email || "jane@example.com", terms: "1", next: `/claim?s=${claim}`, ...signup });
-    const link = /href="https:\/\/cv\.test(\/auth\?t=[^"]+)"/.exec(l.text_)[1];
-    const a = await c.get(link.replace(/&amp;/g, "&"));
-    assert.equal(a.status, 303);
+    const a = await c.post("/login", { mode: "signup", email: signup.email || "jane@example.com", password: "detective-pw", terms: "1", next: `/claim?s=${claim}`, ...signup });
+    assert.equal(a.status, 303, a.text_);
+    assert.match(a.headers.get("location"), /^\/claim\?s=/);
     c.signedIn = true;
   }
   return decodeURIComponent(claim);
@@ -94,7 +93,7 @@ test("book code format, csv parser, totp", async () => {
   assert.ok(await _test.pwCheck("correct horse battery", await _test.pwHash("correct horse battery")));
 });
 
-test("wrong answers: no answer leak, lockout after 5", async () => {
+test("wrong answers: no answer leak, unlimited retries with a short pause", async () => {
   const { env } = makeEnv();
   await seed(env);
   const c = new Client(env);
@@ -106,7 +105,10 @@ test("wrong answers: no answer leak, lockout after 5", async () => {
     assert.doesNotMatch(r.text_, /reed/i);
   }
   const r6 = await c.post("/check", { book: "PF-CASE-001", a_culprit_name: "captain reed" });
-  assert.match(r6.text_, /Too many tries/);
+  assert.match(r6.text_, /Take a breath/);
+  await env.DB.prepare("UPDATE attempts SET ts='2000-01-01T00:00:00Z'").run();  // pause over
+  const r7 = await c.post("/check", { book: "PF-CASE-001", a_culprit_name: "captain reed" });
+  assert.match(r7.text_, /CASE SOLVED/);
 });
 
 test("case, accents and spaces still count; extended ending without account", async () => {
@@ -154,9 +156,6 @@ test("Etsy: known order -> pool coupon; unknown -> pending until CSV upload", as
   // admin: setup + 2FA + pool + CSV
   const admin = new Client(env, "10.0.0.9");
   await admin.post("/admin", { do: "setup", token: env.VAULT_ADMIN_TOKEN, pw: "a-long-owner-password" });
-  await admin.get("/admin");
-  const secret = await _test.getSetting(env, "admin_totp_pending");
-  await admin.post("/admin", { do: "totp_enrol", code: await _test.totpAt(secret, Math.floor(Date.now() / 30000)) });
   const ov = await admin.get("/admin?s=overview");
   assert.match(ov.text_, /Submissions/);
   await admin.post("/admin/act", { do: "pool_add", pct: "15", codes: "ETSY15A\nETSY15B" });
@@ -237,38 +236,77 @@ test("Inspector redeems 1,200 points: available drops, tier stays", async () => 
   assert.equal(b.tier, "Inspector");
 });
 
-test("newsletter tick -> subscription queued + consent stored; login link single use", async () => {
+test("newsletter tick -> subscription queued + consent stored; password sign-in; reset link single use", async () => {
   const { env } = makeEnv();
   await seed(env);
   const c = new Client(env);
-  const l = await c.post("/login", { email: "Ann@Example.com", terms: "1", newsletter: "1", next: "/account" });
-  const link = /href="https:\/\/cv\.test(\/auth\?t=[^"]+)"/.exec(l.text_)[1];
-  assert.equal((await c.get(link)).status, 303);
-  const again = await new Client(env).get(link);
-  assert.match(again.text_, /expired|already used/);
+  const r = await c.post("/login", { mode: "signup", email: "Ann@Example.com", password: "s3cret-pass", terms: "1", newsletter: "1", next: "/account" });
+  assert.equal(r.status, 303);
   const sub = await env.DB.prepare("SELECT payload FROM outbox WHERE kind='klaviyo_sub'").first();
   assert.deepEqual(JSON.parse(sub.payload), { email: "ann@example.com", subscribe: true });
   const cons = await env.DB.prepare("SELECT * FROM consents").first();
   assert.equal(cons.value, 1);
   assert.match(cons.text, /Unsubscribe anytime/);
+  // wrong password refused, right one accepted
+  const c2 = new Client(env, "198.51.100.9");
+  assert.match((await c2.post("/login", { mode: "signin", email: "ann@example.com", password: "nope-nope" })).text_, /not right/);
+  assert.equal((await c2.post("/login", { mode: "signin", email: "ann@example.com", password: "s3cret-pass" })).status, 303);
+  // duplicate sign-up refused
+  assert.match((await new Client(env).post("/login", { mode: "signup", email: "ann@example.com", password: "another-pw", terms: "1" })).text_, /already exists/);
+  // reset link: works once
+  const f = await new Client(env).post("/forgot", { email: "ann@example.com" });
+  const link = /href="https:\/\/cv\.test(\/auth\?t=[^"]+)"/.exec(f.text_)[1];
+  const c3 = new Client(env, "198.51.100.10");
+  const a1 = await c3.get(link);
+  assert.match(a1.headers.get("location"), /\/account\/password/);
+  assert.equal((await c3.post("/account/password", { password: "brand-new-pw", next: "/account" })).status, 303);
+  assert.match((await new Client(env).get(link)).text_, /expired|already used/);
+  assert.equal((await new Client(env, "1.1.1.1").post("/login", { mode: "signin", email: "ann@example.com", password: "brand-new-pw" })).status, 303);
   // outbox delivers to Klaviyo through the fake network when a key is set
   await _test.setSetting(env, "klaviyo_key", "pk_test");
   await _test.setSetting(env, "klaviyo_list_id", "LIST1");
   const sent = await _test.processOutbox(env);
   assert.ok(sent >= 2);
-  // the stored key is encrypted at rest
   const raw = await env.DB.prepare("SELECT v, enc FROM settings WHERE k='klaviyo_key'").first();
   assert.equal(raw.enc, 1);
   assert.notEqual(raw.v, "pk_test");
 });
 
-test("admin requires password + TOTP; internal API requires bearer", async () => {
+test("Google sign-in creates the account from a verified Google e-mail", async () => {
+  const { env } = makeEnv();
+  await seed(env);
+  await _test.setSetting(env, "google_client_id", "cid.apps.googleusercontent.com");
+  await _test.setSetting(env, "google_client_secret", "gsecret");
+  const payload = Buffer.from(JSON.stringify({ email: "gg@gmail.com", email_verified: true, sub: "123", given_name: "Gigi" })).toString("base64url");
+  env.FETCH = async (url) => String(url).includes("oauth2.googleapis.com") ? new Response(JSON.stringify({ id_token: `x.${payload}.y` }), { status: 200 }) : new Response("{}");
+  const c = new Client(env);
+  const s = await c.get("/auth/google?next=/account");
+  const loc = new URL(s.headers.get("location"));
+  assert.equal(loc.host, "accounts.google.com");
+  const cb = await c.get(`/auth/google/callback?code=abc&state=${loc.searchParams.get("state")}`);
+  assert.equal(cb.status, 303);
+  const a = await acc(env, "gg@gmail.com");
+  assert.equal(a.display_name, "Gigi");
+  assert.equal(a.google_sub, "123");
+  assert.match((await c.get("/account")).text_, /Gigi/);
+});
+
+test("admin: password, optional authenticator; internal API requires bearer", async () => {
   const { env } = makeEnv();
   const anon = new Client(env);
   const a = await anon.get("/admin?s=accounts");
   assert.match(a.text_, /First setup/);
   const bad = await anon.post("/admin", { do: "setup", token: "nope", pw: "a-long-owner-password" });
   assert.match(bad.text_, /Wrong setup token/);
+  assert.equal((await anon.post("/admin", { do: "setup", token: env.VAULT_ADMIN_TOKEN, pw: "a-long-owner-password" })).status, 303);
+  assert.match((await anon.get("/admin?s=overview")).text_, /Submissions/);
+  // optional two-step: turn on, then a fresh sign-in needs the code
+  await anon.get("/admin?s=security");
+  const secret = await _test.getSetting(env, "admin_totp_pending");
+  await anon.post("/admin/act", { do: "totp_on", code: await _test.totpAt(secret, Math.floor(Date.now() / 30000)) });
+  const fresh = new Client(env, "10.9.9.9");
+  assert.match((await fresh.post("/admin", { do: "login", pw: "a-long-owner-password", code: "000000" })).text_, /Wrong password or code/);
+  assert.equal((await fresh.post("/admin", { do: "login", pw: "a-long-owner-password", code: await _test.totpAt(secret, Math.floor(Date.now() / 30000)) })).status, 303);
   const api = await worker.fetch(new Request("https://cv.test/api/admin/books", { method: "POST", body: "[]" }), env, null);
   assert.equal(api.status, 401);
   // plaintext answers are refused at import
@@ -281,9 +319,29 @@ test("daily jobs: birthday points once a year, backup to R2", async () => {
   const { env } = makeEnv();
   await seed(env);
   const c = new Client(env);
-  await c.post("/login", { email: "bday@example.com", terms: "1", birth_month: String(new Date().getUTCMonth() + 1), next: "/account" }).then(async (l) => c.get(/href="https:\/\/cv\.test(\/auth\?t=[^"]+)"/.exec(l.text_)[1]));
+  await c.post("/login", { mode: "signup", email: "bday@example.com", password: "birthday-pw", terms: "1", birth_month: String(new Date().getUTCMonth() + 1), next: "/account" });
   await _test.dailyJobs(env);
   await _test.dailyJobs(env);
   assert.equal((await acc(env, "bday@example.com")).points_total, 20 + 50);
   assert.ok([...env.FILES.m.keys()].some((k) => k.startsWith("casevault/staging/backup/")));
+});
+
+test("one Etsy order with two books: each book rewarded once, the same order+book never twice", async () => {
+  const { env } = makeEnv();
+  await seed(env);
+  await env.DB.prepare("INSERT INTO etsy_orders(order_id,sku,listing_id,sale_date) VALUES('4000000001','SKU-1','1001','x'),('4000000001','SKU-2','1002','x')").run();
+  await env.DB.prepare("INSERT INTO etsy_coupon_pool(code,pct) VALUES('E1',15),('E2',15),('E3',15)").run();
+  const c = new Client(env);
+  for (const id of ["PF-CASE-001", "PF-CASE-002"]) {
+    const claim = await solveAndSignIn(c, id);
+    assert.equal((await c.post("/claim", { s: claim, channel: "etsy", order: "4000000001" })).status, 303);
+  }
+  assert.equal((await acc(env)).points_total, 20 + 2 * 130);
+  // a friend re-using the same order for book 1 is refused
+  const c2 = new Client(env, "192.0.2.99");
+  const claim = await solveAndSignIn(c2, "PF-CASE-001", "reed", { email: "friend@example.com" });
+  assert.match((await c2.post("/claim", { s: claim, channel: "etsy", order: "4000000001" })).text_, /already been used/);
+  // an order that does not contain book 3 is refused
+  const claim3 = await solveAndSignIn(c, "PF-CASE-003");
+  assert.match((await c.post("/claim", { s: claim3, channel: "etsy", order: "4000000001" })).text_, /does not contain this book/);
 });

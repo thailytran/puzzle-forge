@@ -26,14 +26,14 @@ const DEFAULT_RULES = {
   points: { signup: 20, solve: 100, first_try: 30, series: 200, referral: 100, birthday: 50 },
   tiers: [["Rookie", 0], ["Detective", 300], ["Inspector", 800], ["Chief Inspector", 1500]],
   redeem_min_tier: "Inspector", redeem_cost: 1200, coupon_pct: 15, coupon_days: 90,
-  points_expire_days: 730, wrong_per_hour: 5, ip_per_hour: 20, claim_hold_hours: 24,
+  points_expire_days: 730, wrong_per_hour: 5, wrong_before_pause: 5, pause_seconds: 30, ip_per_hour: 60, claim_hold_hours: 24,
   pending_days: 30, pool_warn: 10, solved_count_min: 100,
   support_email: "support@colorilax.com", shop_url: "https://colorilax.com", etsy_shop_url: "https://www.etsy.com/shop/ColorilaxBook",
 };
 // Keys whose values are secrets: stored AES-GCM encrypted, never shown back in the admin.
-const SECRET_SETTINGS = ["shopify_token", "klaviyo_key", "turnstile_secret", "telegram_token", "mail_token"];
+const SECRET_SETTINGS = ["shopify_token", "klaviyo_key", "turnstile_secret", "telegram_token", "mail_token", "google_client_secret"];
 const PLAIN_SETTINGS = ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site",
-  "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "rules", "terms_html", "privacy_html",
+  "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id", "rules", "terms_html", "privacy_html",
   "admin_pw", "admin_totp", "admin_totp_pending"];
 
 async function settingsKey(env) {

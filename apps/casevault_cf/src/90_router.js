@@ -39,6 +39,11 @@ async function route(req, env) {
   else if (p === "/claim" && m === "GET") res = await claimPage(env, ctx, req, url);
   else if (p === "/claim" && m === "POST") res = await claimSubmit(env, ctx, req);
   else if (p === "/login" && m === "POST") res = await loginSubmit(env, ctx, req);
+  else if (p === "/login") res = await loginPage(env, ctx, url);
+  else if (p === "/forgot") res = await forgotPage(env, ctx, req, url);
+  else if (p === "/auth/google") res = await googleStart(env, ctx, url);
+  else if (p === "/auth/google/callback") res = await googleCallback(env, ctx, url, req);
+  else if (p === "/account/password") res = await passwordPage(env, ctx, req, url);
   else if (p === "/auth") res = await authLink(env, ctx, url, req);
   else if (p === "/account" && m === "GET") res = await accountPage(env, ctx, url);
   else if (p.startsWith("/account/") && m === "POST") res = await accountAction(env, ctx, req, p.slice(9));

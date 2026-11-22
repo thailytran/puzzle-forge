@@ -1,6 +1,6 @@
 // ---- owner admin (spec §8): password + TOTP, never shows answers or stored secrets --------------
 const ADMIN_SECTIONS = [["overview", "Overview"], ["books", "Books"], ["series", "Series"], ["codes", "Book Codes"], ["etsy", "Etsy orders"],
-  ["pool", "Etsy coupons"], ["accounts", "Accounts"], ["flags", "Alerts"], ["gifts", "Gifts"], ["rules", "Point rules"], ["settings", "Settings"], ["outbox", "Outbox"]];
+  ["pool", "Etsy coupons"], ["accounts", "Accounts"], ["flags", "Alerts"], ["gifts", "Gifts"], ["rules", "Point rules"], ["settings", "Settings"], ["security", "Security"], ["outbox", "Outbox"]];
 
 function adminLayout(title, inner, section) {
   return html(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
@@ -27,15 +27,6 @@ async function adminEntry(env, req, url) {
 <form method="post"><input type="hidden" name="do" value="setup"><label>Setup token</label><input type="text" name="token" required autocomplete="off">
 <label>New password (12+ characters)</label><input type="text" name="pw" required minlength="12" autocomplete="new-password" style="-webkit-text-security:disc">
 <p><button class="btn">Continue</button></p></form></div>`);
-  const s = await one(env, "SELECT * FROM admin_sessions WHERE sid_hash=? AND expires>?", await sha256(cookies(req).cv_admin || "-"), nowIso());
-  if (!totp && s) {
-    let pending = await getSetting(env, "admin_totp_pending", "");
-    if (!pending) { pending = newTotpSecret(); await setSetting(env, "admin_totp_pending", pending); }
-    const uri = `otpauth://totp/CaseVault:owner?secret=${pending}&issuer=CaseVault`;
-    return adminLayout("2FA", `<div class="card"><h2>Turn on two-step sign-in</h2><p>Open Google Authenticator / Authy / 1Password → add account → enter this key manually:</p>
-<p><code class="mono" style="font-size:18px;word-break:break-all">${pending.match(/.{1,4}/g).join(" ")}</code></p><p class="muted" style="word-break:break-all">${esc(uri)}</p>
-<form method="post"><input type="hidden" name="do" value="totp_enrol"><label>6-digit code from the app</label><input type="text" name="code" inputmode="numeric" required maxlength="6"><p><button class="btn">Turn on</button></p></form></div>`);
-  }
   return adminLayout("Sign in", `<div class="card"><h2>Owner sign-in</h2><form method="post"><input type="hidden" name="do" value="login">
 <label>Password</label><input type="text" name="pw" required autocomplete="current-password" style="-webkit-text-security:disc">
 ${totp ? `<label>6-digit code</label><input type="text" name="code" inputmode="numeric" maxlength="6" required>` : ""}<p><button class="btn">Sign in</button></p></form></div>`);
@@ -56,23 +47,12 @@ async function adminAuthPost(env, req, pw, totp) {
     if (String(f.pw || "").length < 12) return fail("Password must have at least 12 characters.");
     await setSetting(env, "admin_pw", await pwHash(f.pw));
     await audit(env, "owner", "admin_setup", {});
-    return newSession(false);
-  }
-  if (f.do === "totp_enrol" && !totp) {
-    const s = await one(env, "SELECT * FROM admin_sessions WHERE sid_hash=? AND expires>?", await sha256(cookies(req).cv_admin || "-"), nowIso());
-    const pending = await getSetting(env, "admin_totp_pending", "");
-    if (!s || !pending) return fail("Session expired.");
-    if (!(await totpOk(pending, f.code))) return fail("That code did not match. Check the phone clock and try again.");
-    await setSetting(env, "admin_totp", pending);
-    await setSetting(env, "admin_totp_pending", null);
-    await run(env, "UPDATE admin_sessions SET ok2fa=1 WHERE sid_hash=?", s.sid_hash);
-    await audit(env, "owner", "totp_on", {});
-    return redirect("/admin");
+    return newSession(true);
   }
   if (f.do === "login") {
     if (!(await pwCheck(String(f.pw || ""), pw))) return fail("Wrong password or code.");
     if (totp && !(await totpOk(totp, f.code))) return fail("Wrong password or code.");
-    return newSession(!!totp);
+    return newSession(true);
   }
   return redirect("/admin");
 }
@@ -183,13 +163,21 @@ ${actForm("account_delete", `<input type="hidden" name="id" value="${a.id}">`, "
   } else if (s === "settings") {
     const rowsS = [];
     for (const k of SECRET_SETTINGS) rowsS.push(`<label>${k} ${(await getSetting(env, k, "")) ? "<span class='label' style='--c:#3a7'>set</span>" : "<span class='label' style='--c:#a33'>empty</span>"}</label><input type="text" name="${k}" placeholder="leave empty to keep" autocomplete="off" style="-webkit-text-security:disc">`);
-    for (const k of ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name"])
+    for (const k of ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id"])
       rowsS.push(`<label>${k}</label><input type="text" name="${k}" value="${esc(await getSetting(env, k, ""))}">`);
-    inner = `<h1>Settings</h1>${msg}<div class="card"><p class="muted">Keys are stored encrypted and never shown again. mail_provider: zeptomail or resend. Shopify token needs read_orders + write_discounts only.</p>
+    inner = `<h1>Settings</h1>${msg}<div class="card"><p class="muted">Keys are stored encrypted and never shown again. mail_provider: zeptomail or resend. Shopify token needs read_orders + write_discounts only. Google sign-in: create an OAuth client (Web) in Google Cloud with redirect URI <code>${esc((env.SITE_URL || "") + "/auth/google/callback")}</code>.</p>
 <form method="post" action="/admin/act"><input type="hidden" name="do" value="settings_save">${rowsS.join("")}
 <label>Reward rules page (HTML, optional)</label><textarea name="terms_html">${esc(await getSetting(env, "terms_html", ""))}</textarea>
 <label>Privacy page (HTML, optional)</label><textarea name="privacy_html">${esc(await getSetting(env, "privacy_html", ""))}</textarea><p><button class="btn small">Save</button></p></form>
 ${actForm("test_services", "", "Send test (mail to me, Telegram, Klaviyo)")}</div>`;
+  } else if (s === "security") {
+    const totp = await getSetting(env, "admin_totp", "");
+    let pending = await getSetting(env, "admin_totp_pending", "");
+    if (!totp && !pending) { pending = newTotpSecret(); await setSetting(env, "admin_totp_pending", pending); }
+    inner = `<h1>Security</h1>${msg}<div class="card"><h3>Owner password</h3>${actForm("pw_change", `<input type="password" name="old" placeholder="current password" required style="max-width:220px"><input type="password" name="pw" placeholder="new password (12+)" minlength="12" required style="max-width:220px">`, "Change password")}
+<p class="muted">Sign-in is locked for an hour after 8 failed tries from one network.</p></div>
+<div class="card"><h3>Two-step sign-in (optional)</h3>${totp ? `<p>On. Sign-in asks for the 6-digit code from your authenticator app.</p>${actForm("totp_off", `<input type="text" name="code" placeholder="current 6-digit code" maxlength="6" required style="max-width:200px">`, "Turn off")}`
+      : `<p>Off. Optional extra lock: an authenticator app (Google Authenticator, Authy, 1Password) shows a new 6-digit code every 30 seconds. No SMS needed. Add this key in the app:</p><p><code class="mono" style="font-size:18px">${pending.match(/.{1,4}/g).join(" ")}</code></p>${actForm("totp_on", `<input type="text" name="code" placeholder="6-digit code from the app" maxlength="6" required style="max-width:220px">`, "Turn on")}`}</div>`;
   } else if (s === "outbox") {
     const ob = await all(env, "SELECT id,kind,attempts,next_at,last_error,done FROM outbox WHERE done<>1 ORDER BY id DESC LIMIT 200");
     inner = `<h1>Outbox</h1>${msg}<div class="card">${actForm("outbox_run", "", "Run now")}${tbl(ob, [["id", "#"], ["kind", "Kind"], ["attempts", "Tries"], ["next_at", "Next"], ["last_error", "Error"], ["done", "State", (r) => r.done === 2 ? "gave up" : "retrying"]])}</div>
@@ -347,7 +335,7 @@ async function adminAct(env, req) {
     if (d === "rules_save") { const r = JSON.parse(f.rules); await setSetting(env, "rules", JSON.stringify(r)); await audit(env, "owner", "rules_save", r); return back("rules", "Saved"); }
     if (d === "settings_save") {
       for (const k of SECRET_SETTINGS) if (f[k]) await setSetting(env, k, String(f[k]).trim());
-      for (const k of ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "terms_html", "privacy_html"])
+      for (const k of ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id", "terms_html", "privacy_html"])
         if (f[k] !== undefined) await setSetting(env, k, String(f[k]).trim());
       await audit(env, "owner", "settings_save", Object.keys(f).filter((k) => f[k] && k !== "do"));
       return back("settings", "Saved");
@@ -359,6 +347,23 @@ async function adminAct(env, req) {
       try { const r = await telegram(env, "test message"); out.push(r.skipped ? "telegram not set" : "telegram ok"); } catch (e) { out.push(`telegram: ${e.message}`); }
       try { const r = await klaviyo(env, "events", klaviyoEventBody(R.support_email, "CaseVault Test", {}, {})); out.push(r.skipped ? "klaviyo not set" : "klaviyo ok"); } catch (e) { out.push(`klaviyo: ${e.message}`); }
       return back("settings", out.join(" · "));
+    }
+    if (d === "pw_change") {
+      if (!(await pwCheck(String(f.old || ""), await getSetting(env, "admin_pw", "")))) return back("security", "Current password is wrong");
+      if (String(f.pw || "").length < 12) return back("security", "At least 12 characters");
+      await setSetting(env, "admin_pw", await pwHash(f.pw)); await audit(env, "owner", "pw_change", {});
+      return back("security", "Password changed");
+    }
+    if (d === "totp_on") {
+      const pending = await getSetting(env, "admin_totp_pending", "");
+      if (!pending || !(await totpOk(pending, f.code))) return back("security", "That code did not match");
+      await setSetting(env, "admin_totp", pending); await setSetting(env, "admin_totp_pending", null); await audit(env, "owner", "totp_on", {});
+      return back("security", "Two-step sign-in is on");
+    }
+    if (d === "totp_off") {
+      if (!(await totpOk(await getSetting(env, "admin_totp", ""), f.code))) return back("security", "That code did not match");
+      await setSetting(env, "admin_totp", null); await audit(env, "owner", "totp_off", {});
+      return back("security", "Two-step sign-in is off");
     }
     if (d === "outbox_run") { const n = await processOutbox(env, 100); return back("outbox", `${n} sent`); }
   } catch (e) {

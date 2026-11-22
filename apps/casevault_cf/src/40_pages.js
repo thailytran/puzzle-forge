@@ -19,7 +19,7 @@ header.top .brand b{color:var(--brass)}header.top nav a{margin-left:16px;text-de
 .deco .tag{position:absolute;top:16px;right:-8px;background:var(--stamp);color:#fff;padding:4px 14px;transform:rotate(6deg)}
 .card{background:var(--paper);color:#22211d;border-radius:12px;padding:22px}
 .card h2,.card h3{color:#1b1a17}label{display:block;font-weight:600;margin:12px 0 4px;font-size:15px}
-select,input[type=text],input[type=email],input[type=number],textarea{width:100%;padding:12px;border:1px solid #9c9180;border-radius:8px;font:inherit;background:#fffdf8;color:#1b1a17}
+select,input[type=text],input[type=email],input[type=password],input[type=number],textarea{width:100%;padding:12px;border:1px solid #9c9180;border-radius:8px;font:inherit;background:#fffdf8;color:#1b1a17}
 input.code{font-size:26px;letter-spacing:.18em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace;text-align:center}
 .btn{display:inline-block;background:var(--brass);color:#14171F;border:0;border-radius:8px;padding:13px 22px;font:600 17px Inter,sans-serif;cursor:pointer;text-decoration:none}
 .btn.ghost{background:transparent;color:var(--brass);border:1px solid var(--brass)}.btn.small{padding:8px 14px;font-size:14px}
@@ -35,6 +35,7 @@ input.code{font-size:26px;letter-spacing:.18em;text-transform:uppercase;font-fam
 .label{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:var(--c);color:#fff}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.steps div{background:var(--ink2);border-radius:10px;padding:16px}
 .tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.tiers div{border:1px solid #3a4152;border-radius:10px;padding:14px}
+.ai-note{display:inline-block;margin:6px 0 8px;padding:4px 12px;border:1px solid #3a4152;border-radius:14px;font-size:12.5px;color:#d9cfb8}
 section{padding:22px 0}footer{border-top:1px solid #2c3242;margin-top:30px;padding:20px 16px;text-align:center;font-size:14px;color:var(--muted)}
 .result{max-width:640px;margin:30px auto}.stamp{display:inline-block;border:5px solid var(--stamp);color:var(--stamp);padding:6px 18px;font:700 34px "Special Elite",monospace;transform:rotate(-8deg);animation:stamp .5s ease-out}
 @keyframes stamp{from{transform:scale(2.2) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:1}}
@@ -44,7 +45,7 @@ section{padding:22px 0}footer{border-top:1px solid #2c3242;margin-top:30px;paddi
 .err{background:#fbe5e1;color:#7a1f16;border-radius:8px;padding:10px 12px;margin:10px 0}.ok{background:#e4f1e1;color:#1e4d17;border-radius:8px;padding:10px 12px;margin:10px 0}
 table.t{width:100%;border-collapse:collapse;font-size:14px}table.t td,table.t th{border-bottom:1px solid #d6ccb6;padding:6px;text-align:left}
 .bar{height:10px;background:#d6ccb6;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--brass)}
-.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.file{border-radius:8px;padding:10px;background:#e6dcc5;font-size:13px;position:relative;min-height:70px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.file{border-radius:8px;padding:10px 10px 28px;background:#e6dcc5;font-size:13px;position:relative;min-height:70px}
 .file.solved::after{content:"SOLVED";position:absolute;right:6px;bottom:6px;color:var(--stamp);border:2px solid var(--stamp);font:700 11px "Special Elite";padding:1px 5px;transform:rotate(-8deg)}
 .file.open{opacity:.55}
 @media (max-width:760px){.hero{grid-template-columns:1fr}.hero .deco{display:none}.steps,.tiers{grid-template-columns:1fr 1fr}header.top nav a{margin-left:10px}}
@@ -56,9 +57,11 @@ function layout(title, body, o = {}) {
 <title>${esc(title)} · Case Vault</title><meta name="description" content="Solved your Colorilax case? Enter the final code, read the extended ending and claim your reward.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700&family=Special+Elite&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>${CSS}</style>${ts}</head><body>
-<header class="top"><a class="brand" href="/">Case <b>Vault</b></a><nav><a href="/cases">Case files</a><a href="/account">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
+<header class="top"><a class="brand" href="/">Case <b>Vault</b></a><nav><a href="/cases">Case files</a><a href="${o.user ? "/account" : "/login"}">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
 <main>${body}</main>
-<footer><span class="mono">COLORILAX · CASE VAULT v${VERSION}</span><br><a href="/rules">Reward rules</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${esc(o.support || DEFAULT_RULES.support_email)}">Contact</a></footer>
+<footer><a href="/rules">Reward rules</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${esc(o.support || DEFAULT_RULES.support_email)}">Contact</a>
+<p style="margin:10px 0 4px">© ${new Date().getUTCFullYear()} Colorilax · HaloSpark e-Commerce Inc. All rights reserved.</p>
+<p class="ai-note">✦ All Colorilax books are created with the help of AI tools, then checked and finished by our team.</p><span class="mono" style="font-size:11px;opacity:.6">Case Vault v${VERSION}</span></footer>
 </body></html>`;
 }
 const lineOf = (b) => LINES[b.line] || LINES.mystery;
@@ -178,9 +181,13 @@ async function checkAnswer(env, ctx, req) {
   if (!book || !released(book)) return infoPage(ctx, "Choose a book", `<h2>Please choose your book</h2><p><a href="/">Back</a></p>`);
   if (!(await turnstileOk(env, f["cf-turnstile-response"], ip))) return infoPage(ctx, "Check", `<div class="err">We could not confirm you are human. Please try again.</div><p><a href="/?book=${encodeURIComponent(book.book_id)}">Back</a></p>`);
   const ipCount = await countAttempts(env, "scope='answer' AND ip=?", [ip]);
-  const wrong = await countAttempts(env, "scope='answer' AND ok=0 AND book_id=? AND (ip=? OR vid=?)", [book.book_id, ip, ctx.vid]);
-  if (ipCount >= R.ip_per_hour || wrong >= R.wrong_per_hour) {
-    return infoPage(ctx, "Too many tries", `<h2>Too many tries for now</h2><p>For security, please wait an hour before trying again. The full solution is printed at the back of your book.</p>`);
+  if (ipCount >= R.ip_per_hour) return infoPage(ctx, "Slow down", `<h2>Lots of tries from your network</h2><p>Please wait a little and try again.</p>`);
+  // Owner rule 2026-11-21: wrong answers may be retried until right. After 5 misses in 10 minutes a
+  // short pause (anti-bot) applies; no hourly lock-out.
+  const recentWrong = await countAttempts(env, "scope='answer' AND ok=0 AND book_id=? AND (ip=? OR vid=?)", [book.book_id, ip, ctx.vid], 10);
+  const last = await one(env, "SELECT ts FROM attempts WHERE scope='answer' AND ok=0 AND book_id=? AND (ip=? OR vid=?) ORDER BY id DESC LIMIT 1", book.book_id, ip, ctx.vid);
+  if (recentWrong >= R.wrong_before_pause && last && Date.parse(last.ts) > Date.now() - R.pause_seconds * 1000) {
+    return infoPage(ctx, "Take a breath", `<h2>Take a breath, detective</h2><p>Please wait ${R.pause_seconds} seconds before the next try. Re-read your clues: the full logical solution is printed at the back of your book.</p><p><a class="btn" href="/?book=${encodeURIComponent(book.book_id)}">Try again</a></p>`);
   }
   const stored = jparse(book.answers, {});
   let correct = Object.keys(stored).length > 0;
@@ -192,8 +199,7 @@ async function checkAnswer(env, ctx, req) {
   const everWrong = await one(env, "SELECT COUNT(*) AS n FROM attempts WHERE scope='answer' AND ok=0 AND book_id=? AND (vid=? OR (account_id IS NOT NULL AND account_id=?))", book.book_id, ctx.vid, ctx.user ? ctx.user.id : -1);
   await logAttempt(env, { book_id: book.book_id, ip, vid: ctx.vid, account_id: ctx.user && ctx.user.id, scope: "answer", ok: correct });
   if (!correct) {
-    const left = Math.max(0, R.wrong_per_hour - wrong - 1);
-    return infoPage(ctx, "Not quite", `<h2>Not quite, detective. Check your clues.</h2><p>${left} ${left === 1 ? "try" : "tries"} left this hour. The full logical solution is printed at the back of your book.</p>
+    return infoPage(ctx, "Not quite", `<h2>Not quite, detective. Check your clues.</h2><p>You can try again as often as you like. Spelling tip: upper/lower case, accents and spaces do not matter. The full logical solution is printed at the back of your book.</p>
 <p><a class="btn" href="/?book=${encodeURIComponent(book.book_id)}">Try again</a></p>`);
   }
   const claim = randomToken(24);
@@ -217,17 +223,28 @@ async function solveByClaim(env, claim, R) {
   return s;
 }
 
-function signupForm(next, msg) {
-  return `<h2>Claim your reward</h2>${msg || ""}<p>Enter your e-mail. We will send you a sign-in link (no password). New here? Your account is created in one step.</p>
-<form method="post" action="/login"><input type="hidden" name="next" value="${esc(next)}">
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+// Sign in / create account: e-mail + password, or Google (when the owner has set the Google client in /admin).
+function signupForm(next, msg, google, mode = "signin") {
+  const g = google ? `<p><a class="btn ghost" style="width:100%;text-align:center" href="/auth/google?next=${encodeURIComponent(next)}">Continue with Google</a></p>
+<p class="muted" style="font-size:13px;text-align:center">By continuing with Google you agree to the <a href="/rules">reward rules</a> and <a href="/privacy">privacy policy</a>.</p><p style="text-align:center" class="muted">or</p>` : "";
+  const signin = `<form method="post" action="/login"><input type="hidden" name="next" value="${esc(next)}"><input type="hidden" name="mode" value="signin">
 <label for="em">E-mail</label><input type="email" id="em" name="email" required autocomplete="email">
-<details><summary>New account details (optional)</summary>
-<label for="dn">Display name</label><input type="text" id="dn" name="display_name" maxlength="60">
-<label for="bm">Birth month (month only, for birthday points)</label><select id="bm" name="birth_month"><option value="">—</option>${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map((m, i) => `<option value="${i + 1}">${m}</option>`).join("")}</select>
-<label for="rf">Referral code</label><input type="text" id="rf" name="referral" maxlength="12"></details>
+<label for="pw">Password</label><input type="password" id="pw" name="password" required autocomplete="current-password">
+<p class="row"><button class="btn" type="submit">Sign in</button><a href="/forgot?next=${encodeURIComponent(next)}">Forgot password?</a></p></form>
+<p>New here? <a href="?mode=signup&next=${encodeURIComponent(next)}" onclick="document.getElementById('su').hidden=false;document.getElementById('si').hidden=true;return false">Create your detective account</a> (under a minute).</p>`;
+  const signup = `<form method="post" action="/login"><input type="hidden" name="next" value="${esc(next)}"><input type="hidden" name="mode" value="signup">
+<label for="em2">E-mail</label><input type="email" id="em2" name="email" required autocomplete="email">
+<label for="pw2">Password (8+ characters)</label><input type="password" id="pw2" name="password" required minlength="8" autocomplete="new-password">
+<label for="dn">Display name <span class="muted">(optional)</span></label><input type="text" id="dn" name="display_name" maxlength="60">
+<label for="bm">Birth month <span class="muted">(optional, month only: birthday points)</span></label><select id="bm" name="birth_month"><option value="">—</option>${MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("")}</select>
+<label for="rf">Referral code <span class="muted">(optional)</span></label><input type="text" id="rf" name="referral" maxlength="12">
 <label style="font-weight:400"><input type="checkbox" name="newsletter" value="1"> ${esc(CONSENT_TEXT)}</label>
 <label style="font-weight:400"><input type="checkbox" name="terms" value="1" required> I agree to the <a href="/rules" target="_blank">reward rules</a> and <a href="/privacy" target="_blank">privacy policy</a>.</label>
-<p><button class="btn" type="submit">Send my sign-in link</button></p></form>`;
+<p><button class="btn" type="submit">Create account</button></p></form>
+<p>Already a detective? <a href="?next=${encodeURIComponent(next)}" onclick="document.getElementById('su').hidden=true;document.getElementById('si').hidden=false;return false">Sign in</a></p>`;
+  return `<h2>${next.startsWith("/claim") ? "Claim your reward" : "Your Detective File"}</h2>${msg || ""}${g}
+<div id="si"${mode === "signup" ? " hidden" : ""}>${signin}</div><div id="su"${mode === "signup" ? "" : " hidden"}>${signup}</div>`;
 }
 
 async function claimPage(env, ctx, req, url) {
@@ -236,7 +253,7 @@ async function claimPage(env, ctx, req, url) {
   const s = await solveByClaim(env, claim, R);
   if (!s) return infoPage(ctx, "Claim", `<h2>Nothing to claim here</h2><p>This claim link has expired or was already used. Enter your final code again on the <a href="/">home page</a>.</p>`);
   const book = await getBook(env, s.book_id);
-  if (!ctx.user) return infoPage(ctx, "Claim", signupForm(`/claim?s=${claim}`));
+  if (!ctx.user) return infoPage(ctx, "Claim", signupForm(`/claim?s=${claim}`, `<p>Sign in or create a free account to collect your reward. Your solved case is saved for ${R.claim_hold_hours} hours.</p>`, await googleOn(env)));
   return infoPage(ctx, "Claim", claimForm(book, claim, ""));
 }
 function claimForm(book, claim, msg) {
@@ -269,42 +286,122 @@ async function claimSubmit(env, ctx, req) {
   return redirect(`/account?m=${encodeURIComponent(res.msg)}`, { "set-cookie": setCookie("cv_claim", "", 0) });
 }
 
-// ---- sign-in by e-mail link (15 min, single use; session 30 days) ---------------------------------
+// ---- accounts: password sign-in, Google sign-in, reset by e-mail link (15 min, single use) -----------
+async function startSession(env, accId, next) {
+  const sid = randomToken(32);
+  await run(env, "INSERT INTO sessions(sid_hash,account_id,expires) VALUES(?,?,?)", await sha256(sid), accId, plusDays(30));
+  await run(env, "UPDATE accounts SET last_active=? WHERE id=?", nowIso(), accId);
+  const to = String(next || "/account");
+  return redirect(to.startsWith("/") && !to.startsWith("//") ? to : "/account", { "set-cookie": setCookie("cv_sid", sid, 30 * 86400) });
+}
+const googleOn = async (env) => !!(await getSetting(env, "google_client_id", "")) && !!(await getSetting(env, "google_client_secret", ""));
+
+async function loginPage(env, ctx, url) {
+  if (ctx.user) return redirect(url.searchParams.get("next") || "/account");
+  const next = url.searchParams.get("next") || "/account";
+  return infoPage(ctx, "Sign in", signupForm(next, "", await googleOn(env), url.searchParams.get("mode") || "signin"));
+}
+
 async function loginSubmit(env, ctx, req) {
   const f = await readBody(req);
   const ip = clientIp(req);
   const next = String(f.next || "/account").startsWith("/") ? String(f.next || "/account") : "/account";
-  if (!emailOk(f.email)) return infoPage(ctx, "Sign in", signupForm(next, `<div class="err">Please enter a valid e-mail.</div>`));
-  if ((await countAttempts(env, "scope='login' AND ip=?", [ip])) >= 10) return infoPage(ctx, "Sign in", `<div class="err">Too many sign-in requests. Please wait an hour.</div>`);
-  await logAttempt(env, { ip, scope: "login", ok: 1 });
+  const g = await googleOn(env);
+  const again = (m, mode) => infoPage(ctx, "Sign in", signupForm(next, `<div class="err">${m}</div>`, g, mode));
+  if (!emailOk(f.email)) return again("Please enter a valid e-mail.", f.mode);
+  if ((await countAttempts(env, "scope='login' AND ok=0 AND ip=?", [ip])) >= 10) return again("Too many failed sign-ins. Please wait an hour or reset your password.", f.mode);
   const email = String(f.email).trim().toLowerCase();
-  const exists = await one(env, "SELECT id FROM accounts WHERE email=?", email);
-  if (!exists && !f.terms) return infoPage(ctx, "Sign in", signupForm(next, `<div class="err">Please accept the reward rules to create your account.</div>`));
-  const token = randomToken(32);
-  const data = { next, display_name: f.display_name, birth_month: f.birth_month, referral: f.referral, newsletter: f.newsletter ? 1 : 0, terms: f.terms ? 1 : 0 };
-  await run(env, "INSERT INTO login_tokens(token_hash,email,data,expires) VALUES(?,?,?,?)", await sha256(token), email, JSON.stringify(data), isoAt(Date.now() + 15 * 60000));
-  const link = `${ctx.origin}/auth?t=${encodeURIComponent(token)}`;
-  try {
-    await sendMail(env, email, "Your Case Vault sign-in link", mailFrame(`<p>Click to open your Detective File. The link works once, for 15 minutes.</p><p><a href="${link}" style="background:#C9A24A;color:#14171F;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">Sign in to Case Vault</a></p><p style="color:#777;font-size:13px">Did not ask for this? Just ignore this e-mail.</p>`));
-  } catch (e) {
-    await enqueue(env, "mail", { to: email, subject: "Your Case Vault sign-in link", html: mailFrame(`<p><a href="${link}">Sign in to Case Vault</a> (15 minutes, single use)</p>`) });
+  const acc = await one(env, "SELECT * FROM accounts WHERE email=?", email);
+  if (f.mode === "signup") {
+    if (acc) return again("An account with this e-mail already exists. Sign in, or reset your password.", "signin");
+    if (String(f.password || "").length < 8) return again("Please choose a password with at least 8 characters.", "signup");
+    if (!f.terms) return again("Please accept the reward rules to create your account.", "signup");
+    const { acc: created } = await findOrCreateAccount(env, { ...f, email }, ip);
+    await run(env, "UPDATE accounts SET password_hash=? WHERE id=?", await pwHash(String(f.password)), created.id);
+    await logAttempt(env, { ip, scope: "login", ok: 1 });
+    return startSession(env, created.id, next);
   }
-  const devLink = env.ENV_NAME !== "production" && !(await getSetting(env, "mail_token", "")) ? `<p class="muted">Staging (no mail set up): <a href="${link}">open the sign-in link</a></p>` : "";
-  return infoPage(ctx, "Check your e-mail", `<h2>Check your e-mail</h2><p>We sent a sign-in link to <b>${esc(email)}</b>. It works once, for 15 minutes.</p>${devLink}`);
+  if (!acc || !acc.password_hash || !(await pwCheck(String(f.password || ""), acc.password_hash))) {
+    await logAttempt(env, { ip, scope: "login", ok: 0 });
+    return again(acc && !acc.password_hash ? "This account signs in with Google, or set a password with “Forgot password?”." : "E-mail or password is not right.", "signin");
+  }
+  if (acc.locked) return again("This account is on hold. Please contact support.", "signin");
+  await logAttempt(env, { ip, scope: "login", ok: 1 });
+  return startSession(env, acc.id, next);
+}
+
+async function forgotPage(env, ctx, req, url) {
+  if (req.method === "GET") return infoPage(ctx, "Reset password", `<h2>Reset your password</h2><form method="post" action="/forgot"><input type="hidden" name="next" value="${esc(url.searchParams.get("next") || "/account")}">
+<label for="em">E-mail</label><input type="email" id="em" name="email" required><p><button class="btn">Send reset link</button></p></form>`);
+  const f = await readBody(req);
+  const ip = clientIp(req);
+  const email = String(f.email || "").trim().toLowerCase();
+  const acc = emailOk(email) ? await one(env, "SELECT id FROM accounts WHERE email=?", email) : null;
+  let devLink = "";
+  if (acc && (await countAttempts(env, "scope='reset' AND ip=?", [ip])) < 5) {
+    await logAttempt(env, { ip, scope: "reset", ok: 1 });
+    const token = randomToken(32);
+    await run(env, "INSERT INTO login_tokens(token_hash,email,data,expires) VALUES(?,?,?,?)", await sha256(token), email, JSON.stringify({ next: f.next || "/account", reset: 1 }), isoAt(Date.now() + 15 * 60000));
+    const link = `${ctx.origin}/auth?t=${encodeURIComponent(token)}`;
+    const body = mailFrame(`<p>Click to choose a new password. The link works once, for 15 minutes.</p><p><a href="${link}" style="background:#C9A24A;color:#14171F;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">Choose a new password</a></p><p style="color:#777;font-size:13px">Did not ask for this? Just ignore this e-mail.</p>`);
+    try { await sendMail(env, email, "Reset your Case Vault password", body); } catch { await enqueue(env, "mail", { to: email, subject: "Reset your Case Vault password", html: body }); }
+    if (env.ENV_NAME !== "production" && !(await getSetting(env, "mail_token", ""))) devLink = `<p class="muted">Staging (no mail set up): <a href="${link}">open the reset link</a></p>`;
+  }
+  return infoPage(ctx, "Check your e-mail", `<h2>Check your e-mail</h2><p>If <b>${esc(email)}</b> has an account, a reset link is on its way. It works once, for 15 minutes.</p>${devLink}`);
 }
 
 async function authLink(env, ctx, url, req) {
   const t = url.searchParams.get("t") || "";
   const row = await one(env, "SELECT * FROM login_tokens WHERE token_hash=?", await sha256(t));
-  if (!row || row.used || row.expires < nowIso()) return infoPage(ctx, "Sign in", `<h2>This link has expired</h2><p>Sign-in links work once, for 15 minutes. <a href="/account">Get a new one</a>.</p>`);
+  if (!row || row.used || row.expires < nowIso()) return infoPage(ctx, "Link expired", `<h2>This link has expired</h2><p>Links work once, for 15 minutes. <a href="/forgot">Get a new one</a>.</p>`);
   const upd = await run(env, "UPDATE login_tokens SET used=1 WHERE token_hash=? AND used=0", row.token_hash);
-  if (!(upd.meta && upd.meta.changes)) return infoPage(ctx, "Sign in", `<h2>This link was already used</h2>`);
+  if (!(upd.meta && upd.meta.changes)) return infoPage(ctx, "Link used", `<h2>This link was already used</h2>`);
   const data = jparse(row.data, {});
-  const { acc } = await findOrCreateAccount(env, { email: row.email, ...data }, clientIp(req));
-  const sid = randomToken(32);
-  await run(env, "INSERT INTO sessions(sid_hash,account_id,expires) VALUES(?,?,?)", await sha256(sid), acc.id, plusDays(30));
-  await run(env, "UPDATE accounts SET last_active=? WHERE id=?", nowIso(), acc.id);
-  return redirect(data.next || "/account", { "set-cookie": setCookie("cv_sid", sid, 30 * 86400) });
+  const acc = await one(env, "SELECT * FROM accounts WHERE email=?", row.email);
+  if (!acc) return redirect("/login");
+  const res = await startSession(env, acc.id, data.reset ? `/account/password?next=${encodeURIComponent(data.next || "/account")}` : data.next);
+  return res;
+}
+
+async function passwordPage(env, ctx, req, url) {
+  if (!ctx.user) return redirect("/login");
+  if (req.method === "POST") {
+    const f = await readBody(req);
+    if (String(f.password || "").length < 8) return infoPage(ctx, "Password", `<div class="err">At least 8 characters, please.</div><p><a href="/account/password">Back</a></p>`);
+    await run(env, "UPDATE accounts SET password_hash=? WHERE id=?", await pwHash(String(f.password)), ctx.user.id);
+    const n = String(f.next || "/account");
+    return redirect(n.startsWith("/") ? `${n}${n.includes("?") ? "&" : "?"}m=Password%20saved` : "/account");
+  }
+  return infoPage(ctx, "New password", `<h2>Choose a new password</h2><form method="post" action="/account/password"><input type="hidden" name="next" value="${esc(url.searchParams.get("next") || "/account")}">
+<label for="pw">New password (8+ characters)</label><input type="password" id="pw" name="password" minlength="8" required autocomplete="new-password"><p><button class="btn">Save password</button></p></form>`);
+}
+
+// Google sign-in (OpenID Connect, authorization-code flow). The token comes straight from Google over TLS
+// with our client secret, so the ID token payload can be read without a separate signature check.
+async function googleStart(env, ctx, url) {
+  if (!(await googleOn(env))) return redirect("/login");
+  const state = randomToken(18);
+  const next = url.searchParams.get("next") || "/account";
+  const q = new URLSearchParams({ client_id: await getSetting(env, "google_client_id", ""), redirect_uri: `${ctx.origin}/auth/google/callback`,
+    response_type: "code", scope: "openid email profile", state, prompt: "select_account" });
+  return redirect(`https://accounts.google.com/o/oauth2/v2/auth?${q}`, { "set-cookie": setCookie("cv_gstate", `${state}|${next}`, 600) });
+}
+async function googleCallback(env, ctx, url, req) {
+  const [state, next] = String(cookies(req).cv_gstate || "").split("|");
+  if (!state || state !== url.searchParams.get("state")) return infoPage(ctx, "Google", `<div class="err">Google sign-in expired. Please try again.</div><p><a href="/login">Back</a></p>`);
+  const r = await net(env)("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ code: url.searchParams.get("code") || "", client_id: await getSetting(env, "google_client_id", ""),
+      client_secret: await getSetting(env, "google_client_secret", ""), redirect_uri: `${ctx.origin}/auth/google/callback`, grant_type: "authorization_code" }).toString() });
+  const j = await r.json().catch(() => ({}));
+  const part = String(j.id_token || "").split(".")[1] || "";
+  const claims = jparse(part ? atob(part.replace(/-/g, "+").replace(/_/g, "/")) : "", {});
+  if (!r.ok || !claims.email || !claims.email_verified) return infoPage(ctx, "Google", `<div class="err">Google did not confirm an e-mail address.</div><p><a href="/login">Back</a></p>`);
+  const { acc } = await findOrCreateAccount(env, { email: claims.email, display_name: claims.given_name || claims.name, terms: 1 }, clientIp(req));
+  if (acc.locked) return infoPage(ctx, "Google", `<div class="err">This account is on hold. Please contact support.</div>`);
+  if (!acc.google_sub) await run(env, "UPDATE accounts SET google_sub=? WHERE id=?", String(claims.sub || ""), acc.id);
+  const res = await startSession(env, acc.id, next || "/account");
+  res.headers.append("set-cookie", setCookie("cv_gstate", "", 0));
+  return res;
 }
 
 function mailFrame(inner) {
@@ -313,7 +410,7 @@ function mailFrame(inner) {
 
 // ---- Detective File -----------------------------------------------------------------------------
 async function accountPage(env, ctx, url) {
-  if (!ctx.user) return infoPage(ctx, "Sign in", signupForm("/account"));
+  if (!ctx.user) return infoPage(ctx, "Sign in", signupForm("/account", "", await googleOn(env)));
   const R = await rules(env);
   const a = ctx.user;
   const msg = url.searchParams.get("m");
@@ -359,7 +456,7 @@ ${canRedeem ? `<form method="post" action="/account/redeem" class="row" style="m
 <div class="card" style="margin-top:14px"><h2>Settings</h2><form method="post" action="/account/settings">
 <label style="font-weight:400"><input type="checkbox" name="newsletter" value="1"${a.newsletter ? " checked" : ""}> ${esc(CONSENT_TEXT)}</label>
 ${a.tier === "Chief Inspector" ? `<label style="font-weight:400"><input type="checkbox" name="name_consent" value="1"${a.name_consent ? " checked" : ""}> You may use my display name for a minor character in a future book.</label>` : ""}
-<p><button class="btn small">Save</button> <a class="btn small ghost" href="/logout">Sign out</a></p></form>
+<p><button class="btn small">Save</button> <a class="btn small ghost" href="/account/password">Change password</a> <a class="btn small ghost" href="/logout">Sign out</a></p></form>
 <details><summary>Delete my account</summary><form method="post" action="/account/delete"><p>This removes your e-mail, points and coupons from Case Vault. It cannot be undone.</p><label style="font-weight:400"><input type="checkbox" name="confirm" value="1" required> Yes, delete everything</label><p><button class="btn small" style="background:var(--stamp);color:#fff">Delete account</button></p></form></details></div></div>`;
   return html(layout("Detective File", body, { user: ctx.user }));
 }
