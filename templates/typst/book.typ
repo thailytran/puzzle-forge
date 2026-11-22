@@ -317,6 +317,43 @@
   }))
 }
 
+// Star Battle: thick lines between regions, a small letter in each cell, stars on the answer page
+#let starbattle(b) = {
+  let cell = b.cell_in * inch
+  let n = b.regions.len()
+  let R = b.regions
+  align(center, box(width: n * cell, height: n * cell, {
+    for r in range(n) {
+      for c in range(n) {
+        place(top + left, dx: c * cell + 2pt, dy: r * cell + 1.5pt,
+          text(font: L.fonts.sans, size: b.font_pt * 1pt, fill: luma(110), b.letters.at(r).at(c)))
+      }
+    }
+    if b.stars != none {
+      for (r, c) in b.stars.enumerate() {
+        place(top + left, dx: c * cell, dy: r * cell, box(width: cell, height: cell,
+          align(center + horizon, text(size: cell * 0.62, fill: rgb("#c58b00"), "★"))))
+      }
+    }
+    for r in range(n) {
+      for c in range(n) {
+        let thick = 1.8pt
+        let thin = 0.4pt + luma(150)
+        // right edge and bottom edge of each cell; outer frame drawn below
+        if c < n - 1 {
+          place(top + left, line(start: ((c + 1) * cell, r * cell), end: ((c + 1) * cell, (r + 1) * cell),
+            stroke: if R.at(r).at(c) != R.at(r).at(c + 1) { thick } else { thin }))
+        }
+        if r < n - 1 {
+          place(top + left, line(start: (c * cell, (r + 1) * cell), end: ((c + 1) * cell, (r + 1) * cell),
+            stroke: if R.at(r).at(c) != R.at(r + 1).at(c) { thick } else { thin }))
+        }
+      }
+    }
+    place(top + left, rect(width: n * cell, height: n * cell, stroke: 2pt))
+  }))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -398,6 +435,8 @@
     sudoku-grid(b)
   } else if k == "nonogram" {
     nonogram(b)
+  } else if k == "starbattle" {
+    starbattle(b)
   } else if k == "maze" {
     maze(b)
   } else if k == "answer_lines" {
