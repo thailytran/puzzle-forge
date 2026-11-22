@@ -17,3 +17,5 @@ puzzles:
     - { type: cryptogram, weight: 1 }
   themes: [winter, holidays, weather]
 solutions: { per_page: 6 }
+front_matter: [how_to_play]
+back_matter: [solutions]
