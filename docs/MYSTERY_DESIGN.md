@@ -284,7 +284,7 @@ Clue predicate language (JSON/YAML, stored in the case bible and the manifest):
 
 The book still prints the full solutions at the back; the website is an extra for rewards. The **last
 page** of these lines is the `case_vault` page: "Submit your final answer at <DOMAIN> to unlock rewards"
-+ a QR code that opens the book's own page (`https://<DOMAIN>/solve/<book_id>`), see docs/CASEVAULT.md.
++ a QR code that opens the book's own page (`https://casevault.colorilax.com/?book=<book_id>`); rules in §17.
 
 ## 16. CBN Mystery line (ROADMAP P8)
 
@@ -339,3 +339,23 @@ keyword one where only that keyword differs. So no answer can be skipped.
 - One character = one look. `look` (face, hair, build, age, marks) is fixed for the book and for
   every later book of the series; only `outfit` may change between books. Pictures are always
   drawn from the character sheet, never from a fresh description.
+
+## 17. Final answer ↔ CaseVault website (owner rules 2026-11-21) — Escape, Mystery, Adventure, Hidden Object
+
+Every book of these four lines ends with **one** final answer that the reader types at
+**casevault.colorilax.com**. Story writers, the case frame and `vault.yaml` follow these rules; R1–R8 are
+checked by `forge/vault/rules.py` (`forge mystery check` for the case frame, and the CaseVault
+registration refuses a `vault.yaml` that breaks them).
+
+| # | Rule |
+|---|---|
+| R1 | **One answer field per kind.** Mystery / Hidden Object: the culprit's name (`culprit_name`). Escape / Adventure: an unlock code or key word (`unlock_code`). `both` only when the story really ends with a name *and* a code. Never "name + place + motive" in one box. |
+| R2 | **Typed the way it is printed.** The answer is a suspect name exactly as the Suspects page prints it, or a code of 3–8 letters/digits (no symbols). Case, accents, spaces and punctuation never matter on the website (shared normaliser, tested on both sides). |
+| R3 | **Accepted variants are unambiguous.** List the full name first, then short forms (surname, nickname). A short form that would also fit another suspect is refused. |
+| R4 | **Not guessable, easy to type.** No repeated or running digits (1111, 1234, 9876). Kids' books: answer ≤ 14 letters, no hyphenated tricks. The cover, blurb and listing never give the answer away. |
+| R5 | **Last page = Case Vault page.** "Solved it? Enter your final code at casevault.colorilax.com" + QR to `https://casevault.colorilax.com/?book=<book_id>` (book_id URL-safe). Printed and colorilax.com editions also print the Book Code box; Etsy editions say "Use your Etsy order number". |
+| R6 | **Book Code prefix** (`book_code_prefix`, 4–8 capitals/digits, starting with a letter, unique per book), e.g. `CASE01` → codes `CASE01-7KQ2M9TX`. |
+| R7 | **Series links** set before approval: `series_id`, `series_order` (1…total), `series_total` (8–12), `next_book_id` for every book except the last (15 % coupon target), `next_series_id` on the series (gift for finishing it). |
+| R8 | **Extended ending** (`extended_ending`, 80–450 words): a short epilogue that is *not* in the book, shown on the website after a correct answer. Kid-safe for kids' lines (§ golden rule 5), teases the next case, never reveals the next book's answer. |
+| R9 | **Solution page at the back** ("Don't open before you finish") prints the logic **and** the final answer in its canonical spelling, then "Type it at casevault.colorilax.com". |
+| R10 | **Rewards are not answers.** One reward per Etsy order + book (SKU) and per Book Code; wrong answers may be retried freely (30-second pause after 5 misses in 10 minutes). Writers never promise prizes beyond the published reward rules. |

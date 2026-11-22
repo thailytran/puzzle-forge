@@ -19,6 +19,7 @@ from typing import Any
 from forge.vault.answers import answer_hash, code_hash
 from forge.vault.bookcode import canonical
 from forge.vault.codes import read_batches
+from forge.vault.rules import answer_problems, site_problems
 from forge.vault.spec import load_vault_spec
 
 TIMEOUT_S = 30
@@ -103,6 +104,11 @@ def build_payload(out_dir: Path, key: str) -> dict[str, Any]:
         raise VaultError(f"{out_dir}/vault.yaml missing (classic book or run `forge vault init`)")
     manifest = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
     bid = str(manifest["book_id"])
+    problems = answer_problems(
+        spec.answer_type, spec.culprit_name, spec.unlock_code
+    ) + site_problems(spec, bid)
+    if problems:
+        raise VaultError("vault.yaml breaks the CaseVault rules:\n- " + "\n- ".join(problems))
     sku_file = out_dir / "sku.json"
     sku = json.loads(sku_file.read_text())["sku"] if sku_file.is_file() else ""
     eds = sorted(p.name for p in (out_dir / "editions").glob("*") if p.is_dir())

@@ -38,6 +38,7 @@ from forge.puzzles.cbn import ColorByNumber, plan_tiling, read_picture, tiling, 
 from forge.puzzles.cbn.font import ICONS
 from forge.puzzles.cbn.pictures import PICTURES
 from forge.puzzles.cbn.tiling import SHAPES
+from forge.vault.rules import answer_problems
 from forge.wordlists import is_blocked
 
 # Owner rule 2026-11-19: every puzzle must lead straight to the code, no filler. Word scramble and
@@ -332,6 +333,7 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
         p.append("every suspect needs a unique name")
     if frame.answer not in names:
         p.append(f"answer {frame.answer!r} is not one of the suspects")
+    p.extend(answer_problems("culprit_name", [frame.answer], [], None, _kids(frame.audience)))
     lo, hi = CHAPTERS["kids" if _kids(frame.audience) else "adult"]
     if not lo <= len(frame.chapters) <= hi:
         p.append(f"{frame.audience} books have {lo}-{hi} chapters, got {len(frame.chapters)}")
