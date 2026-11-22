@@ -12,9 +12,10 @@ a{color:var(--brass)}h1,h2,h3{font-family:"Playfair Display",Georgia,serif;line-
 .mono{font-family:"Special Elite","IBM Plex Mono",monospace;letter-spacing:.04em}
 .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
 header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;max-width:1080px;margin:0 auto}
-header.top .brand{font-family:"Playfair Display",serif;font-size:22px;color:var(--ivory);text-decoration:none}
+header.top .brand{font-family:"Playfair Display",serif;font-size:22px;color:var(--ivory);text-decoration:none;display:flex;align-items:center;gap:10px}
+header.top .brand small{display:block;font:600 10px Inter,sans-serif;letter-spacing:.32em;color:var(--brass);line-height:1}
 header.top .brand b{color:var(--brass)}header.top nav a{margin-left:16px;text-decoration:none;font-size:15px}
-.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:28px 0 36px}
+.hero{background:linear-gradient(90deg,rgba(20,23,31,.92),rgba(20,23,31,.55)),url(/assets/hero_bg.jpg) center/cover no-repeat;border-radius:16px;padding:28px;display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;margin:16px 0 8px}
 .hero .deco{border:1px solid #2c3242;border-radius:14px;padding:22px;background:repeating-linear-gradient(135deg,#191d27 0 12px,#1b2029 12px 24px);min-height:250px;position:relative}
 .deco .tag{position:absolute;top:16px;right:-8px;background:var(--stamp);color:#fff;padding:4px 14px;transform:rotate(6deg)}
 .card{background:var(--paper);color:#22211d;border-radius:12px;padding:22px}
@@ -54,10 +55,10 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}table.t td,table.t th
 function layout(title, body, o = {}) {
   const ts = o.turnstile ? `<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>` : "";
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)} · Case Vault</title><meta name="description" content="Solved your Colorilax case? Enter the final code, read the extended ending and claim your reward.">
+<title>${esc(title)} · Colorilax Case Vault</title><meta name="description" content="Solved your Colorilax case? Enter the final code, read the extended ending and claim your reward.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700&family=Special+Elite&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>${CSS}</style>${ts}</head><body>
-<header class="top"><a class="brand" href="/">Case <b>Vault</b></a><nav><a href="/cases">Case files</a><a href="${o.user ? "/account" : "/login"}">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
+<header class="top"><a class="brand" href="/"><img src="/assets/emblem.png" alt="" width="40" height="40" onerror="this.remove()"><span><small>COLORILAX</small> Case <b>Vault</b></span></a><nav><a href="/cases">Case files</a><a href="${o.user ? "/account" : "/login"}">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
 <main>${body}</main>
 <footer><a href="/rules">Reward rules</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${esc(o.support || DEFAULT_RULES.support_email)}">Contact</a>
 <p style="margin:10px 0 4px">© ${new Date().getUTCFullYear()} Colorilax · HaloSpark e-Commerce Inc. All rights reserved.</p>

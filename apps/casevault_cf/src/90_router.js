@@ -53,7 +53,12 @@ async function route(req, env) {
     res = redirect("/", { "set-cookie": setCookie("cv_sid", "", 0) });
   } else if (p.startsWith("/dl/")) res = await download(env, ctx, decodeURIComponent(p.slice(4)));
   else if (p === "/notify" && m === "POST") res = await notifyMe(env, ctx, req);
-  else if (p.startsWith("/cover/")) {
+  else if (p.startsWith("/assets/")) {   // site identity drawn by Gemini (logo, emblem, hero, icons), stored in R2 casevault/site/
+    const name = p.slice(8).replace(/[^a-z0-9_.-]/gi, "");
+    const obj = env.FILES ? await env.FILES.get(`casevault/site/${name}`) : null;
+    res = obj ? new Response(obj.body, { headers: { "content-type": obj.httpMetadata?.contentType || (name.endsWith(".png") ? "image/png" : "image/jpeg"), "cache-control": "public, max-age=86400" } })
+      : new Response("", { status: 404 });
+  } else if (p.startsWith("/cover/")) {
     const b = await getBook(env, decodeURIComponent(p.slice(7)));
     const obj = b && b.cover_key && env.FILES ? await env.FILES.get(b.cover_key) : null;
     res = obj ? new Response(obj.body, { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } }) : notFound(ctx);
