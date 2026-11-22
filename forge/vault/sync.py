@@ -130,7 +130,32 @@ def build_payload(out_dir: Path, key: str) -> dict[str, Any]:
         "etsy_listing_ids": [str(x) for x in spec.etsy_listing_ids],
         "shopify_product_ids": spec.shopify_product_ids,
         "cover_png_b64": _cover_png(out_dir),
+        **_site_fields(spec, sku, manifest),
     }
+
+
+def _site_fields(spec: Any, sku: str, manifest: dict[str, Any]) -> dict[str, Any]:
+    """CaseVault website fields (spec section 5); empty values are left out."""
+    skus = [s for s in [*spec.skus, sku] if s]
+    out: dict[str, Any] = {
+        "book_code_prefix": spec.book_code_prefix,
+        "line": spec.line,
+        "series_id": spec.series_id,
+        "series_title": spec.series_title,
+        "series_order": spec.series_order,
+        "series_total": spec.series_total,
+        "next_book_id": spec.next_book_id,
+        "next_series_id": spec.next_series_id,
+        "release_date": spec.release_date,
+        "skus": sorted(set(skus)),
+        "etsy_url": spec.etsy_url,
+        "shop_url": spec.shop_url,
+        "blurb": spec.blurb,
+        "extended_ending": spec.extended_ending,
+        "pages": int(manifest.get("pages") or 0),
+        "language": "en",
+    }
+    return {k: v for k, v in out.items() if v not in ("", 0, [], None)}
 
 
 _SCHEMA = """

@@ -75,6 +75,8 @@ def test_payload_has_hashes_only(tmp_path):
     assert all(c not in blob for c in codes)
     assert len(p["book_code_batches"][0]["code_hashes"]) == 3
     assert p["sku"] == "HSP-ADULT-PZL-PBK-0001-SGL" and p["etsy_listing_ids"] == ["123"]
+    assert p["skus"] == ["HSP-ADULT-PZL-PBK-0001-SGL"] and p["line"] == "mystery"
+    assert "series_id" not in p  # empty site fields are left out
     with pytest.raises(VaultError, match="VAULT_ANSWER_KEY"):
         build_payload(out, "")
 
@@ -192,3 +194,18 @@ def test_code_pages_pdf(tmp_path):
     assert "cv.example.com/solve/bk-1" in text
     codes = {r for r in read_batches(out)[0]["codes"]}
     assert any(fb.pretty(c) in "".join(p.extract_text() for p in reader.pages) for c in codes)
+
+
+def test_casevault_worker_vectors_match() -> None:
+    """apps/casevault_cf (Cloudflare Worker) hashes answers and Book Codes exactly like Forge."""
+    import json
+
+    from forge.vault.answers import answer_hash, code_hash, normalize
+    from forge.vault.bookcode import canonical
+
+    v = json.loads(Path("apps/casevault_cf/tests/vectors.json").read_text(encoding="utf-8"))
+    for c in v["cases"]:
+        assert normalize(c["kind"], c["text"]) == c["norm"]
+        assert answer_hash(v["answer_key"], "PF-CASE-001", c["kind"], c["text"]) == c["hash"]
+    for c in v["codes"]:
+        assert code_hash(v["answer_key"], c["book_id"], canonical(c["code"])) == c["hash"]

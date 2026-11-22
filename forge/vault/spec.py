@@ -17,6 +17,21 @@ culprit_name: []                 # accepted variants, e.g. ["Captain Reed", "Ree
 unlock_code: []                  # e.g. ["4729"] (numeric codes must match exactly)
 etsy_listing_ids: []             # Etsy listing ids selling this book
 shopify_product_ids: []          # e.g. ["gid://shopify/Product/123"]
+# CaseVault website (casevault.colorilax.com), spec 2026-11-21 section 5 - all optional:
+book_code_prefix: ""             # e.g. CASE01 (Book Codes look like CASE01-7KQ2M9TX)
+line: mystery                    # mystery | escape | adventure | hidden
+series_id: ""                    # e.g. tamsin-hale
+series_title: ""
+series_order: 0                  # 1..12
+series_total: 0                  # 8..12
+next_book_id: ""                 # next book of the series (15% coupon target)
+next_series_id: ""               # series whose Book 1 is the gift for finishing this series
+release_date: ""                 # YYYY-MM-DD
+skus: []                         # Etsy / Shopify SKUs (Etsy CSV matching)
+etsy_url: ""
+shop_url: ""
+blurb: ""                        # spoiler-free description
+extended_ending: ""              # shown on the website after a correct answer (not in the book)
 """
 
 
@@ -26,6 +41,20 @@ class VaultSpec(BaseModel):
     unlock_code: list[str] = Field(default_factory=list)
     etsy_listing_ids: list[str | int] = Field(default_factory=list)
     shopify_product_ids: list[str] = Field(default_factory=list)
+    book_code_prefix: str = ""
+    line: Literal["mystery", "escape", "adventure", "hidden"] = "mystery"
+    series_id: str = ""
+    series_title: str = ""
+    series_order: int = 0
+    series_total: int = 0
+    next_book_id: str = ""
+    next_series_id: str = ""
+    release_date: str = ""
+    skus: list[str] = Field(default_factory=list)
+    etsy_url: str = ""
+    shop_url: str = ""
+    blurb: str = ""
+    extended_ending: str = ""
 
     @model_validator(mode="after")
     def _answers_present(self) -> VaultSpec:

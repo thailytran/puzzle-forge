@@ -1,0 +1,29 @@
+# CaseVault on Cloudflare Workers (optional: the owner deploys from the dashboard; this file is for wrangler users).
+name = "casevault"
+main = "dist/worker.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+ENV_NAME = "production"
+SITE_URL = "https://casevault.colorilax.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "casevault"
+database_id = "REPLACE_WITH_D1_ID"
+
+[[r2_buckets]]
+binding = "FILES"          # covers + daily backups (prefix casevault/)
+bucket_name = "colorilax-books"
+
+[[r2_buckets]]
+binding = "BOOKS"          # gift / redeemed book downloads
+bucket_name = "colorilax-books"
+
+[triggers]
+crons = ["*/10 * * * *", "17 4 * * *"]
+
+# Secrets (set by the owner, never committed):  VAULT_ADMIN_TOKEN, VAULT_ANSWER_KEY, (optional) MASTER_KEY
+[env.staging]
+name = "casevault-staging"
+vars = { ENV_NAME = "staging", SITE_URL = "https://casevault-staging.colorilax.workers.dev" }
