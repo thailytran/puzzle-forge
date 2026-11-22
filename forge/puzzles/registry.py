@@ -17,6 +17,7 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
     from forge.puzzles.crossword import Crossword
     from forge.puzzles.cryptogram import Cryptogram
     from forge.puzzles.maze import Maze
+    from forge.puzzles.nonogram import Nonogram
     from forge.puzzles.numlock import NumLock
     from forge.puzzles.scramble import Scramble
     from forge.puzzles.shift import Shift
@@ -37,5 +38,6 @@ def all_puzzle_types() -> dict[str, PuzzleType]:
             NumLock(),
             Shift(),
             Wordoku(),
+            Nonogram(),
         )
     }

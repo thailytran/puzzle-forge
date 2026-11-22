@@ -265,6 +265,58 @@
   }))
 }
 
+// Nonogram: run clues left of each row and above each column, bold rule every 5 cells
+#let nonogram(b) = {
+  let cell = b.cell_in * inch
+  let fpt = b.font_pt * 1pt
+  let h = b.rows.len()
+  let w = b.cols.len()
+  let rmax = calc.max(..b.rows.map(r => r.len()))
+  let cmax = calc.max(..b.cols.map(c => c.len()))
+  let cw = cell * 0.62
+  let lw = rmax * cw
+  let th = cmax * cw
+  set text(font: L.fonts.sans, size: fpt)
+  align(center, box(width: lw + w * cell, height: th + h * cell, {
+    for (r, clue) in b.rows.enumerate() {
+      for (i, v) in clue.enumerate() {
+        place(top + left, dx: lw - (clue.len() - i) * cw, dy: th + r * cell,
+          box(width: cw, height: cell, align(center + horizon, str(v))))
+      }
+    }
+    for (c, clue) in b.cols.enumerate() {
+      for (i, v) in clue.enumerate() {
+        place(top + left, dx: lw + c * cell, dy: th - (clue.len() - i) * cw,
+          box(width: cell, height: cw, align(center + horizon, str(v))))
+      }
+    }
+    if b.grid != none {
+      for (r, row) in b.grid.enumerate() {
+        for (c, v) in row.enumerate() {
+          if v == 1 { place(top + left, dx: lw + c * cell, dy: th + r * cell, rect(width: cell, height: cell, fill: luma(25), stroke: none)) }
+        }
+      }
+    } else {
+      for g in b.givens {
+        let (r, c, v) = g
+        if v == 1 {
+          place(top + left, dx: lw + c * cell, dy: th + r * cell, rect(width: cell, height: cell, fill: luma(60), stroke: none))
+        } else {
+          place(top + left, dx: lw + c * cell + cell / 2 - 1.5pt, dy: th + r * cell + cell / 2 - 1.5pt, circle(radius: 1.5pt, fill: black))
+        }
+      }
+    }
+    for i in range(w + 1) {
+      place(top + left, line(start: (lw + i * cell, 0pt), end: (lw + i * cell, th + h * cell),
+        stroke: if calc.rem(i, 5) == 0 or i == w { 1.4pt } else { 0.4pt + luma(120) }))
+    }
+    for i in range(h + 1) {
+      place(top + left, line(start: (0pt, th + i * cell), end: (lw + w * cell, th + i * cell),
+        stroke: if calc.rem(i, 5) == 0 or i == h { 1.4pt } else { 0.4pt + luma(120) }))
+    }
+  }))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -344,6 +396,8 @@
     letter-grid(b)
   } else if k == "sudoku_grid" {
     sudoku-grid(b)
+  } else if k == "nonogram" {
+    nonogram(b)
   } else if k == "maze" {
     maze(b)
   } else if k == "answer_lines" {
