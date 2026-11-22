@@ -8,6 +8,7 @@ import pytest
 from forge.blueprints import load_blueprint, validate_blueprint
 from forge.core.protocol import RenderCtx
 from forge.mystery.cbn_case import (
+    SIDE_TYPES,
     CaseFrame,
     build_case_book,
     build_puzzles,
@@ -224,7 +225,9 @@ def test_book_renders(frame: CaseFrame, tmp_path: Path) -> None:
 def test_number_games(frame: CaseFrame) -> None:
     assert len(frame.suspects) == 12
     types = [sp.type for ch in frame.chapters for sp in ch.side]
-    assert types.count("numlock") == 2 and set(types) <= {"shift", "maze", "numlock"}
+    assert types.count("numlock") == 2 and set(types) <= set(SIDE_TYPES)
+    # owner 2026-11-21: the sample book carries the new logic games too
+    assert {"wordoku", "starbattle", "wordladder", "pigpen", "lightup"} <= set(types)
     built = build_puzzles(frame, 7)
     assert built[2].side[0].token == "44" and built[5].side[1].token == "1200"
     note = built[0].side[0].solution["plain"]

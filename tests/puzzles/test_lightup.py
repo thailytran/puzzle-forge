@@ -62,3 +62,18 @@ def test_lantern_count_is_the_code() -> None:
     )
     pz = lu.generate(spec, 4)
     assert pz.solution["code"] == "11" and len(pz.solution["lamps"]) == 11
+
+
+def test_letters_under_the_lanterns_spell_the_word() -> None:
+    lu = LightUp()
+    spec = PuzzleSpec.model_validate(
+        {
+            "type": "lightup",
+            "level": "medium",
+            "audience": "adult",
+            "constraints": [{"kind": "answer_is", "word": "WOOLLEN"}],
+        }
+    )
+    pz = lu.generate(spec, 2)
+    assert pz.verify is not None and pz.verify.ok
+    assert lu.solve(pz).solution["code"] == "WOOLLEN"

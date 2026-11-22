@@ -213,9 +213,9 @@
      "message": "The weaver felt the thread and said it was spun from thick woollen yarn"
     },
     {
-     "type": "maze",
+     "type": "starbattle",
      "keyword": "CRIMSON",
-     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+     "intro": "Search the night sky over the square. The letters under your stars give a word that describes the evidence."
     }
    ],
    "evidence": "What did the thread come from, and what was it like?",
@@ -284,9 +284,9 @@
      "message": "The boy said the small light in that hand was faint and yellow"
     },
     {
-     "type": "maze",
+     "type": "wordladder",
      "keyword": "TINY",
-     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+     "intro": "Climb the bell-rope ladder. The boxed rung describes the evidence."
     }
    ],
    "evidence": "What did the figure hold, and what do your keywords say about that night?",
@@ -423,9 +423,9 @@
    ],
    "side": [
     {
-     "type": "shift",
+     "type": "wordoku",
      "keyword": "FROZEN",
-     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "intro": "Unlock the letter vault in the town hall. The shaded row describes the evidence.",
      "message": "The ferryman wrote in his log that the river gate was frozen from dusk to dawn"
     },
     {
@@ -498,9 +498,9 @@
    ],
    "side": [
     {
-     "type": "shift",
+     "type": "pigpen",
      "keyword": "WOODEN",
-     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "intro": "Decode the note left by the old well. One word in it describes the evidence.",
      "message": "The carpenter found splinters in the bark so both rails were wooden for sure"
     },
     {
@@ -644,9 +644,9 @@
    ],
    "side": [
     {
-     "type": "maze",
+     "type": "lightup",
      "keyword": "THICK",
-     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+     "intro": "Light the market lanterns. The letters under them describe the evidence."
     },
     {
      "type": "shift",

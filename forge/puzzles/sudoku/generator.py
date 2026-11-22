@@ -5,8 +5,6 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-import rustoku
-
 from forge.core.models import Audience, Level, PuzzleSpec, ShadedCells
 from forge.puzzles.base import GenerationError, find_constraint
 from forge.puzzles.sudoku.grading import grade, keeps_level, very_easy_givens
@@ -46,6 +44,8 @@ def resolve_params(spec: PuzzleSpec, rng: random.Random) -> SdParams:
 
 def _unique(grid: Grid) -> bool:
     if len(grid) == 9:
+        import rustoku  # 9x9 only; 4x4 / 6x6 never load the compiled wheel
+
         return int(rustoku.count_solutions(to_string(grid), 2)) == 1
     return count_solutions(grid, 2) == 1
 

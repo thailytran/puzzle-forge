@@ -370,6 +370,17 @@
         }
       }
     }
+    let lt = b.at("letters", default: none)
+    if lt != none {
+      for (r, row) in lt.enumerate() {
+        for (c, ch) in row.clusters().enumerate() {
+          if ch != " " {
+            place(top + left, dx: c * cell + 2pt, dy: r * cell + 1.5pt,
+              text(font: L.fonts.sans, size: b.font_pt * 0.55pt, fill: luma(110), ch))
+          }
+        }
+      }
+    }
     if b.lamps != none {
       for (r, c) in b.lamps {
         place(top + left, dx: c * cell + cell * 0.2, dy: r * cell + cell * 0.2,

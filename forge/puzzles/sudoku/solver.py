@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import rustoku
-
 from forge.core.models import Puzzle, ShadedCells, SolveResult, VerifyReport
 from forge.puzzles.base import find_constraint
 from forge.puzzles.sudoku.grid import (
@@ -55,6 +53,8 @@ def verify(puzzle: Puzzle) -> VerifyReport:
     if any(givens[r][c] not in (0, expected[r][c]) for r in range(n) for c in range(n)):
         msgs.append("givens disagree with stored solution")
     if n == 9 and unique:
+        import rustoku  # 9x9 only; 4x4 / 6x6 never load the compiled wheel
+
         cross = rustoku.solve(to_string(givens))
         if cross != to_string(expected):
             msgs.append("rustoku cross-check disagrees")

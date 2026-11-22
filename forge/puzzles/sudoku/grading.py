@@ -9,8 +9,6 @@ from __future__ import annotations
 
 from collections import Counter
 
-import rustoku
-
 from forge.core.models import LEVELS, Level
 from forge.puzzles.sudoku.grid import Grid, logic_solve, to_string
 
@@ -19,6 +17,8 @@ RUSTOKU_SETS: tuple[str, ...] = ("medium", "hard", "expert")
 
 def logical_at(grid: Grid, technique_set: str) -> bool:
     """True if rustoku solves the 9x9 grid using only `technique_set`, without guessing."""
+    import rustoku  # 9x9 only; 4x4 / 6x6 never load the compiled wheel
+
     res = rustoku.solve_steps(to_string(grid), technique_set)
     if res is None:
         return False
@@ -26,6 +26,8 @@ def logical_at(grid: Grid, technique_set: str) -> bool:
 
 
 def techniques(grid: Grid) -> Counter[str]:
+    import rustoku  # 9x9 only; 4x4 / 6x6 never load the compiled wheel
+
     res = rustoku.solve_steps(to_string(grid), "expert")
     return Counter() if res is None else Counter(s["technique"] for s in res["steps"])
 

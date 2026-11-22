@@ -42,7 +42,18 @@ from forge.wordlists import is_blocked
 
 # Owner rule 2026-11-19: every puzzle must lead straight to the code, no filler. Word scramble and
 # word search were dropped from this line (their word lists had nothing to do with the case).
-SIDE_TYPES = ("shift", "maze", "numlock", "sudoku")
+SIDE_TYPES = (
+    "shift",
+    "maze",
+    "numlock",
+    "sudoku",
+    "wordoku",
+    "starbattle",
+    "wordladder",
+    "pigpen",
+    "lightup",
+)
+MESSAGE_TYPES = ("shift", "pigpen")  # the keyword is a word of a decoded witness statement
 NUMBER_TYPES = ("numlock", "sudoku")  # their keyword is a number (shoe size, hour, house number)
 SUDOKU_CELLS = [(0, 0), (1, 3), (2, 6), (3, 1)]  # different row, column and box: any digits fit
 SUDOKU_CELLS_6 = [(0, 0), (1, 3), (2, 1), (3, 4)]
@@ -72,10 +83,20 @@ class Decoy(_M):
 
 
 class SidePuzzle(_M):
-    type: Literal["shift", "maze", "numlock", "sudoku"]
+    type: Literal[
+        "shift",
+        "maze",
+        "numlock",
+        "sudoku",
+        "wordoku",
+        "starbattle",
+        "wordladder",
+        "pigpen",
+        "lightup",
+    ]
     keyword: str  # a trait of the chapter's evidence object (a word, or digits for number games)
     intro: str = ""
-    message: str = ""  # shift cipher: the witness statement to decode (holds the keyword)
+    message: str = ""  # shift / pigpen cipher: the witness statement to decode (holds the keyword)
 
 
 class Chapter(_M):
@@ -181,6 +202,16 @@ def keyword_ok(sp_type: str, kw: str, kids: bool = False) -> bool:
         return bool(re.fullmatch(r"[0-9]{2,4}", kw))
     if sp_type == "sudoku":
         return bool(re.fullmatch(r"[1-6]{2,4}" if kids else r"[1-9]{2,4}", kw))
+    if sp_type == "wordoku":  # 4, 6 or 9 different letters
+        return (
+            bool(re.fullmatch(r"[A-Z]+", kw)) and len(kw) in (4, 6, 9) and len(set(kw)) == len(kw)
+        )
+    if sp_type == "starbattle":  # one star per row: 5 to 10 letters
+        return bool(re.fullmatch(r"[A-Z]{5,10}", kw))
+    if sp_type == "wordladder":
+        return bool(re.fullmatch(r"[A-Z]{3,5}", kw))
+    if sp_type == "lightup":  # letters under the lanterns
+        return bool(re.fullmatch(r"[A-Z]{5,9}", kw))
     return bool(re.fullmatch(r"[A-Z]{3,12}", kw))
 
 
@@ -200,7 +231,7 @@ def side_spec(frame: CaseFrame, sp: SidePuzzle, idx: int) -> PuzzleSpec:
     else:
         cons = {"kind": "answer_is", "word": kw}
     data["constraints"] = [cons]
-    if sp.type == "shift":
+    if sp.type in MESSAGE_TYPES:
         data["options"] = {"text": sp.message}
     return PuzzleSpec.model_validate(data)
 
@@ -218,6 +249,26 @@ def _side_type(name: str) -> Any:
         from forge.puzzles.sudoku import Sudoku
 
         return Sudoku()
+    if name == "wordoku":
+        from forge.puzzles.wordoku import Wordoku
+
+        return Wordoku()
+    if name == "starbattle":
+        from forge.puzzles.starbattle import StarBattle
+
+        return StarBattle()
+    if name == "wordladder":
+        from forge.puzzles.wordladder import WordLadder
+
+        return WordLadder()
+    if name == "pigpen":
+        from forge.puzzles.pigpen import Pigpen
+
+        return Pigpen()
+    if name == "lightup":
+        from forge.puzzles.lightup import LightUp
+
+        return LightUp()
     from forge.puzzles.maze import Maze
 
     return Maze()
@@ -314,7 +365,7 @@ def check_frame(frame: CaseFrame, seed: int = 1, deep: bool = True) -> FrameRepo
                 want = "2-4 digits" if sp.type in NUMBER_TYPES else "one word of 3-12 letters"
                 p.append(f"{tag}: keyword {sp.keyword!r} must be {want} for a {sp.type}")
                 continue
-            if sp.type == "shift":
+            if sp.type in MESSAGE_TYPES:
                 words = re.findall(r"[A-Z]+", sp.message.upper())
                 others = {k.upper() for d in ch.decoys for k in d.keywords} - {kw}
                 both = sorted(others & set(words))
@@ -526,9 +577,9 @@ def _solved_keyword(sp: SidePuzzle, pz: Puzzle) -> str | None:
     if not pt.verify(pz).ok:
         return None
     sol = pt.solve(pz).solution or {}
-    seen = sol.get("code")
-    if sp.type == "shift":  # the keyword must be a word of the message the solver decoded
-        plain = str(sol.get("plain") or "").split()
+    seen = sol.get("code", sol.get("word"))
+    if sp.type in MESSAGE_TYPES:  # the keyword must be a word of the message the solver decoded
+        plain = str(sol.get("plain") or sol.get("text") or "").split()
         return str(pz.token) if pz.token in plain else None
     token = str(pz.token or "").upper()
     return token if seen is None or str(seen).upper() == token else None
@@ -660,6 +711,66 @@ PAGE_STYLES: dict[str, dict[str, Any]] = {
         ],
         "tips": ["Start with the clue that fixes one dial.", "Cross out digits that cannot fit."],
         "slogan": "UNLOCK THE CLUE!",
+    },
+    "wordoku": {
+        "icon": "chest",
+        "title": "LETTER VAULT",
+        "color": "#1f6f78",
+        "steps": [
+            "Every row, column and box holds each letter once.",
+            "Fill the grid with logic, never guess.",
+            "The shaded row spells the keyword.",
+        ],
+        "tips": ["Find the row with the fewest gaps.", "Pencil small letters in corners."],
+        "slogan": "LETTERS OPEN THE VAULT!",
+    },
+    "starbattle": {
+        "icon": "magnifier",
+        "title": "STAR SEARCH",
+        "color": "#b8862b",
+        "steps": [
+            "One star in every row, column and outlined region.",
+            "Stars never touch, not even at a corner.",
+            "Read the letters under the stars, top to bottom.",
+        ],
+        "tips": ["Small regions first.", "Cross out every square around a star."],
+        "slogan": "FOLLOW THE STARS!",
+    },
+    "wordladder": {
+        "icon": "key",
+        "title": "WORD LADDER",
+        "color": "#7b3fb5",
+        "steps": [
+            "Change one letter per rung: the one with the arrow.",
+            "Every rung is a real English word.",
+            "The boxed rung is the keyword.",
+        ],
+        "tips": ["Work from both ends.", "Say the letters out loud."],
+        "slogan": "CLIMB TO THE CLUE!",
+    },
+    "pigpen": {
+        "icon": "map",
+        "title": "SECRET SYMBOLS",
+        "color": "#a0322c",
+        "steps": [
+            "Each symbol is the shape of its letter's pen in the key.",
+            "A dot means the second grid or cross.",
+            "Decode the message: one word is the keyword.",
+        ],
+        "tips": ["Decode short words first.", "Write the letter above each symbol."],
+        "slogan": "READ THE SECRET!",
+    },
+    "lightup": {
+        "icon": "lantern",
+        "title": "LANTERN LIGHTS",
+        "color": "#d08a00",
+        "steps": [
+            "Light every white square with lanterns.",
+            "No lantern may shine on another; numbers count lanterns.",
+            "Read the letters under your lanterns.",
+        ],
+        "tips": ["Start at the 4s and the 0s.", "Mark lit squares with a dot."],
+        "slogan": "LIGHT THE WAY!",
     },
     "sudoku": {
         "icon": "chest",

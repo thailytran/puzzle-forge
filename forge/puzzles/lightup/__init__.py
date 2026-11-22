@@ -28,13 +28,14 @@ from forge.puzzles.base import GenerationError, find_constraint
 
 SOLVER = "lightup-backtrack-v1"
 WALL = "#"  # unnumbered wall; "0".."4" numbered wall; "." white
-MAX_ATTEMPTS = 300
+MAX_ATTEMPTS = 800
 HOW = (
     "Place lanterns in white squares so that every white square is lit. A lantern shines along "
     "its row and column until a black wall. No lantern may shine on another. A number on a wall "
     "tells how many lanterns touch it (above, below, left, right)."
 )
 
+READ = " Then read the letters under your lanterns, row by row, top to bottom."
 Grid = list[list[str]]
 Cell = tuple[int, int]
 
@@ -134,13 +135,16 @@ class LightUp:
 
     def generate(self, spec: PuzzleSpec, seed: int) -> Puzzle:
         ans = find_constraint(spec, AnswerIs)
-        want = int(ans.word) if ans and ans.word.isdigit() else None
+        word = ans.word.upper() if ans and ans.word.isalpha() else ""
+        want = int(ans.word) if ans and ans.word.isdigit() else (len(word) if word else None)
         n = int(spec.options.get("size") or (6 if spec.audience.startswith("kids") else 8))
         share = {"very_easy": 0.32, "easy": 0.3, "medium": 0.28, "hard": 0.25, "expert": 0.22}[
             spec.level
         ]
         for attempt in range(MAX_ATTEMPTS):
             rng = make_rng(derive_seed(seed, "lightup", attempt))
+            if word and "size" not in spec.options:  # fewer letters need a smaller grid
+                n = (5, 6, 7, 8)[attempt % 4]
             g = _walls(n, rng, share)
             lamps = _greedy(g, rng)
             if want is not None and len(lamps) != want:
@@ -157,10 +161,22 @@ class LightUp:
                 if len(solve_all(g)) != 1:
                     g[r][c] = keep
             code = str(len(lamps))
+            data: dict[str, Any] = {"size": n, "grid": ["".join(row) for row in g]}
+            if word:  # letters under the lanterns, read row by row, spell the word
+                order = sorted(lamps)
+                at = {cell: word[k] for k, cell in enumerate(order)}
+                abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                data["letters"] = [
+                    "".join(
+                        at.get((r, c), rng.choice(abc)) if g[r][c] == "." else " " for c in range(n)
+                    )
+                    for r in range(n)
+                ]
+                code = word
             puzzle = build_puzzle(
                 spec,
                 seed,
-                data={"size": n, "grid": ["".join(row) for row in g]},
+                data=data,
                 solution={"lamps": sorted([list(x) for x in lamps]), "code": code},
                 token=code,
             )
@@ -177,10 +193,10 @@ class LightUp:
         if not sols:
             return SolveResult(solved=False, solutions_found=0)
         lamps = sorted([list(x) for x in sols[0]])
+        letters = puzzle.data.get("letters")
+        code = "".join(letters[r][c] for r, c in lamps) if letters else str(len(lamps))
         return SolveResult(
-            solved=True,
-            solution={"lamps": lamps, "code": str(len(lamps))},
-            solutions_found=len(sols),
+            solved=True, solution={"lamps": lamps, "code": code}, solutions_found=len(sols)
         )
 
     def verify(self, puzzle: Puzzle) -> VerifyReport:
@@ -191,7 +207,7 @@ class LightUp:
         if res.solution != puzzle.solution:
             msgs.append("solver answer differs from the stored one")
         ans = find_constraint(puzzle.spec, AnswerIs)
-        if ans and ans.word != puzzle.solution["code"]:
+        if ans and ans.word.upper() != puzzle.solution["code"]:
             msgs.append("lantern count differs from answer_is constraint")
         return VerifyReport(
             ok=not msgs, unique=res.solutions_found == 1, solver=SOLVER, messages=msgs
@@ -215,13 +231,17 @@ class LightUp:
             "kind": "lightup",
             "grid": puzzle.data["grid"],
             "lamps": puzzle.solution["lamps"] if solution else None,
+            "letters": puzzle.data.get("letters"),
             "cell_in": cell,
             "font_pt": round(cell * 72 * 0.5, 1),
         }
 
     def render(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
         return RenderedBlock(
-            blocks=[{"kind": "paragraph", "text": HOW}, self._block(puzzle, ctx, False)]
+            blocks=[
+                {"kind": "paragraph", "text": HOW + (READ if puzzle.data.get("letters") else "")},
+                self._block(puzzle, ctx, False),
+            ]
         )
 
     def render_solution(self, puzzle: Puzzle, ctx: RenderCtx) -> RenderedBlock:
