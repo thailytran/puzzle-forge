@@ -354,6 +354,36 @@
   }))
 }
 
+// Light Up: black walls (some numbered), lanterns drawn on the answer page
+#let lightup(b) = {
+  let cell = b.cell_in * inch
+  let n = b.grid.len()
+  align(center, box(width: n * cell, height: n * cell, {
+    for (r, row) in b.grid.enumerate() {
+      for (c, v) in row.clusters().enumerate() {
+        if v != "." {
+          place(top + left, dx: c * cell, dy: r * cell, rect(width: cell, height: cell, fill: luma(20), stroke: none))
+          if v != "#" {
+            place(top + left, dx: c * cell, dy: r * cell, box(width: cell, height: cell,
+              align(center + horizon, text(font: L.fonts.sans, weight: "bold", size: b.font_pt * 1pt, fill: white, v))))
+          }
+        }
+      }
+    }
+    if b.lamps != none {
+      for (r, c) in b.lamps {
+        place(top + left, dx: c * cell + cell * 0.2, dy: r * cell + cell * 0.2,
+          circle(radius: cell * 0.3, fill: rgb("#f6c445"), stroke: 1pt + rgb("#8a6200")))
+      }
+    }
+    for i in range(n + 1) {
+      place(top + left, line(start: (i * cell, 0pt), end: (i * cell, n * cell), stroke: 0.6pt))
+      place(top + left, line(start: (0pt, i * cell), end: (n * cell, i * cell), stroke: 0.6pt))
+    }
+    place(top + left, rect(width: n * cell, height: n * cell, stroke: 1.6pt))
+  }))
+}
+
 #let word-list(b) = {
   let cols = b.at("columns", default: 3)
   set text(font: L.fonts.sans, size: b.at("font_pt", default: 11) * 1pt)
@@ -437,6 +467,8 @@
     nonogram(b)
   } else if k == "starbattle" {
     starbattle(b)
+  } else if k == "lightup" {
+    lightup(b)
   } else if k == "maze" {
     maze(b)
   } else if k == "answer_lines" {
