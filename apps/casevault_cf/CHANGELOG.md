@@ -1,5 +1,8 @@
 # CaseVault (Cloudflare) changelog
 
+## 1.3.2 — 2026-11-22
+- Shopify token errors show Shopify's reason (e.g. invalid_client) in "Send test".
+
 ## 1.3.1 — 2026-11-22
 - Shopify can now use a Dev Dashboard app: /admin → Settings → `shopify_client_id` + `shopify_client_secret` (client-credentials grant; the ~24 h token is cached encrypted and renewed automatically). `shopify_token` (legacy custom app) still works and wins when set.
 - "Send test" in Settings also checks Shopify and shows how many Free Books it can see.

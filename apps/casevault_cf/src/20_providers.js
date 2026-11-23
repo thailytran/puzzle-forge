@@ -82,7 +82,11 @@ async function shopifyToken(env, force = false) {
   const r = await net(env)(`https://${shop}/admin/oauth/access_token`, { method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
     body: new URLSearchParams({ grant_type: "client_credentials", client_id: id, client_secret: secret }).toString() });
-  if (!r.ok) throw new Error(`shopify token HTTP ${r.status}`);
+  if (!r.ok) {
+    const t = (await r.text().catch(() => "")).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    let why = t; try { const e = JSON.parse(t); why = [e.error, e.error_description, e.errors].filter(Boolean).join(": "); } catch { /* not JSON */ }
+    throw new Error(`shopify token HTTP ${r.status}${why ? ` (${String(why).slice(0, 160)})` : ""}`);
+  }
   const j = await r.json();
   if (!j.access_token) throw new Error("shopify token: no access_token");
   await setSetting(env, "shopify_cc_token", j.access_token);
