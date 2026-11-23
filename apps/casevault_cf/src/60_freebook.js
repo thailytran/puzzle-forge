@@ -59,7 +59,7 @@ async function freebookClaim(env, req) {
   const source = FB_SOURCES.includes(f.source) ? f.source : "freebook_web";
   const consent = ["1", "true", "on", "yes", true, 1].includes(f.consent ?? f.accepts_marketing ?? f.newsletter);
   const ip = truncIp(clientIp(req));
-  const bad = (status, error, extra = {}) => json({ ok: false, error, ...extra }, status, cors);
+  const bad = (status, error, extra = {}) => json({ ok: false, error, message: error, ...extra }, status, cors);   // theme reads j.message
   if (!emailOk(email)) return bad(400, "Please enter a valid e-mail address.");
   const dom = email.toLowerCase().split("@")[1];
   if (FB_DISPOSABLE.includes(dom)) return bad(400, "Please use your regular e-mail address.");
