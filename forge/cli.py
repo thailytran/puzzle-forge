@@ -371,9 +371,11 @@ def vault_codes(
 
 
 @vault_app.command("register")
-def vault_register(out_dir: Path = typer.Argument(..., help="output/<book_id> with vault.yaml")) -> None:
-    """Queue + send this book's Case Vault registration now (HALOSPARK Studio calls this when the owner
-    approves a Mystery / Escape / Adventure / Hidden Object book). Exit 1 unless it was sent."""
+def vault_register(
+    out_dir: Path = typer.Argument(..., help="output/<book_id> with vault.yaml"),
+) -> None:
+    """Queue + send this book's Case Vault registration now (HALOSPARK Studio calls this when
+    the owner approves a Mystery / Escape / Adventure / Hidden Object book). Exit 1 unless sent."""
     from forge.book.review import vault_on_approved
 
     msg = vault_on_approved(out_dir, get_settings())

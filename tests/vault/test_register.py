@@ -1,4 +1,4 @@
-"""`forge vault register` (HALOSPARK Studio calls it when the owner approves a puzzle-story book)."""
+"""`forge vault register` (HALOSPARK Studio calls it when the owner approves a story book)."""
 
 from typer.testing import CliRunner
 
