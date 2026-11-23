@@ -10,7 +10,7 @@
 - Danh sách đồ vật cố ý **không chứa** từ đáp án câu đố của cùng chương.
 - Giọng văn: ngôi thứ hai ("you"), ấm áp, hơi huyền bí, không bạo lực, không tình cảm lãng mạn → hợp người lớn và cả người cao tuổi (cỡ chữ lớn).
 
-**Cập nhật 2026-11-23 (P9.1, code kiểm tra khung):** ba đáp án cũ bị lộ trong chính lời truyện nên đã đổi: ch3 LANTERN → **LULLABY** (Cryptogram, câu "The clocks are only waiting to hear a lullaby"), ch6 EMBROIDERY → **ENCHANTED**, ch7 GARDENER → **GLIMMER**. Loại câu đố chưa dựng được đáp án ép buộc đã đổi: ch6 Crossword → **Star Search**, ch7 Logic Grid → **Lantern Lights**, ch8 Crossword → **Secret Symbols** (pigpen, "The last key sleeps in the old orchard"). Chữ cái chìa khoá, số ô và từ cuối **EVERGLOW** giữ nguyên. Ch8 đổi 2 đồ vật trùng (ribbon → padlock, lace glove → goblet). Nguồn đúng là `configs/adventures/snow_queens_library.json`; các mục chương bên dưới còn ghi bản v1.
+**Cập nhật 2026-11-23 (P9.1, code kiểm tra khung):** ba đáp án cũ bị lộ trong chính lời truyện nên đã đổi: ch3 LANTERN → **LULLABY** (Cryptogram, câu "The clocks are only waiting to hear a lullaby"), ch6 EMBROIDERY → **ENCHANTED**, ch7 GARDENER → **GLIMMER**. Loại câu đố chưa dựng được đáp án ép buộc đã đổi: ch6 Crossword → **Star Search**, ch7 Logic Grid → **Lantern Lights**, ch8 Crossword → **Secret Symbols** (pigpen, "The last key sleeps in the old orchard"). Chữ cái chìa khoá, số ô và từ cuối **EVERGLOW** giữ nguyên. Ch8 giữ ribbon và lace glove (trùng ch6/ch7, chỉ là cảnh báo) vì tranh tìm đồ có thể đã vẽ. Nguồn đúng là `configs/adventures/snow_queens_library.json`; các mục chương bên dưới còn ghi bản v1.
 
 ## 1. Premise (back-cover copy)
 
