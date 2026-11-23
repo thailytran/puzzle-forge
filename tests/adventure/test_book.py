@@ -150,6 +150,9 @@ def test_build_reports_owner_ticks(frame: AdventureFrame, tmp_path: Path) -> Non
 def test_art_keys_from_windows_file_names() -> None:
     keys = art_keys({"search_ch1": Path("a.png"), "cover": Path("c.png")})
     assert keys["search:ch1"] == Path("a.png") and "cover" in keys
+    studio = art_keys({"find:ch2": Path("f.png"), "ch2": Path("v.png"), "find_ch3": Path("g.png")})
+    assert studio["search:ch2"] == Path("f.png") and studio["vignette:ch2"] == Path("v.png")
+    assert studio["search:ch3"] == Path("g.png")
 
 
 def test_writing_brief_forbids_answers(frame: AdventureFrame) -> None:

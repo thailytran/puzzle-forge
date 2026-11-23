@@ -149,16 +149,24 @@ class _Book:
             self.add(Page(kind="notes", title="Field Notes"))
 
 
-ART_PREFIXES = ("search", "icons", "vignette", "design", "char", "loc")
+ART_PREFIXES = ("search", "icons", "vignette", "design", "char", "loc", "find", "col")
+STUDIO_ALIASES = (("find:", "search:"),)  # HALOSPARK Studio keys (mystery_art.adv_requests)
 
 
 def art_keys(found: dict[str, Path]) -> dict[str, Path]:
-    """File names cannot hold ':' on Windows: ``search_ch1.png`` is the key ``search:ch1``."""
+    """Studio art keys -> Forge keys. File names cannot hold ':' on Windows (``search_ch1.png`` is
+    ``search:ch1``); Studio names the search scene ``find:chN`` and the story vignette ``chN``."""
     out = dict(found)
     for k, v in found.items():
         head, sep, tail = k.partition("_")
         if sep and head in ART_PREFIXES:
             out.setdefault(f"{head}:{tail}", v)
+    for k, v in list(out.items()):
+        for a, b in STUDIO_ALIASES:
+            if k.startswith(a):
+                out.setdefault(b + k[len(a) :], v)
+        if re.fullmatch(r"ch\d+", k):
+            out.setdefault(f"vignette:{k}", v)
     return out
 
 
