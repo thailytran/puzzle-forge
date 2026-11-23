@@ -154,6 +154,7 @@ uv run forge adventure merge <frame.json> <reply.json>   # ChatGPT text into the
 uv run forge adventure build <frame.json> [--art <studio folder>] [--vault-domain casevault.colorilax.com] [--no-render]
 uv run forge vault init output/<book_id>                    # vault.yaml: answer type, accepted answers, listings
 uv run forge vault codes output/<book_id> --count 200 [--channel print|shopify_digital]   # Book Codes CSV + code pages PDF
+uv run forge vault register output/<book_id>                # register one book now (Studio: on owner approval)
 uv run forge vault sync [--force]                          # send queued registrations (auto-queued on APPROVED)
 uv run forge vault status [<book_id>]                      # registration queue
 uv run forge ai test [--call]                              # AI provider keys + model lists (+ one tiny paid call)

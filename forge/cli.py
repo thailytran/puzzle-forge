@@ -370,6 +370,18 @@ def vault_codes(
         _vault_on_approved(out_dir)
 
 
+@vault_app.command("register")
+def vault_register(out_dir: Path = typer.Argument(..., help="output/<book_id> with vault.yaml")) -> None:
+    """Queue + send this book's Case Vault registration now (HALOSPARK Studio calls this when the owner
+    approves a Mystery / Escape / Adventure / Hidden Object book). Exit 1 unless it was sent."""
+    from forge.book.review import vault_on_approved
+
+    msg = vault_on_approved(out_dir, get_settings())
+    typer.echo(msg)
+    if not msg.startswith("Case Vault: sent 1"):
+        raise typer.Exit(1)
+
+
 @vault_app.command("sync")
 def vault_sync(force: bool = typer.Option(False, "--force", help="Ignore the retry delay")) -> None:
     """Send queued registrations to the Case Vault site (retry with back-off when offline)."""
