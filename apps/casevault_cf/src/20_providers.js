@@ -94,6 +94,43 @@ async function shopifyToken(env, force = false) {
   return j.access_token;
 }
 
+// Shopify one-time browser sign-in (authorization code grant) — needed when the app (Dev Dashboard) and the store belong to
+// different Shopify organisations, so client credentials are refused (shop_not_permitted). The owner clicks "Connect Shopify"
+// in /admin → Settings, approves in Shopify, and the long-lived token is stored encrypted as shopify_token.
+const SHOPIFY_OAUTH_SCOPES = "read_products,read_orders";
+function shopifyRedirectUri(env, req) { return `${env.SITE_URL || new URL(req.url).origin}/admin/shopify/callback`; }
+async function shopifyOauthStart(env, req) {
+  const shop = shopHost(await getSetting(env, "shopify_shop", ""));
+  const id = await getSetting(env, "shopify_client_id", "");
+  if (!shop || !id || !(await getSetting(env, "shopify_client_secret", ""))) return redirect("/admin?s=settings&m=" + encodeURIComponent("Save shopify_shop, shopify_client_id and shopify_client_secret first"));
+  const state = randomToken(24);
+  await setSetting(env, "shopify_oauth_state", `${state}|${Date.now()}`);
+  const q = new URLSearchParams({ client_id: id, scope: SHOPIFY_OAUTH_SCOPES, redirect_uri: shopifyRedirectUri(env, req), state });
+  return redirect(`https://${shop}/admin/oauth/authorize?${q}`);
+}
+async function shopifyOauthFinish(env, req, url) {
+  const back = (m) => redirect("/admin?s=settings&m=" + encodeURIComponent(m));
+  const P = Object.fromEntries(url.searchParams.entries());
+  const [st, ts] = String(await getSetting(env, "shopify_oauth_state", "")).split("|");
+  await setSetting(env, "shopify_oauth_state", null);
+  if (!st || !P.state || !timingSafeEq(st, P.state) || Date.now() - Number(ts || 0) > 15 * 60000) return back("Shopify sign-in expired or did not match - click Connect Shopify again");
+  const shop = shopHost(await getSetting(env, "shopify_shop", ""));
+  if (String(P.shop || "").toLowerCase() !== shop.toLowerCase()) return back(`Shopify answered for ${P.shop}, not ${shop}`);
+  const secret = await getSetting(env, "shopify_client_secret", "");
+  const msg = Object.keys(P).filter((k) => k !== "hmac" && k !== "signature").sort().map((k) => `${k}=${P[k]}`).join("&");
+  if (!timingSafeEq(await hmacHex(secret, msg), String(P.hmac || ""))) return back("Shopify signature (hmac) did not match - not accepted");
+  const r = await net(env)(`https://${shop}/admin/oauth/access_token`, { method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
+    body: new URLSearchParams({ client_id: await getSetting(env, "shopify_client_id", ""), client_secret: secret, code: P.code || "" }).toString() });
+  const j = r.ok ? await r.json().catch(() => ({})) : {};
+  if (!j.access_token) return back(`Shopify did not give a token (HTTP ${r.status})`);
+  await setSetting(env, "shopify_token", j.access_token);
+  await setSetting(env, "shopify_cc_token", null); await setSetting(env, "shopify_cc_exp", null);
+  await setSetting(env, "freebook_synced", null);
+  await audit(env, "owner", "shopify_connect", { scope: j.scope || "" });
+  return back(`Shopify connected (scopes: ${j.scope || "?"})`);
+}
+
 // Shopify: single-use 15 % code limited to one product (the next book).
 async function shopifyDiscount(env, { code, productId, pct, days, title }) {
   const shop = await getSetting(env, "shopify_shop", "");

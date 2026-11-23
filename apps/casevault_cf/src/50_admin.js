@@ -169,7 +169,9 @@ ${actForm("account_delete", `<input type="hidden" name="id" value="${a.id}">`, "
 <form method="post" action="/admin/act"><input type="hidden" name="do" value="settings_save">${rowsS.join("")}
 <label>Reward rules page (HTML, optional)</label><textarea name="terms_html">${esc(await getSetting(env, "terms_html", ""))}</textarea>
 <label>Privacy page (HTML, optional)</label><textarea name="privacy_html">${esc(await getSetting(env, "privacy_html", ""))}</textarea><p><button class="btn small">Save</button></p></form>
-${actForm("test_services", "", "Send test (mail to me, Telegram, Klaviyo, Shopify)")}</div>`;
+${actForm("test_services", "", "Send test (mail to me, Telegram, Klaviyo, Shopify)")}
+<p style="margin-top:14px"><a class="btn small" href="/admin/shopify/connect">Connect Shopify (sign in once)</a>
+<span class="muted"> Use when Send test says shop_not_permitted. Shopify app redirect URL: <code>${esc(shopifyRedirectUri(env, { url: env.SITE_URL || "https://x" }))}</code> · Shopify ${(await getSetting(env, "shopify_token", "")) ? "connected" : "not connected"}</span></p></div>`;
   } else if (s === "security") {
     const totp = await getSetting(env, "admin_totp", "");
     let pending = await getSetting(env, "admin_totp_pending", "");

@@ -1,5 +1,8 @@
 # CaseVault (Cloudflare) changelog
 
+## 1.3.3 — 2026-11-22
+- /admin → Settings → "Connect Shopify": one-time Shopify sign-in (authorization code grant, state + hmac checked) for when the Dev Dashboard app and the store are in different Shopify organisations (client credentials answer shop_not_permitted). The token is stored encrypted as shopify_token. The app needs the redirect URL `https://casevault.colorilax.com/admin/shopify/callback`.
+
 ## 1.3.2 — 2026-11-22
 - Shopify token errors show Shopify's reason (e.g. invalid_client) in "Send test".
 

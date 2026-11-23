@@ -442,3 +442,41 @@ test("free book: Shopify Dev Dashboard app (client credentials) token is fetched
   assert.equal(row.enc, 1);
   assert.ok(log.length >= 2);
 });
+
+test("Shopify connect (authorization code): state + hmac checked, token stored encrypted", async () => {
+  const { env } = makeEnv();
+  let exchanged = 0;
+  env.FETCH = async (url, init = {}) => {
+    if (String(url).endsWith("/admin/oauth/access_token")) {
+      exchanged++;
+      assert.equal(new URLSearchParams(init.body).get("code"), "the-code");
+      return new Response(JSON.stringify({ access_token: "shpat_oauth", scope: "read_products,read_orders" }), { status: 200 });
+    }
+    return new Response("{}", { status: 200 });
+  };
+  await _test.ensureSchema(env);
+  const admin = new Client(env, "10.0.0.9");
+  await admin.post("/admin", { do: "setup", token: env.VAULT_ADMIN_TOKEN, pw: "a-long-owner-password" });
+  await _test.setSetting(env, "shopify_shop", "colorilax.myshopify.com");
+  await _test.setSetting(env, "shopify_client_id", "cid");
+  await _test.setSetting(env, "shopify_client_secret", "csec");
+  const go = await admin.get("/admin/shopify/connect");
+  const loc = new URL(go.headers.get("location"));
+  assert.equal(loc.host, "colorilax.myshopify.com"); assert.equal(loc.pathname, "/admin/oauth/authorize");
+  const state = loc.searchParams.get("state");
+  const P = { code: "the-code", host: "YWRtaW4", shop: "colorilax.myshopify.com", state, timestamp: "1795400000" };
+  const msg = Object.keys(P).sort().map((k) => `${k}=${P[k]}`).join("&");
+  const { createHmac } = await import("node:crypto");
+  const bad = await admin.get(`/admin/shopify/callback?${new URLSearchParams({ ...P, hmac: "00" })}`);
+  assert.match(decodeURIComponent(bad.headers.get("location")), /did not match|expired/);
+  const again = new URL((await admin.get("/admin/shopify/connect")).headers.get("location")).searchParams.get("state");
+  const P2 = { ...P, state: again };
+  const msg2 = Object.keys(P2).sort().map((k) => `${k}=${P2[k]}`).join("&");
+  const ok = await admin.get(`/admin/shopify/callback?${new URLSearchParams({ ...P2, hmac: createHmac("sha256", "csec").update(msg2).digest("hex") })}`);
+  assert.match(decodeURIComponent(ok.headers.get("location")), /Shopify connected/);
+  assert.equal(exchanged, 1); assert.ok(msg);
+  assert.equal(await _test.getSetting(env, "shopify_token", ""), "shpat_oauth");
+  assert.equal((await env.DB.prepare("SELECT enc FROM settings WHERE k='shopify_token'").first()).enc, 1);
+  const anon = new Client(env, "10.0.0.10");
+  assert.equal(new URL((await anon.get("/admin/shopify/connect")).headers.get("location"), "https://cv.test").pathname, "/admin");
+});

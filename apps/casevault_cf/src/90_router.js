@@ -33,6 +33,8 @@ async function route(req, env) {
     if (p === "/admin" && m === "GET") return adminPage(env, req, url);
     if (p === "/admin/act" && m === "POST") return adminAct(env, req);
     if (p === "/admin/export/consenting.csv") return exportConsenting(env);
+    if (p === "/admin/shopify/connect" && m === "GET") return shopifyOauthStart(env, req);
+    if (p === "/admin/shopify/callback" && m === "GET") return shopifyOauthFinish(env, req, url);
     return redirect("/admin");
   }
   const ctx = await userCtx(env, req, url);
