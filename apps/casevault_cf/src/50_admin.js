@@ -162,14 +162,14 @@ ${actForm("account_delete", `<input type="hidden" name="id" value="${a.id}">`, "
     inner = `<h1>Point rules</h1>${msg}<div class="card"><p class="muted">Changes apply from the moment you save (no back-dating).</p><form method="post" action="/admin/act"><input type="hidden" name="do" value="rules_save"><textarea name="rules" style="min-height:360px">${esc(JSON.stringify(R, null, 1))}</textarea><p><button class="btn small">Save</button></p></form></div>`;
   } else if (s === "settings") {
     const rowsS = [];
-    for (const k of SECRET_SETTINGS) rowsS.push(`<label>${k} ${(await getSetting(env, k, "")) ? "<span class='label' style='--c:#3a7'>set</span>" : "<span class='label' style='--c:#a33'>empty</span>"}</label><input type="text" name="${k}" placeholder="leave empty to keep" autocomplete="off" style="-webkit-text-security:disc">`);
-    for (const k of ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id"])
+    for (const k of SECRET_SETTINGS.filter((x) => x !== "shopify_cc_token")) rowsS.push(`<label>${k} ${(await getSetting(env, k, "")) ? "<span class='label' style='--c:#3a7'>set</span>" : "<span class='label' style='--c:#a33'>empty</span>"}</label><input type="text" name="${k}" placeholder="leave empty to keep" autocomplete="off" style="-webkit-text-security:disc">`);
+    for (const k of ["shopify_shop", "shopify_api_version", "shopify_client_id", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id"])
       rowsS.push(`<label>${k}</label><input type="text" name="${k}" value="${esc(await getSetting(env, k, ""))}">`);
-    inner = `<h1>Settings</h1>${msg}<div class="card"><p class="muted">Keys are stored encrypted and never shown again. mail_provider: zeptomail or resend. Shopify token needs read_orders + write_discounts only. Google sign-in: create an OAuth client (Web) in Google Cloud with redirect URI <code>${esc((env.SITE_URL || "") + "/auth/google/callback")}</code>.</p>
+    inner = `<h1>Settings</h1>${msg}<div class="card"><p class="muted">Keys are stored encrypted and never shown again. mail_provider: zeptomail or resend. Shopify: either shopify_token (legacy custom app) or shopify_client_id + shopify_client_secret (Dev Dashboard app, client credentials); scopes read_products, read_orders, write_discounts. Google sign-in: create an OAuth client (Web) in Google Cloud with redirect URI <code>${esc((env.SITE_URL || "") + "/auth/google/callback")}</code>.</p>
 <form method="post" action="/admin/act"><input type="hidden" name="do" value="settings_save">${rowsS.join("")}
 <label>Reward rules page (HTML, optional)</label><textarea name="terms_html">${esc(await getSetting(env, "terms_html", ""))}</textarea>
 <label>Privacy page (HTML, optional)</label><textarea name="privacy_html">${esc(await getSetting(env, "privacy_html", ""))}</textarea><p><button class="btn small">Save</button></p></form>
-${actForm("test_services", "", "Send test (mail to me, Telegram, Klaviyo)")}</div>`;
+${actForm("test_services", "", "Send test (mail to me, Telegram, Klaviyo, Shopify)")}</div>`;
   } else if (s === "security") {
     const totp = await getSetting(env, "admin_totp", "");
     let pending = await getSetting(env, "admin_totp_pending", "");
@@ -334,9 +334,10 @@ async function adminAct(env, req) {
     if (d === "referral_decide") { await run(env, "UPDATE referrals SET status=? WHERE id=? AND status='review'", f.v === "waiting" ? "waiting" : "rejected", f.id); return back("flags", "Saved"); }
     if (d === "rules_save") { const r = JSON.parse(f.rules); await setSetting(env, "rules", JSON.stringify(r)); await audit(env, "owner", "rules_save", r); return back("rules", "Saved"); }
     if (d === "settings_save") {
-      for (const k of SECRET_SETTINGS) if (f[k]) await setSetting(env, k, String(f[k]).trim());
-      for (const k of ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id", "terms_html", "privacy_html"])
+      for (const k of SECRET_SETTINGS.filter((x) => x !== "shopify_cc_token")) if (f[k]) await setSetting(env, k, String(f[k]).trim());
+      for (const k of ["shopify_shop", "shopify_api_version", "shopify_client_id", "klaviyo_list_id", "turnstile_site", "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id", "terms_html", "privacy_html"])
         if (f[k] !== undefined) await setSetting(env, k, String(f[k]).trim());
+      if (f.shopify_client_secret || f.shopify_token) { await setSetting(env, "shopify_cc_token", null); await setSetting(env, "shopify_cc_exp", null); }
       await audit(env, "owner", "settings_save", Object.keys(f).filter((k) => f[k] && k !== "do"));
       return back("settings", "Saved");
     }
@@ -346,6 +347,7 @@ async function adminAct(env, req) {
       try { await sendMail(env, R.support_email, "Case Vault test", mailFrame("<p>Mail works.</p>")); out.push("mail ok"); } catch (e) { out.push(`mail: ${e.message}`); }
       try { const r = await telegram(env, "test message"); out.push(r.skipped ? "telegram not set" : "telegram ok"); } catch (e) { out.push(`telegram: ${e.message}`); }
       try { const r = await klaviyo(env, "events", klaviyoEventBody(R.support_email, "CaseVault Test", {}, {})); out.push(r.skipped ? "klaviyo not set" : "klaviyo ok"); } catch (e) { out.push(`klaviyo: ${e.message}`); }
+      try { const t = await shopifyToken(env, true); if (!t) out.push("shopify not set"); else { const b = await fbCatalog(env, true); out.push(`shopify ok (${b.length} free books)`); } } catch (e) { out.push(`shopify: ${e.message}`); }
       return back("settings", out.join(" · "));
     }
     if (d === "pw_change") {

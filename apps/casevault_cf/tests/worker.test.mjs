@@ -416,3 +416,29 @@ test("free book: unknown book, bad / disposable e-mail, 5 per hour per IP, expir
   const pre = await worker.fetch(new Request("https://cv.test/free-book/claim", { method: "OPTIONS", headers: { origin: "https://colorilax.com" } }), env, null);
   assert.equal(pre.status, 204); assert.equal(pre.headers.get("access-control-allow-methods"), "POST, OPTIONS");
 });
+
+test("free book: Shopify Dev Dashboard app (client credentials) token is fetched once and cached", async () => {
+  const { env, log } = freeEnv();
+  const inner = env.FETCH;
+  let grants = 0;
+  env.FETCH = async (url, init = {}) => {
+    if (String(url).endsWith("/admin/oauth/access_token")) {
+      grants++;
+      const p = new URLSearchParams(init.body);
+      assert.equal(p.get("grant_type"), "client_credentials"); assert.equal(p.get("client_id"), "cid"); assert.equal(p.get("client_secret"), "csec");
+      return new Response(JSON.stringify({ access_token: "shpat_cc", expires_in: 86399 }), { status: 200 });
+    }
+    if (String(url).includes("graphql")) assert.equal(init.headers["x-shopify-access-token"], "shpat_cc");
+    return inner(url, init);
+  };
+  await _test.ensureSchema(env);
+  await _test.setSetting(env, "shopify_shop", "https://colorilax.myshopify.com/");
+  await _test.setSetting(env, "shopify_client_id", "cid");
+  await _test.setSetting(env, "shopify_client_secret", "csec");
+  const b1 = await _test.fbCatalog(env, true);
+  const b2 = await _test.fbCatalog(env, true);
+  assert.equal(b1.length, 2); assert.equal(b2.length, 2); assert.equal(grants, 1);
+  const row = await env.DB.prepare("SELECT enc FROM settings WHERE k='shopify_cc_token'").first();
+  assert.equal(row.enc, 1);
+  assert.ok(log.length >= 2);
+});

@@ -31,8 +31,8 @@ const DEFAULT_RULES = {
   support_email: "support@colorilax.com", shop_url: "https://colorilax.com", etsy_shop_url: "https://www.etsy.com/shop/ColorilaxBook",
 };
 // Keys whose values are secrets: stored AES-GCM encrypted, never shown back in the admin.
-const SECRET_SETTINGS = ["shopify_token", "klaviyo_key", "turnstile_secret", "telegram_token", "mail_token", "google_client_secret"];
-const PLAIN_SETTINGS = ["shopify_shop", "shopify_api_version", "klaviyo_list_id", "turnstile_site",
+const SECRET_SETTINGS = ["shopify_token", "shopify_client_secret", "shopify_cc_token", "klaviyo_key", "turnstile_secret", "telegram_token", "mail_token", "google_client_secret"];
+const PLAIN_SETTINGS = ["shopify_shop", "shopify_client_id", "shopify_cc_exp", "shopify_api_version", "klaviyo_list_id", "turnstile_site",
   "telegram_chat", "mail_provider", "mail_from", "mail_from_name", "google_client_id", "rules", "terms_html", "privacy_html",
   "admin_pw", "admin_totp", "admin_totp_pending"];
 

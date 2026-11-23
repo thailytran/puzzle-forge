@@ -21,7 +21,8 @@ async function fbCatalog(env, force = false) {
   const t = await getSetting(env, "freebook_synced", "");
   if (!force && t && Date.now() - Date.parse(t) < 10 * 60000) return all(env, "SELECT * FROM free_books WHERE active=1");
   const shop = await getSetting(env, "shopify_shop", "");
-  const token = await getSetting(env, "shopify_token", "");
+  let token = "";
+  try { token = await shopifyToken(env); } catch { token = ""; }
   if (!shop || !token) return all(env, "SELECT * FROM free_books WHERE active=1");
   const ver = (await getSetting(env, "shopify_api_version", "")) || "2024-10";
   const query = `{ products(first: 100, query: "product_type:'Free Book' AND status:active") { nodes { handle title tags status

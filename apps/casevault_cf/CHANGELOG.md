@@ -1,5 +1,13 @@
 # CaseVault (Cloudflare) changelog
 
+## 1.3.1 — 2026-11-22
+- Shopify can now use a Dev Dashboard app: /admin → Settings → `shopify_client_id` + `shopify_client_secret` (client-credentials grant; the ~24 h token is cached encrypted and renewed automatically). `shopify_token` (legacy custom app) still works and wins when set.
+- "Send test" in Settings also checks Shopify and shows how many Free Books it can see.
+- Claim errors are also returned as `message` (the theme shows j.message).
+
+## 1.3.0 — 2026-11-22
+- Free Book: POST /free-book/claim, GET /free-book/dl/<token>, GET /free-book/books; D1 free_books + free_claims; Klaviyo "Claimed Free Book"; tests.
+
 ## 1.2.0 — 2026-11-21
 - Logo name "Colorilax Case Vault" (header + page titles). Site identity images drawn by Gemini through Studio (emblem, hero background, icons) are served from R2 `casevault/site/` at `/assets/<name>`; the page falls back to plain colours until they are uploaded.
 
@@ -11,6 +19,3 @@
 
 ## 1.0.0 — 2026-11-21
 - First version: answer check + extended ending, Etsy order / Book Code verification, 15% next-book coupons, Case Points and ranks, series gift, redeem, Klaviyo events, owner admin, daily backup.
-
-## 1.3.0 (2026-11-22)
-- Free Book: POST /free-book/claim, GET /free-book/dl/<token>, GET /free-book/books; D1 free_books + free_claims; Klaviyo "Claimed Free Book"; tests.

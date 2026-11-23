@@ -67,10 +67,33 @@ async function klaviyoSubscription(env, email, subscribe) {
     relationships: { list: { data: { type: "list", id: list } } } } });
 }
 
+// Shopify Admin token: a fixed token (legacy custom app) or, for a Dev Dashboard app, client_id + client_secret
+// exchanged for a ~24 h token (client-credentials grant), cached encrypted in settings until 10 min before expiry.
+function shopHost(shop) { return String(shop || "").replace(/^https?:\/\//, "").replace(/\/$/, ""); }
+async function shopifyToken(env, force = false) {
+  const fixed = await getSetting(env, "shopify_token", "");
+  if (fixed) return fixed;
+  const shop = shopHost(await getSetting(env, "shopify_shop", ""));
+  const id = await getSetting(env, "shopify_client_id", "");
+  const secret = await getSetting(env, "shopify_client_secret", "");
+  if (!shop || !id || !secret) return "";
+  const exp = Number(await getSetting(env, "shopify_cc_exp", "0")) || 0;
+  if (!force && exp - Date.now() > 10 * 60000) { const t = await getSetting(env, "shopify_cc_token", ""); if (t) return t; }
+  const r = await net(env)(`https://${shop}/admin/oauth/access_token`, { method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
+    body: new URLSearchParams({ grant_type: "client_credentials", client_id: id, client_secret: secret }).toString() });
+  if (!r.ok) throw new Error(`shopify token HTTP ${r.status}`);
+  const j = await r.json();
+  if (!j.access_token) throw new Error("shopify token: no access_token");
+  await setSetting(env, "shopify_cc_token", j.access_token);
+  await setSetting(env, "shopify_cc_exp", String(Date.now() + (Number(j.expires_in) || 3600) * 1000));
+  return j.access_token;
+}
+
 // Shopify: single-use 15 % code limited to one product (the next book).
 async function shopifyDiscount(env, { code, productId, pct, days, title }) {
   const shop = await getSetting(env, "shopify_shop", "");
-  const token = await getSetting(env, "shopify_token", "");
+  const token = await shopifyToken(env);
   if (!shop || !token) throw new Error("shopify not configured");
   const ver = (await getSetting(env, "shopify_api_version", "")) || "2024-10";
   const gid = String(productId).startsWith("gid://") ? productId : `gid://shopify/Product/${productId}`;
