@@ -163,11 +163,11 @@ only, no copied names, text or layouts):
 
 - [x] P9.0 Script v1 for the first book written: `docs/adventures/snow_queens_library_script.md` (owner to review)
 - [x] P9.0b Case frame skeleton `configs/adventures/snow_queens_library.json` + `docs/adventures/INSPIRATION_BANK.md` + `AI_BRIEFS_snow_queens_library.md` (ChatGPT/Gemini briefs)
-- [ ] P9.1 Adventure case frame: chapters, hidden-object lists (code picks objects + icons), key pieces, final challenge; logic lock reuses the mystery checks (every key needed, one answer)
-- [ ] P9.2 Search page layout: full-page line art + object column with icons + "found" boxes; answer key page (Gemini-marked circles, owner-confirmed)
-- [ ] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
-- [ ] P9.4 HALOSPARK Studio: Adventure module tab (ChatGPT story + object lists, Gemini line art with objects, Gemini self-check, owner tick review), covers, listing images, SEO, deliverables
-- [ ] P9.5 First Adventure book: "The Snow Queen's Library" (owner 2026-11-20: adult, 8 chapters) — milestone review
+- [x] P9.1 Adventure case frame: chapters, hidden-object lists (code picks objects + icons), key pieces, final challenge; logic lock reuses the mystery checks (every key needed, one answer)
+- [x] P9.2 Search page layout: full-page line art + object column with icons + "found" boxes; answer key page (Gemini-marked circles, owner-confirmed)
+- [x] P9.3 Story page with line-art vignette (colourable) + designed banner; chapter opener spread
+- [~] P9.4 (Forge side done: `forge adventure studio|merge`, docs/adventures/STUDIO_ADVENTURE.md; the Studio tab itself lives in halospark-suite) HALOSPARK Studio: Adventure module tab (ChatGPT story + object lists, Gemini line art with objects, Gemini self-check, owner tick review), covers, listing images, SEO, deliverables
+- [ ] P9.5 First Adventure book: "The Snow Queen's Library" (owner 2026-11-20: adult, 8 chapters) — milestone review (frame checked, book builds with placeholders; waits for Studio art + owner ticks, then `forge adventure build --art` on the owner machine)
 
 ### P10 — Detective series (owner 2026-11-21)
 - [x] P10.0 series bible `configs/series/tamsin_hale.json` (8 volumes) + variety gate `forge/mystery/series_variety.py` (+tests)

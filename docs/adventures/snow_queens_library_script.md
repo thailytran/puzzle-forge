@@ -10,6 +10,8 @@
 - Danh sách đồ vật cố ý **không chứa** từ đáp án câu đố của cùng chương.
 - Giọng văn: ngôi thứ hai ("you"), ấm áp, hơi huyền bí, không bạo lực, không tình cảm lãng mạn → hợp người lớn và cả người cao tuổi (cỡ chữ lớn).
 
+**Cập nhật 2026-11-23 (P9.1, code kiểm tra khung):** ba đáp án cũ bị lộ trong chính lời truyện nên đã đổi: ch3 LANTERN → **LULLABY** (Cryptogram, câu "The clocks are only waiting to hear a lullaby"), ch6 EMBROIDERY → **ENCHANTED**, ch7 GARDENER → **GLIMMER**. Loại câu đố chưa dựng được đáp án ép buộc đã đổi: ch6 Crossword → **Star Search**, ch7 Logic Grid → **Lantern Lights**, ch8 Crossword → **Secret Symbols** (pigpen, "The last key sleeps in the old orchard"). Chữ cái chìa khoá, số ô và từ cuối **EVERGLOW** giữ nguyên. Ch8 đổi 2 đồ vật trùng (ribbon → padlock, lace glove → goblet). Nguồn đúng là `configs/adventures/snow_queens_library.json`; các mục chương bên dưới còn ghi bản v1.
+
 ## 1. Premise (back-cover copy)
 
 The Great Library of Aldermere has gone silent. On Midwinter night a splinter of the Looking-Glass of Frost fell into its reading lamp, and every shelf, clock and story turned to ice. You are the Restorer, sent with a single Frost Lantern. Eight rooms, eight keys, one word that can thaw it all. Read the story. Search each frozen scene. Solve the locks. Colour the library back to life.

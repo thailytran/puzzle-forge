@@ -808,6 +808,99 @@ def mystery_build(
         typer.echo(f"art: {len(a['placed'])} placed, missing: {a['missing'] or 'none'}")
 
 
+adventure_app = typer.Typer(help="Adventure line: story + search + coloring books (P9).")
+app.add_typer(adventure_app, name="adventure")
+
+
+@adventure_app.command("check")
+def adventure_check(
+    frame_path: Path = typer.Argument(..., help="Adventure frame JSON (configs/adventures/*.json)"),
+    fast: bool = typer.Option(False, "--fast", help="Skip building the puzzles."),
+) -> None:
+    """Check an Adventure frame: keys spell the final word, every key needed, no leaks."""
+    from forge.adventure.frame import check_frame, load_frame
+
+    rep = check_frame(load_frame(frame_path), deep=not fast)
+    for w in rep.warnings:
+        typer.secho(f"warning: {w}", fg=typer.colors.YELLOW)
+    if rep.ok:
+        typer.secho("adventure frame accepted", fg=typer.colors.GREEN)
+        return
+    typer.secho(rep.feedback(), fg=typer.colors.RED, err=True)
+    raise typer.Exit(1)
+
+
+@adventure_app.command("build")
+def adventure_build(
+    frame_path: Path = typer.Argument(..., help="Adventure frame JSON"),
+    out: Path = typer.Option(Path("output/adventure"), help="Output folder (one per book)"),
+    seed: int = typer.Option(20261120, help="Book seed"),
+    trim: str = typer.Option("8.5x11", help="8.5x11 | A4"),
+    no_render: bool = typer.Option(False, "--no-render", help="Pages as PNG + manifest only."),
+    art: Path | None = typer.Option(None, "--art", help="Studio art folder (+ selfcheck/review)"),
+    vault_domain: str = typer.Option("", help="Add the Case Vault last page for this domain"),
+) -> None:
+    """Build an Adventure book (missing art = labelled placeholders)."""
+    from forge.adventure.book import build_adventure_book
+    from forge.adventure.frame import load_frame
+    from forge.mystery.necessity import CaseError
+
+    frame = load_frame(frame_path)
+    try:
+        man = build_adventure_book(
+            frame, out / frame.id, seed, trim, not no_render, art, vault_domain
+        )
+    except CaseError as e:
+        typer.secho(str(e), fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from e
+    typer.echo(
+        f"{frame.id}: {man['pages']} pages ({man['content_pages']} chapter pages)"
+        f" -> {out / frame.id}"
+    )
+    typer.echo(
+        f"art missing: {len(man['art']['missing'])}; "
+        f"search pages checked: {sum(s['ok'] for s in man['search_check'].values())}"
+        f"/{len(man['search_check'])}; ready for review: {man['ready_for_review']}"
+    )
+
+
+@adventure_app.command("studio")
+def adventure_studio(
+    frame_path: Path = typer.Argument(..., help="Adventure frame JSON"),
+    out: Path = typer.Option(Path("output/adventure"), help="Output folder (one per book)"),
+) -> None:
+    """Write the Studio job folder: ChatGPT brief, art requests, Gemini self-check, review list."""
+    from forge.adventure.book import layout_book
+    from forge.adventure.frame import build_puzzles, load_frame
+    from forge.adventure.studio import studio_package
+
+    frame = load_frame(frame_path)
+    bk, _ = layout_book(frame, build_puzzles(frame, 20261120), {})
+    for f in studio_package(frame, bk.requests, out / frame.id / "studio"):
+        typer.echo(str(f))
+
+
+@adventure_app.command("merge")
+def adventure_merge(
+    frame_path: Path = typer.Argument(..., help="Adventure frame JSON (rewritten in place)"),
+    reply: Path = typer.Argument(..., help="ChatGPT reply JSON (writing_brief return_json)"),
+) -> None:
+    """Merge ChatGPT's text into the frame; refused when the frame check fails."""
+    import json
+
+    from forge.adventure.frame import load_frame
+    from forge.adventure.studio import merge_writing
+
+    new, rep = merge_writing(load_frame(frame_path), json.loads(reply.read_text("utf-8")))
+    for w in rep.warnings:
+        typer.secho(f"warning: {w}", fg=typer.colors.YELLOW)
+    if not rep.ok:
+        typer.secho(rep.feedback(), fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
+    frame_path.write_text(new.model_dump_json(indent=1) + "\n", encoding="utf-8")
+    typer.secho(f"merged into {frame_path}", fg=typer.colors.GREEN)
+
+
 layout_app = typer.Typer(help="Layout / Typst pipeline tools.")
 app.add_typer(layout_app, name="layout")
 

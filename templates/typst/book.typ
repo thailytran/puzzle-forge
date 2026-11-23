@@ -60,16 +60,21 @@
   if E != none and E.crop_marks { crop-marks() }
 }
 
+#let normal-margin = if E != none and E.simplex {
+  (left: L.margins.inside * inch + bleed, right: L.margins.outside * inch + bleed,
+   top: L.margins.top * inch + bleed, bottom: L.margins.bottom * inch + bleed)
+} else {
+  (inside: L.margins.inside * inch + bleed, outside: L.margins.outside * inch + bleed,
+   top: L.margins.top * inch + bleed, bottom: L.margins.bottom * inch + bleed)
+}
+// Adventure pages composed as one picture (forge/adventure/pages.py): the picture covers the trim,
+// only the bottom band stays free for the page number
+#let full-margin = (left: bleed, right: bleed, top: bleed, bottom: bleed + 0.45in)
+
 #set page(
   width: L.width_in * inch + 2 * bleed,
   height: L.height_in * inch + 2 * bleed,
-  margin: if E != none and E.simplex {
-    (left: L.margins.inside * inch + bleed, right: L.margins.outside * inch + bleed,
-     top: L.margins.top * inch + bleed, bottom: L.margins.bottom * inch + bleed)
-  } else {
-    (inside: L.margins.inside * inch + bleed, outside: L.margins.outside * inch + bleed,
-     top: L.margins.top * inch + bleed, bottom: L.margins.bottom * inch + bleed)
-  },
+  margin: normal-margin,
   footer-descent: if E != none { 15% } else { 30% },
   background: page-background,
 )
@@ -639,7 +644,11 @@
 }
 
 // Gemini-designed page for this puzzle type (forge/mystery/art.py build_templates), or none
-#let tpl-of(p) = if T == none or p.at("style", default: none) == none { none } else if p.style.type == "story" {
+#let tpl-of(p) = if p.at("style", default: none) == none { none } else if p.style.type == "fullpage" {
+  (image: p.style.bg, bleed: true)
+} else if p.style.type == "adv_story" {
+  (image: p.style.bg, bleed: true)
+} else if T == none { none } else if p.style.type == "story" {
   (image: p.style.bg, pic: (w: p.style.w, h: p.style.h))
 } else if p.style.type == "poster" {
   (image: p.style.bg, bleed: p.style.at("bleed", default: false))
@@ -689,6 +698,23 @@
     })
 }
 
+// Adventure story page: frame, ribbon and vignette are the background picture; the story is set
+// in the calm box above the vignette (page fractions in p.style.box), at the largest size that fits
+#let adv-story-page(p) = {
+  let b = p.style.box
+  let bw = b.w * L.width_in * inch
+  let bh = b.h * L.height_in * inch
+  let body(k) = {
+    set text(size: k * base, fill: rgb("#1d1a16"))
+    set par(leading: 0.62em, justify: true, first-line-indent: 1.2em)
+    for x in p.blocks { render-block(x) }
+  }
+  place(top + left, dx: b.x * L.width_in * inch, dy: b.y * L.height_in * inch, context {
+    let k = (1.3, 1.22, 1.15, 1.08, 1.0, 0.94, 0.88, 0.82, 0.76).find(k => measure(block(width: bw, body(k))).height <= bh)
+    block(width: bw, height: bh, body(if k == none { 0.7 } else { k }))
+  })
+}
+
 // the whole designed page is the background; the exact puzzle sits in its empty panel
 #let template-puzzle(p, tp) = {
   let c = rgb(p.style.color)
@@ -705,7 +731,9 @@
 
 #for p in L.pages {
   let tp = tpl-of(p)
+  let adv = tp != none and p.style.type in ("fullpage", "adv_story")
   page(
+    margin: if adv { full-margin } else { normal-margin },
     header: if p.header and p.kind != "title" and T == none { running-header } else { none },
     footer: if p.number and p.kind != "title" { page-footer } else { none },
     background: if tp != none { designed-bg(tp) } else if cover-of(p) != none {
@@ -720,10 +748,14 @@
       []
     } else {
       let styled = T != none and p.at("style", default: none) != none
-      if p.at("title", default: none) != none and not styled and T == none {
+      if p.at("title", default: none) != none and not styled and T == none and not adv {
         render-block((kind: "heading", text: p.title, level: 1))
       }
-      if tp != none and p.style.type == "poster" {
+      if adv and p.style.type == "fullpage" {
+        []  // the composed picture is the whole page
+      } else if adv {
+        adv-story-page(p)
+      } else if tp != none and p.style.type == "poster" {
         []  // the whole page is designed, text included
       } else if tp != none and p.style.type == "story" {
         story-page(p)
