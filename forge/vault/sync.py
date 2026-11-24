@@ -46,7 +46,14 @@ def http_sender(base_url: str, token: str) -> Sender:
             base_url.rstrip("/") + "/api/admin/books",
             data=json.dumps(payload).encode(),
             method="POST",
-            headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+                # Cloudflare's Browser Integrity Check answers 403 / error 1010 to the default
+                # "Python-urllib" agent, so the registration never reached the Worker.
+                "User-Agent": "PuzzleForge-VaultSync/1.0 (+https://colorilax.com)",
+                "Accept": "application/json",
+            },
         )
         try:
             with urllib.request.urlopen(req, timeout=TIMEOUT_S) as resp:
