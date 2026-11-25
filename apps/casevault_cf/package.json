@@ -1,6 +1,6 @@
 {
   "name": "casevault-worker",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "private": true,
   "type": "module",
   "scripts": {"build": "node build.mjs", "test": "node build.mjs && node --no-warnings --test tests/worker.test.mjs"}

@@ -391,7 +391,12 @@ test("free book: claim, one per e-mail (gmail dots / + / case), link works 7 day
   assert.equal(pending.n, 0, String(ev));
   const ob = await env.DB.prepare("SELECT kind, payload FROM outbox ORDER BY id").all();
   const kinds = ob.results.map((x) => x.kind);
-  assert.deepEqual(kinds.filter((k) => k !== "mail"), ["klaviyo_event", "klaviyo_sub"]);
+  // the repeat claim earlier in this test adds a second event (resend) so the Klaviyo flow sends the link again
+  assert.deepEqual(kinds.filter((k) => k !== "mail"), ["klaviyo_event", "klaviyo_sub", "klaviyo_event"]);
+  const evs = ob.results.filter((x) => x.kind === "klaviyo_event").map((x) => JSON.parse(x.payload));
+  assert.match(evs[0].props.download_url, /\/free-book\/dl\/[\w-]{20,}$/);
+  assert.equal(evs[1].props.resend, true); assert.notEqual(evs[1].props.unique_id, evs[0].props.unique_id);
+  assert.notEqual(evs[1].props.download_url, evs[0].props.download_url);
   const evp = JSON.parse(ob.results.find((x) => x.kind === "klaviyo_event").payload);
   assert.equal(evp.profile.freebook_choice, "Cozy Christmas Village – 12 Coloring Pages");
   assert.equal(evp.profile.interest, "cozy"); assert.equal(evp.profile.source, "freebook_web");

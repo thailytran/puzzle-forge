@@ -1,5 +1,9 @@
 # CaseVault (Cloudflare) changelog
 
+## 1.3.4 — 2026-11-25
+- Free Book: the Klaviyo event "Claimed Free Book" now carries `download_url`, so the Klaviyo flow "Free Book Delivery" can send the link from the shop's own sending domain. A repeat claim sends the event again (new unique_id, `resend: true`).
+- Free Book e-mail from the Worker uses a Colorilax frame (was headed "Case Vault") and is signed "Lee & Tee from Colorilax".
+
 ## 1.3.3 — 2026-11-22
 - /admin → Settings → "Connect Shopify": one-time Shopify sign-in (authorization code grant, state + hmac checked) for when the Dev Dashboard app and the store are in different Shopify organisations (client credentials answer shop_not_permitted). The token is stored encrypted as shopify_token. The app needs the redirect URL `https://casevault.colorilax.com/admin/shopify/callback`.
 

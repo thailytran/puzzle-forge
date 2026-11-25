@@ -45,11 +45,23 @@ async function fbCatalog(env, force = false) {
   return all(env, "SELECT * FROM free_books WHERE active=1");
 }
 
+// Colorilax-branded frame (the Free Book belongs to the shop, not to Case Vault).
 function fbMail(ctx, title, link, again) {
-  return mailFrame(`<h2>${again ? "Here is your free book again" : "Your free book is ready"}</h2>
-    <p>${again ? "You already claimed" : "Thank you for joining Colorilax. Here is"} <b>${esc(title)}</b>.</p>
-    <p><a href="${esc(link)}" style="display:inline-block;background:#44524A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none">Download your free book (PDF)</a></p>
-    <p style="color:#666">The link works for ${FB_LINK_DAYS} days. Print on US Letter paper, one side per sheet. For personal use only.</p>`);
+  const year = new Date().getUTCFullYear();
+  return `<div style="background:#F3E9DA;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#2A2A26">
+  <div style="max-width:600px;margin:auto;background:#FCF5EC;border-radius:14px;overflow:hidden">
+    <div style="background:#2B3B2E;padding:24px;text-align:center"><a href="https://colorilax.com" style="color:#FCF5EC;text-decoration:none;font-family:Georgia,serif;font-size:32px;font-style:italic;font-weight:bold">Colorilax</a>
+      <div style="color:#E9D9B8;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding-top:6px">Color. Relax. Repeat.</div></div>
+    <div style="padding:30px 32px 26px">
+      <h1 style="font-family:Georgia,serif;font-size:26px;line-height:1.25;margin:0 0 12px;color:#2B3B2E">${again ? "Here is your free book again" : esc(title)}</h1>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 20px">${again ? `You already claimed <b>${esc(title)}</b>. Here is a fresh link.` : "Thank you for joining Colorilax. Your printable book is ready."}</p>
+      <p style="text-align:center;margin:0 0 10px"><a href="${esc(link)}" style="display:inline-block;background:#2B3B2E;color:#fff;padding:15px 32px;border-radius:8px;text-decoration:none;font-size:17px;font-weight:bold">Download my free book (PDF)</a></p>
+      <p style="color:#6B6A63;font-size:13px;text-align:center;margin:0 0 20px">The link works for ${FB_LINK_DAYS} days.</p>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 18px">Print on US Letter paper at 100% scale, one side per sheet. For personal use only.</p>
+      <p style="font-family:Georgia,serif;font-size:16px;color:#2B3B2E;margin:0">Happy coloring,<br><em>Lee &amp; Tee from Colorilax</em></p>
+    </div>
+    <div style="background:#EFE3D0;padding:16px 24px;text-align:center;font-size:12px;line-height:1.6;color:#6B6A63">Colorilax &copy; ${year} HALOSPARK E-Commerce Inc. All rights reserved.<br>All Colorilax books are created with the help of AI tools, then checked and finished by our team.</div>
+  </div></div>`;
 }
 
 async function freebookClaim(env, req) {
@@ -74,6 +86,9 @@ async function freebookClaim(env, req) {
     await run(env, "UPDATE free_claims SET token=?, expires=? WHERE id=?", token, plusDays(FB_LINK_DAYS), prev.id);
     const link = `${origin}/free-book/dl/${token}`;
     await enqueue(env, "mail", { to: email, subject: `Your free book: ${prev.title}`, html: fbMail({}, prev.title, link, true) });
+    // Klaviyo sends the link too (flow "Free Book Delivery"): a new unique_id per re-send, or Klaviyo drops the repeat event.
+    await enqueue(env, "klaviyo_event", { email, metric: "Claimed Free Book", props: { freebook_choice: prev.title, freebook_catalog_no: prev.catalog_no,
+      source: prev.source, handle: prev.handle, download_url: link, resend: true, unique_id: `freebook-${norm}-${token.slice(0, 8)}` }, profile: {} });
     return json({ ok: false, already: true, title: prev.title, handle: prev.handle, download_url: link,
       error: `You've already claimed your free book (${prev.title}). We sent the link to your inbox again.` }, 200, cors);
   }
@@ -88,7 +103,7 @@ async function freebookClaim(env, req) {
   const link = `${origin}/free-book/dl/${token}`;
   await enqueue(env, "mail", { to: email, subject: `Your free book is ready: ${book.title}`, html: fbMail({}, book.title, link, false) });
   const profile = { freebook_choice: book.title, freebook_catalog_no: book.catalog_no, interest: book.interest || null, source };
-  await enqueue(env, "klaviyo_event", { email, metric: "Claimed Free Book", props: { ...profile, handle: book.handle, unique_id: `freebook-${norm}` }, profile });
+  await enqueue(env, "klaviyo_event", { email, metric: "Claimed Free Book", props: { ...profile, handle: book.handle, download_url: link, unique_id: `freebook-${norm}` }, profile });
   await run(env, "INSERT INTO consents(email,value,text,source,ip_trunc,ts) VALUES(?,?,?,?,?,?)", email, consent ? 1 : 0, FB_CONSENT_TEXT, `freebook:${source}`, ip, nowIso());
   if (consent) await enqueue(env, "klaviyo_sub", { email, subscribe: true });
   return json({ ok: true, title: book.title, handle: book.handle, download_url: link, expires_days: FB_LINK_DAYS }, 200, cors);
