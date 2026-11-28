@@ -41,6 +41,7 @@ def case_vault_page(book_id: str, domain: str = "") -> tuple[Page, dict[str, byt
     url = solve_url(domain, book_id)
     site = site_of(domain)
     blocks = [
+        {"kind": "spacer", "height_in": 0.35},
         {"kind": "paragraph", "text": "Solved the case? Submit your final answer at"},
         {"kind": "url", "text": site},
         {
