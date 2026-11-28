@@ -488,8 +488,9 @@ def _first(name: str) -> str:
 
 
 def reconcile_cast(frame: CaseFrame) -> None:
-    """Deterministic repair of the two cast slips the writer keeps making: the suspect facts (what the
-    reader reasons with) win over the picture text. A missing scarf or glasses is added to the OUTFIT
+    """Deterministic repair of the cast slips the writer keeps making: the suspect facts (what
+    the reader reasons with) win over the picture text. A missing scarf or glasses goes into the
+    OUTFIT
     (never to the locked look); glasses the suspect does not wear are removed from the outfit."""
     by_name = {c.name: c for c in frame.cast}
     for s in frame.suspects:
@@ -507,7 +508,10 @@ def reconcile_cast(frame: CaseFrame) -> None:
                 c.outfit = f"{c.outfit.rstrip(' .')}, and round glasses"
             elif not s["glasses"] and wears:
                 c.outfit = re.sub(
-                    r",?\s*(?:and\s+)?(?:[\w-]+\s+){0,2}(?:glasses|spectacles)\b", "", c.outfit, flags=re.I
+                    r",?\s*(?:and\s+)?(?:[\w-]+\s+){0,2}(?:glasses|spectacles)\b",
+                    "",
+                    c.outfit,
+                    flags=re.I,
                 ).strip(" ,")
 
 
