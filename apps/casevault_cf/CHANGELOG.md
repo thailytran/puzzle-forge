@@ -42,3 +42,6 @@
 - New case files shown in one fixed size.
 - Seasonal castle background switches automatically by date (Christmas, winter, spring, summer, autumn).
 - Older, bolder ornate logo.
+
+## 1.5.1
+- Redrawn infographic icons: illustrated brass emblems (open book, combination lock, rosette; four rank shields with laurel and crown).

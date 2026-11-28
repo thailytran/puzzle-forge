@@ -1,5 +1,5 @@
 // ---- util: time, crypto, normalisation, http helpers -------------------------------------------
-const VERSION = "1.5.0";
+const VERSION = "1.5.1";
 const DAY = 86400000;
 const enc = new TextEncoder();
 
