@@ -36,3 +36,9 @@
 
 ## 1.0.0 — 2026-11-21
 - First version: answer check + extended ending, Etsy order / Book Code verification, 15% next-book coupons, Case Points and ranks, series gift, redeem, Klaviyo events, owner admin, daily backup.
+
+## 1.5.0
+- Home: "How it works" and "Detective ranks" moved under the answer box, redrawn as infographics with custom icons.
+- New case files shown in one fixed size.
+- Seasonal castle background switches automatically by date (Christmas, winter, spring, summer, autumn).
+- Older, bolder ornate logo.

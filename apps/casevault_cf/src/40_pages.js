@@ -16,7 +16,76 @@ const LINES = {
 };
 const diffText = (d) => (d ? `Level ${d} of 5` : "");
 // Logo: a vault dial whose centre is a keyhole, with a detective's magnifier handle breaking the ring.
-const LOGO = `<svg class="logo" viewBox="0 0 48 48" width="40" height="40" role="img" aria-label="Case Vault"><circle cx="22" cy="22" r="16" fill="none" stroke="#C3A15A" stroke-width="2.4"/><circle cx="22" cy="22" r="11" fill="none" stroke="#C3A15A" stroke-opacity=".45" stroke-width="1" stroke-dasharray="1.6 3.1"/><circle cx="22" cy="19.5" r="3.2" fill="#C3A15A"/><path d="M20.4 21.5h3.2l1.4 8h-6z" fill="#C3A15A"/><path d="m33.6 33.6 9 9" stroke="#C3A15A" stroke-width="4.2" stroke-linecap="round"/></svg>`;
+const LOGO = `<svg class="logo" viewBox="0 0 64 64" width="46" height="46" role="img" aria-label="Case Vault"><circle cx="32" cy="32" r="28.5" fill="#1A1710" stroke="#C3A15A" stroke-width="6"/><circle cx="32" cy="32" r="28.5" fill="none" stroke="#12141A" stroke-width="3.4" stroke-dasharray="1.5 5.9"/><circle cx="32" cy="32" r="24.6" fill="none" stroke="#E4C77E" stroke-width="1"/><circle cx="32" cy="32" r="21.4" fill="none" stroke="#C3A15A" stroke-width="1.6"/><g fill="#C3A15A" fill-opacity=".22" stroke="#C3A15A" stroke-width="1.3" stroke-linejoin="round"><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(0 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(45 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(90 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(135 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(180 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(225 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(270 32 32)"/><path d="M32 32 C27 27 27 19 32 15 C37 19 37 27 32 32Z" transform="rotate(315 32 32)"/></g><g fill="#E4C77E"><path d="M32 2.2l2.4 3.3-2.4 3.1-2.4-3.1z"/><path d="M32 61.8l-2.4-3.3 2.4-3.1 2.4 3.1z"/><path d="M2.2 32l3.3-2.4 3.1 2.4-3.1 2.4z"/><path d="M61.8 32l-3.3 2.4-3.1-2.4 3.1-2.4z"/></g><circle cx="32" cy="32" r="8.4" fill="#12141A" stroke="#C3A15A" stroke-width="2"/><circle cx="32" cy="30" r="2.9" fill="#E4C77E"/><path d="M30.2 31.6h3.6l1.2 6.6h-6z" fill="#E4C77E"/><path d="m47.5 47.5 11 11" stroke="#12141A" stroke-width="8.4" stroke-linecap="round"/><path d="m47.5 47.5 11 11" stroke="#C3A15A" stroke-width="5.2" stroke-linecap="round"/><path d="m50.4 50.4 5.2 5.2" stroke="#12141A" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1 2.2"/></svg>`;
+
+// ---- infographic icons (hand-drawn SVG, duotone brass) ---------------------------------------------
+const GI = (d) => `<svg viewBox="0 0 48 48" width="46" height="46" fill="none" stroke="#C3A15A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const STEP_ICON = [
+  GI('<path d="M5 11c7-2.6 14-2 19 3v25c-5-4.6-12-5.4-19-3z" fill="#C3A15A" fill-opacity=".14"/><path d="M43 11c-7-2.6-14-2-19 3v25c5-4.6 12-5.4 19-3z"/><path d="M9.5 18c3-.8 6-.6 9 .6M9.5 24c3-.8 6-.6 9 .6M9.5 30c3-.8 6-.6 9 .6"/><circle cx="33" cy="22" r="5.6" fill="#12141A"/><path d="m37.2 26.2 4.6 4.6"/>'),
+  GI('<rect x="9" y="5" width="30" height="38" rx="4.5" fill="#C3A15A" fill-opacity=".14"/><rect x="14" y="10" width="20" height="8.5" rx="1.8" fill="#12141A"/><path d="M17.5 14.2h3.2M23.4 14.2h3.2M29.3 14.2h1.6"/><g fill="#C3A15A" stroke="none"><circle cx="17" cy="26" r="1.8"/><circle cx="24" cy="26" r="1.8"/><circle cx="31" cy="26" r="1.8"/><circle cx="17" cy="32" r="1.8"/><circle cx="24" cy="32" r="1.8"/><circle cx="31" cy="32" r="1.8"/><circle cx="24" cy="38" r="1.8"/></g>'),
+  GI('<path d="M10 6h23a2 2 0 0 1 2 2v28a5 5 0 0 1-5 5H15a5 5 0 0 1-5-5z" fill="#C3A15A" fill-opacity=".14"/><path d="M16 14h13M16 20h13M16 26h7"/><circle cx="34" cy="35" r="8" fill="#12141A"/><path d="m34 29.6 1.7 3.4 3.8.5-2.8 2.6.7 3.8-3.4-1.8-3.4 1.8.7-3.8-2.8-2.6 3.8-.5z" fill="#C3A15A" stroke-width="1.2"/>'),
+];
+const SHIELD = '<path d="M24 3.5l16.5 6v12.4c0 11.4-7.2 18.4-16.5 22.6C14.700 40.300 7.500 33.300 7.500 21.900V9.500z"';
+const RANK_ICON = [
+  GI(SHIELD + ' fill="#C3A15A" fill-opacity=".1"/><path d="M16.500 22l7.500 7.500 7.500-7.500"/>'),
+  GI(SHIELD + ' fill="#C3A15A" fill-opacity=".16"/><circle cx="22.500" cy="20" r="6.200"/><path d="m27 24.500 5.500 5.500"/>'),
+  GI(SHIELD + ' fill="#C3A15A" fill-opacity=".22"/><path d="M15.500 19l8.500 8 8.500-8M15.500 26l8.500 8 8.500-8"/>'),
+  GI(SHIELD + ' fill="#C3A15A" fill-opacity=".32"/><path d="M14.500 30l1.800-11 5 5.200L24 15l2.700 9.200 5-5.200 1.800 11z" fill="#12141A"/><path d="M3 27c-2.500-6.500-1.500-13 2-17.500M45 27c2.500-6.500 1.500-13-2-17.500"/>'),
+];
+
+// ---- seasonal scene: an old castle drawn in SVG, re-coloured by date (northern hemisphere) --------
+function seasonFor(d = new Date()) {
+  const v = (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+  if (v >= 1201 || v <= 106) return "christmas";
+  if (v <= 319) return "winter";
+  if (v <= 620) return "spring";
+  if (v <= 922) return "summer";
+  return "autumn";
+}
+const SEASONS = {
+  winter: { sky: ["#0D1828", "#2B3F58"], moon: "#E8EEF5", far: "#142031", castle: "#18212D", win: "#F0C67A", ground: ["#E3ECF4", "#9DB1C7"], pine: "#0A121C", snow: 1, stars: 1 },
+  christmas: { sky: ["#0A1714", "#1D3B33"], moon: "#F1E8D2", far: "#16302A", castle: "#15211C", win: "#F6C46A", ground: ["#E9F0F2", "#A5B8BE"], pine: "#08130F", snow: 1, stars: 1, tree: 1 },
+  spring: { sky: ["#1B2B2C", "#6F917F"], moon: "#F2EEDC", far: "#2A423B", castle: "#1D2B27", win: "#F2CF84", ground: ["#4B6B4A", "#27402B"], pine: "#142A1D", petals: 1, stars: 1 },
+  summer: { sky: ["#141E2E", "#B07A4E"], moon: "#F3D9A0", far: "#3A3430", castle: "#231F1A", win: "#F6C46A", ground: ["#3B4A2C", "#1F2A19"], pine: "#18240F", flies: 1, stars: 1 },
+  autumn: { sky: ["#1A1713", "#82502D"], moon: "#F2C27C", far: "#3A2A1F", castle: "#2B2018", win: "#F4B860", ground: ["#4A3320", "#241810"], pine: "#1A120B", leaves: 1, stars: 1 },
+};
+function sceneSvg(name) {
+  const t = SEASONS[name] || SEASONS.autumn;
+  let seed = 11;
+  const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const stars = t.stars ? Array.from({ length: 70 }, () => `<circle cx="${(r() * 1600).toFixed(0)}" cy="${(r() * 420).toFixed(0)}" r="${(0.6 + r() * 1.3).toFixed(1)}" fill="#fff" opacity="${(0.25 + r() * 0.6).toFixed(2)}"/>`).join("") : "";
+  const pine = (x, y, k, fill) => `<g transform="translate(${x} ${y}) scale(${k})" fill="${fill}"><path d="M0-120l26 44h-14l24 40h-18l26 36H-44l26-36h-18l24-40h-14z"/><rect x="-5" y="0" width="10" height="16"/></g>`;
+  const wins = [[1140, 520], [1180, 520], [1250, 600], [1060, 600], [1355, 470], [1380, 470], [1355, 540], [1478, 620], [1160, 660], [1215, 660], [1300, 660]]
+    .map(([x, y]) => `<path d="M${x} ${y + 26}v-18a7 7 0 0 1 14 0v18z" fill="${t.win}" opacity=".9"/>`).join("");
+  const crenel = (x0, y, n) => Array.from({ length: n }, (_, i) => `<rect x="${x0 + i * 36}" y="${y}" width="22" height="18"/>`).join("");
+  const roofStroke = t.snow ? ' stroke="#DDE8F1" stroke-width="3" stroke-linejoin="round"' : "";
+  const castle = `<g fill="${t.castle}">
+<rect x="960" y="640" width="620" height="130"/>${crenel(962, 624, 17)}
+<rect x="1120" y="470" width="200" height="300"/>${crenel(1122, 452, 6)}
+<rect x="1020" y="540" width="90" height="230"/><path d="M1008 540l57-104 57 104z"${roofStroke}/>
+<rect x="1330" y="400" width="100" height="370"/><path d="M1318 400l62-118 62 118z"${roofStroke}/>
+<rect x="1450" y="560" width="72" height="210"/><path d="M1440 560l46-76 46 76z"${roofStroke}/>
+<path d="M1190 770v-70a30 30 0 0 1 60 0v70z" fill="#000" opacity=".55"/></g>${wins}`;
+  const tree = t.tree ? (() => {
+    const lights = Array.from({ length: 34 }, (_, i) => { const row = Math.floor(i / 6); const w = 20 + (5 - row) * 18; const x = 320 + (r() * 2 - 1) * w; const y = 560 + row * 44 + r() * 20;
+      return `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="3.4" fill="${["#F6C46A", "#E36A5A", "#F2E6C8"][i % 3]}" class="tw" style="animation-delay:-${(r() * 3).toFixed(1)}s"/>`; }).join("");
+    return `${pine(320, 800, 2.6, t.pine)}<path d="m320 454 5 11 12 1.600-9 8 2.800 12-10.800-6.400-10.800 6.400 2.800-12-9-8 12-1.600z" fill="#F6C46A"/>${lights}`;
+  })() : "";
+  const fall = (n, mk) => Array.from({ length: n }, () => mk((r() * 1600).toFixed(0), (6 + r() * 9).toFixed(1), (-r() * 14).toFixed(1), (r() * 120 - 40).toFixed(0), (1.2 + r() * 2).toFixed(1))).join("");
+  const snow = t.snow ? fall(46, (x, d, dl, dx, rad) => `<circle class="fall" cx="${x}" cy="0" r="${rad}" fill="#fff" opacity=".85" style="animation-duration:${d + 6}s;animation-delay:${dl}s;--dx:${dx}px"/>`) : "";
+  const leaves = t.leaves ? fall(26, (x, d, dl, dx) => `<ellipse class="fall" cx="${x}" cy="0" rx="6" ry="3.2" fill="${["#C8742E", "#A8452B", "#D9A441"][Math.abs(+dx) % 3]}" style="animation-duration:${d + 4}s;animation-delay:${dl}s;--dx:${dx}px"/>`) : "";
+  const petals = t.petals ? fall(30, (x, d, dl, dx) => `<ellipse class="fall" cx="${x}" cy="0" rx="4.600" ry="2.600" fill="#F0B9B1" opacity=".9" style="animation-duration:${d + 5}s;animation-delay:${dl}s;--dx:${dx}px"/>`) : "";
+  const flies = t.flies ? Array.from({ length: 22 }, () => `<circle class="tw" cx="${(r() * 1600).toFixed(0)}" cy="${(560 + r() * 280).toFixed(0)}" r="2.600" fill="#F3E08A" style="animation-delay:-${(r() * 3).toFixed(1)}s"/>`).join("") : "";
+  const far = `<path d="M0 640l120-130 90 70 150-170 130 150 110-90 160 170 140-130 150 150 170-190 130 160 120-110 150 170V900H0z" fill="${t.far}"/>`;
+  const pines = [[80, 800, 1.5], [180, 830, 1.1], [640, 810, 1.7], [760, 840, 1.2], [880, 800, 1.4], [1560, 840, 1.3]].map(([x, y, k]) => pine(x, y, k, t.pine)).join("");
+  return `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${t.sky[0]}"/><stop offset="1" stop-color="${t.sky[1]}"/></linearGradient>
+<linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${t.ground[0]}"/><stop offset="1" stop-color="${t.ground[1]}"/></linearGradient>
+<radialGradient id="mg"><stop offset="0" stop-color="${t.moon}" stop-opacity=".35"/><stop offset="1" stop-color="${t.moon}" stop-opacity="0"/></radialGradient></defs>
+<rect width="1600" height="900" fill="url(#sk)"/>${stars}<circle cx="560" cy="150" r="150" fill="url(#mg)"/><circle cx="560" cy="150" r="48" fill="${t.moon}"/>
+${far}${castle}${pines}<path d="M0 790c200-40 360-34 560-10s420 46 640 6 280-20 400-6V900H0z" fill="url(#gr)"/>${tree}${flies}${snow}${leaves}${petals}</svg>`;
+}
+
 const CSS = `
 :root{--ink:#12141A;--ink2:#191C24;--ink3:#222632;--line:#2D3240;--paper:#ECE4D0;--ivory:#F3EFE4;--brass:#C3A15A;--stamp:#A8473B;--muted:#A9A597;--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -57,12 +126,10 @@ section{padding:34px 0}.sec-head{display:flex;justify-content:space-between;alig
 .book .ph{display:flex;align-items:center;justify-content:center;color:var(--c)}.book .ph .ic{width:42px;height:42px}
 .book .meta{padding:11px 13px 14px;font-size:13px}.book .meta b{display:block;font:600 15.5px Fraunces,serif;margin-bottom:5px;line-height:1.25}
 .label{display:inline-flex;gap:6px;align-items:center;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--c);color:#fff}
-.newgrid{display:grid;grid-template-columns:1.35fr 1fr 1fr;grid-auto-rows:auto;gap:18px}.newgrid .book:first-child{grid-row:span 2;display:grid;grid-template-rows:1fr auto}
-.newgrid .book:first-child img,.newgrid .book:first-child .ph{height:100%;aspect-ratio:auto;min-height:340px}
 .free{display:grid;grid-template-columns:.8fr 1.2fr;gap:36px;align-items:center;background:var(--ink2);border:1px solid var(--line);border-radius:24px;padding:34px}
 .free ul{list-style:none;margin:0;padding:0}.free li{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.free li:last-child{border:0}
 .free .no{color:var(--brass)}
-.how{counter-reset:s;list-style:none;margin:0;padding:0;max-width:760px}.how li{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.old-how{counter-reset:s;list-style:none;margin:0;padding:0;max-width:760px}.how li{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
 .how li::before{counter-increment:s;content:"0" counter(s);font:500 22px "JetBrains Mono",monospace;color:var(--brass)}.how b{font:600 19px Fraunces,serif;display:block}
 .ranks{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}.ranks div{padding:18px 18px 8px 0}.ranks div+div{padding-left:18px;border-left:1px solid var(--line)}
 .ai-note{display:inline-block;margin:6px 0 8px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;color:#D3CBB6}
@@ -71,6 +138,28 @@ details{border-top:1px solid var(--line);padding:14px 0}details summary{cursor:p
 .result{max-width:680px;margin:34px auto}.stamp{display:inline-block;border:4px solid var(--stamp);color:var(--stamp);padding:6px 18px;font:700 30px "JetBrains Mono",monospace;transform:rotate(-6deg);animation:stamp .5s var(--ease)}
 @keyframes stamp{from{transform:scale(2.2) rotate(-6deg);opacity:0}to{transform:scale(1) rotate(-6deg);opacity:1}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}.hero>*,.book{animation:rise .7s var(--ease) both}.book:nth-child(2){animation-delay:.06s}.book:nth-child(3){animation-delay:.12s}.book:nth-child(4){animation-delay:.18s}
+
+.scene{position:fixed;inset:0;z-index:-1;overflow:hidden}.scene svg{width:100%;height:100%;display:block}
+.scrim{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(18,20,26,.1) 0%,rgba(18,20,26,.35) 50%,rgba(18,20,26,.8) 100%)}
+.fall{animation:fall linear infinite}@keyframes fall{from{transform:translate(0,-30px)}to{transform:translate(var(--dx,30px),960px)}}
+.tw{animation:tw 3s ease-in-out infinite}@keyframes tw{0%,100%{opacity:.35}50%{opacity:1}}
+.info{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;padding:26px 0 10px}
+.panel{background:rgba(18,20,26,.74);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:22px;padding:26px 26px 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.panel h2{font-size:24px;margin-bottom:18px}
+.path{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
+.step{position:relative;padding-top:2px}.step:nth-child(2){margin-top:30px}.step:nth-child(3){margin-top:60px}
+.step::after{content:"";position:absolute;top:36px;left:84px;right:-26px;border-top:2px dashed #7A6535}.step:last-child::after{display:none}
+.medal{position:relative;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:#1A1710;border:2px solid var(--brass);box-shadow:0 0 0 5px #1A1710,0 0 0 6.5px #6D5A2D}
+.medal i{position:absolute;top:-6px;left:-6px;width:26px;height:26px;border-radius:50%;background:var(--brass);color:#14161C;font:600 13px "JetBrains Mono",monospace;display:grid;place-items:center;font-style:normal}
+.step b{display:block;margin:16px 0 4px;font:600 17px Fraunces,serif}.step p{margin:0;color:#C9C4B6;font-size:14px;line-height:1.5}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);align-items:end;gap:6px}
+.rank{display:flex;flex-direction:column;align-items:center;text-align:center}.rank .em{margin-bottom:8px}
+.rank b{font:600 15px Fraunces,serif;line-height:1.15}.rank .mono{color:var(--brass);font-size:12px;margin:2px 0 6px}
+.rank .ped{width:100%;border-radius:10px 10px 0 0;background:linear-gradient(180deg,rgba(195,161,90,.5),rgba(195,161,90,.06));border:1px solid #5E4E26;border-bottom:0;padding:8px 6px 0;font-size:11.5px;line-height:1.35;color:#D5D0C2}
+.rank:nth-child(1) .ped{height:112px}.rank:nth-child(2) .ped{height:128px}.rank:nth-child(3) .ped{height:148px}.rank:nth-child(4) .ped{height:170px}
+.newgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+@media (max-width:1000px){.info{grid-template-columns:1fr}.newgrid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:640px){.path{grid-template-columns:1fr}.step:nth-child(n){margin-top:0}.step{display:grid;grid-template-columns:90px 1fr;column-gap:14px}.step::after{display:none}.step b{margin-top:6px}.newgrid{grid-template-columns:repeat(2,1fr)}.ladder{gap:4px}.rank .ped{font-size:10.5px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .ending{white-space:pre-wrap;font-family:Fraunces,Georgia,serif;font-size:17.5px;line-height:1.75}
 .reward{border:1.5px dashed #8B6F2E;border-radius:14px;padding:16px;margin:18px 0;background:#F6EBCB}
@@ -79,15 +168,16 @@ table.t{width:100%;border-collapse:collapse;font-size:14.5px}table.t td,table.t 
 .bar{height:10px;background:#D2C8B0;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:#8B6F2E}
 .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.file{border-radius:10px;padding:10px 10px 28px;background:#E1D7BE;font-size:13px;position:relative;min-height:70px}
 .file.solved::after{content:"SOLVED";position:absolute;right:6px;bottom:6px;color:var(--stamp);border:2px solid var(--stamp);font:700 11px "JetBrains Mono";padding:1px 5px;transform:rotate(-8deg)}.file.open{opacity:.55}
-@media (max-width:860px){.hero{grid-template-columns:1fr;gap:28px;min-height:0;padding-top:20px}.newgrid,.free{grid-template-columns:1fr}.newgrid .book:first-child{grid-row:auto}.newgrid .book:first-child img,.newgrid .book:first-child .ph{min-height:0;aspect-ratio:3/4}.ranks{grid-template-columns:1fr 1fr}.ranks div:nth-child(3){border-left:0;padding-left:0}header.top nav a{padding:8px 10px}}
+@media (max-width:860px){.hero{grid-template-columns:1fr;gap:28px;min-height:0;padding-top:20px}.free{grid-template-columns:1fr}.ranks{grid-template-columns:1fr 1fr}.ranks div:nth-child(3){border-left:0;padding-left:0}header.top nav a{padding:8px 10px}}
 `;
 
 function layout(title, body, o = {}) {
   const ts = o.turnstile ? `<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>` : "";
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)} · Colorilax Case Vault</title><meta name="description" content="Solved your Colorilax case? Enter the final code, read the extended ending and claim your reward.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%2312141A'/%3E%3Ccircle cx='22' cy='22' r='14' fill='none' stroke='%23C3A15A' stroke-width='3'/%3E%3Cpath d='m33 33 9 9' stroke='%23C3A15A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%231A1710' stroke='%23C3A15A' stroke-width='7'/%3E%3Ccircle cx='32' cy='30' r='5' fill='%23E4C77E'/%3E%3Cpath d='m47 47 12 12' stroke='%23C3A15A' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>${CSS}</style>${ts}</head><body>
+<div class="scene" aria-hidden="true">${sceneSvg(o.season || seasonFor())}</div><div class="scrim"></div>
 <header class="top"><a class="brand" href="/">${LOGO}<span><small>COLORILAX</small>Case <b>Vault</b></span></a><nav><a href="/cases">Case files</a><a class="cta" href="${o.user ? "/account" : "/login"}">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
 <main>${body}</main>
 <footer><a href="/rules">Reward rules</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${esc(o.support || DEFAULT_RULES.support_email)}">Contact</a>
@@ -147,6 +237,12 @@ ${site ? `<div class="cf-turnstile" data-sitekey="${esc(site)}" data-appearance=
 <div class="row" style="margin-top:16px"><button class="btn" type="submit">Open the vault</button><a class="btn ghost" href="/cases">Browse case files</a></div>
 <p class="muted" style="font-size:14px;margin-bottom:0">Stuck? The full logical solution is printed at the back of your book. No account is needed to check an answer.</p></form></div></div></div>
 
+<section class="info"><div class="panel"><h2>How it works</h2><div class="path">
+<div class="step"><div class="medal"><i>1</i>${STEP_ICON[0]}</div><b>Solve in the book</b><p>Every puzzle gives you a clue. The last one gives you the final code.</p></div>
+<div class="step"><div class="medal"><i>2</i>${STEP_ICON[1]}</div><b>Enter the code</b><p>Pick your book, type the code, open the vault.</p></div>
+<div class="step"><div class="medal"><i>3</i>${STEP_ICON[2]}</div><b>Read the ending, get rewarded</b><p>Points and ${R.coupon_pct}% off the next book go to detectives with an account.</p></div></div></div>
+<div class="panel"><h2>Detective ranks</h2><div class="ladder">${R.tiers.slice(0, 4).map(([n, pt], i) => `<div class="rank"><div class="em">${RANK_ICON[i]}</div><b>${esc(n)}</b><span class="mono">${pt} pts</span><div class="ped">${esc(tierInfo[n] || "")}</div></div>`).join("")}</div></div></section>
+
 ${fresh.length ? `<section id="new"><div class="sec-head"><h2>New case files</h2><a href="/cases">All cases ${ICON.arrow}</a></div><div class="newgrid">${fresh.map(bookCard).join("")}</div></section>` : ""}
 
 <section id="free"><div class="free"><div><span class="eyebrow">${ICON.gift} On the house</span><h2>Free coloring books</h2>
@@ -158,12 +254,6 @@ ${fresh.length ? `<section id="new"><div class="sec-head"><h2>New case files</h2
 <section><h2>All the case files</h2><div class="tabs" role="tablist"><button class="on" style="--c:#C3A15A" data-f="">All</button>${Object.entries(LINES).map(([k, l]) => `<button style="--c:${l.color}" data-f="${k}">${l.icon} ${l.name}</button>`).join("")}</div>
 ${Object.values(series).map((s) => `<div class="shelf" data-line="${esc(s.line)}"><h3>${esc(s.title)}</h3><div class="books">${s.books.map(bookCard).join("")}</div></div>`).join("") || `<p class="muted">The first case files open soon.</p>`}</section>
 ${upcoming.length ? `<section><h2>Opening soon</h2><div class="shelf"><div class="books">${upcoming.map(bookCard).join("")}</div></div></section>` : ""}
-
-<section><h2>How it works</h2><ol class="how"><li><div><b>Solve in the book</b>Every puzzle gives you a clue. The last one gives you the final code.</div></li>
-<li><div><b>Enter the code</b>Pick your book, type the code, open the vault.</div></li>
-<li><div><b>Read the ending, get rewarded</b>The extended ending is for everyone. Points and ${R.coupon_pct}% off the next book go to detectives with an account.</div></li></ol></section>
-
-<section><h2>Detective ranks</h2><div class="ranks">${R.tiers.map(([n, p]) => `<div><b>${esc(n)}</b><br><span class="mono muted">${p} pts</span><p style="margin:6px 0 0;font-size:14.5px">${esc(tierInfo[n] || "")}</p></div>`).join("")}</div></section>
 
 <section><h2>Questions</h2><details><summary>Do I need an account?</summary><p>No, to check an answer and read the extended ending. Yes, to collect rewards: it takes under a minute and needs only your e-mail.</p></details>
 <details><summary>Where is my Book Code?</summary><p>On the last page of your personal PDF (colorilax.com) or printed inside your paperback. Bought on Etsy? Use your Etsy order number instead.</p></details>
