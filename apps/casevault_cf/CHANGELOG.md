@@ -1,5 +1,9 @@
 # CaseVault (Cloudflare) changelog
 
+## 1.4.0
+- Redesign (taste): new vault-dial logo, Outfit/Fraunces/JetBrains Mono, asymmetric hero with the answer form, no emojis (SVG icons), grain, tactile buttons.
+- Home: New case files (5 newest), Free coloring books list (from the Shopify free-book cache), shelves, How it works as a numbered list, ranks as a ruled row.
+
 ## 1.3.4 — 2026-11-25
 - Free Book: the Klaviyo event "Claimed Free Book" now carries `download_url`, so the Klaviyo flow "Free Book Delivery" can send the link from the shop's own sending domain. A repeat claim sends the event again (new unique_id, `resend: true`).
 - Free Book e-mail from the Worker uses a Colorilax frame (was headed "Case Vault") and is signed "Lee & Tee from Colorilax".

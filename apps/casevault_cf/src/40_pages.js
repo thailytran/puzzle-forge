@@ -1,68 +1,98 @@
 // ---- public pages (spec §2, §9b) -------------------------------------------------------------------
-const LINES = {
-  mystery: { name: "Mystery", color: "#8E2A2A", icon: "🔍" },
-  escape: { name: "Escape", color: "#2E8C8C", icon: "🔒" },
-  adventure: { name: "Adventure", color: "#4F6B3A", icon: "🧭" },
-  hidden: { name: "Hidden Object", color: "#5B4A8B", icon: "✨" },
+const SVG = (d, w = 1.6) => `<svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICON = {
+  mystery: SVG('<circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5"/>'),
+  escape: SVG('<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>'),
+  adventure: SVG('<circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'),
+  hidden: SVG('<path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/><circle cx="12" cy="12" r="2"/>'),
+  gift: SVG('<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M3.5 9h17M12 9c-2.5 0-4-1-4-2.5S9.5 4 12 9zM12 9c2.5 0 4-1 4-2.5S14.5 4 12 9z"/>'),
+  arrow: SVG('<path d="M5 12h14M13 6l6 6-6 6"/>', 1.8),
 };
+const LINES = {
+  mystery: { name: "Mystery", color: "#9C4A3F", icon: ICON.mystery },
+  escape: { name: "Escape", color: "#3F8586", icon: ICON.escape },
+  adventure: { name: "Adventure", color: "#6E8450", icon: ICON.adventure },
+  hidden: { name: "Hidden Object", color: "#8C7A52", icon: ICON.hidden },
+};
+const diffText = (d) => (d ? `Level ${d} of 5` : "");
+// Logo: a vault dial whose centre is a keyhole, with a detective's magnifier handle breaking the ring.
+const LOGO = `<svg class="logo" viewBox="0 0 48 48" width="40" height="40" role="img" aria-label="Case Vault"><circle cx="22" cy="22" r="16" fill="none" stroke="#C3A15A" stroke-width="2.4"/><circle cx="22" cy="22" r="11" fill="none" stroke="#C3A15A" stroke-opacity=".45" stroke-width="1" stroke-dasharray="1.6 3.1"/><circle cx="22" cy="19.5" r="3.2" fill="#C3A15A"/><path d="M20.4 21.5h3.2l1.4 8h-6z" fill="#C3A15A"/><path d="m33.6 33.6 9 9" stroke="#C3A15A" stroke-width="4.2" stroke-linecap="round"/></svg>`;
 const CSS = `
-:root{--ink:#14171F;--ink2:#1D2230;--paper:#EFE6D2;--ivory:#F5F1E8;--brass:#C9A24A;--stamp:#B23A2E;--muted:#B9B2A3}
-*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--ivory);font:16px/1.55 Inter,system-ui,sans-serif}
-a{color:var(--brass)}h1,h2,h3{font-family:"Playfair Display",Georgia,serif;line-height:1.2;margin:.2em 0 .5em}
-.mono{font-family:"Special Elite","IBM Plex Mono",monospace;letter-spacing:.04em}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
-header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;max-width:1080px;margin:0 auto}
-header.top .brand{font-family:"Playfair Display",serif;font-size:22px;color:var(--ivory);text-decoration:none;display:flex;align-items:center;gap:10px}
-header.top .brand small{display:block;font:600 10px Inter,sans-serif;letter-spacing:.32em;color:var(--brass);line-height:1}
-header.top .brand b{color:var(--brass)}header.top nav a{margin-left:16px;text-decoration:none;font-size:15px}
-.hero{background:linear-gradient(90deg,rgba(20,23,31,.92),rgba(20,23,31,.55)),url(/assets/hero_bg.jpg) center/cover no-repeat;border-radius:16px;padding:28px;display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;margin:16px 0 8px}
-.hero .deco{border:1px solid #2c3242;border-radius:14px;padding:22px;background:repeating-linear-gradient(135deg,#191d27 0 12px,#1b2029 12px 24px);min-height:250px;position:relative}
-.deco .tag{position:absolute;top:16px;right:-8px;background:var(--stamp);color:#fff;padding:4px 14px;transform:rotate(6deg)}
-.card{background:var(--paper);color:#22211d;border-radius:12px;padding:22px}
-.card h2,.card h3{color:#1b1a17}label{display:block;font-weight:600;margin:12px 0 4px;font-size:15px}
-select,input[type=text],input[type=email],input[type=password],input[type=number],textarea{width:100%;padding:12px;border:1px solid #9c9180;border-radius:8px;font:inherit;background:#fffdf8;color:#1b1a17}
-input.code{font-size:26px;letter-spacing:.18em;text-transform:uppercase;font-family:"IBM Plex Mono",monospace;text-align:center}
-.btn{display:inline-block;background:var(--brass);color:#14171F;border:0;border-radius:8px;padding:13px 22px;font:600 17px Inter,sans-serif;cursor:pointer;text-decoration:none}
-.btn.ghost{background:transparent;color:var(--brass);border:1px solid var(--brass)}.btn.small{padding:8px 14px;font-size:14px}
-.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffd77a;outline-offset:2px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.muted{color:var(--muted)}.card .muted{color:#6b6457}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}.tabs button{border:2px solid var(--c);background:transparent;color:var(--ivory);border-radius:20px;padding:7px 16px;font:600 14px Inter;cursor:pointer}
-.tabs button.on{background:var(--c)}
-.shelf{margin:8px 0 26px}.shelf .books{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.book{background:var(--ink2);border-radius:10px;overflow:hidden;border-top:4px solid var(--c);text-decoration:none;color:var(--ivory);display:block}
-.book img,.book .ph{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#262c3a}
-.book .ph{display:flex;align-items:center;justify-content:center;font-size:40px}
-.book .meta{padding:8px 10px;font-size:13px}.book .meta b{display:block;font-size:14px;margin-bottom:2px}
-.label{display:inline-block;font-size:12px;padding:2px 8px;border-radius:10px;background:var(--c);color:#fff}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.steps div{background:var(--ink2);border-radius:10px;padding:16px}
-.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.tiers div{border:1px solid #3a4152;border-radius:10px;padding:14px}
-.ai-note{display:inline-block;margin:6px 0 8px;padding:4px 12px;border:1px solid #3a4152;border-radius:14px;font-size:12.5px;color:#d9cfb8}
-section{padding:22px 0}footer{border-top:1px solid #2c3242;margin-top:30px;padding:20px 16px;text-align:center;font-size:14px;color:var(--muted)}
-.result{max-width:640px;margin:30px auto}.stamp{display:inline-block;border:5px solid var(--stamp);color:var(--stamp);padding:6px 18px;font:700 34px "Special Elite",monospace;transform:rotate(-8deg);animation:stamp .5s ease-out}
-@keyframes stamp{from{transform:scale(2.2) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:1}}
+:root{--ink:#12141A;--ink2:#191C24;--ink3:#222632;--line:#2D3240;--paper:#ECE4D0;--ivory:#F3EFE4;--brass:#C3A15A;--stamp:#A8473B;--muted:#A9A597;--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--ivory);font:16px/1.6 Outfit,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
+a{color:var(--brass)}h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.1;letter-spacing:-.015em;margin:.2em 0 .5em}
+h1{font-size:clamp(30px,4.4vw,52px)}h2{font-size:clamp(24px,2.8vw,34px)}h3{font-size:19px}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;letter-spacing:.02em;font-size:.85em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px;position:relative}
+.ic{vertical-align:-3px;flex:none}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;max-width:1180px;margin:0 auto;position:relative}
+header.top .brand{color:var(--ivory);text-decoration:none;display:flex;align-items:center;gap:12px;font:600 21px Fraunces,serif}
+header.top .brand small{display:block;font:500 10px "JetBrains Mono",monospace;letter-spacing:.34em;color:var(--brass);line-height:1;margin-bottom:3px}
+header.top .brand b{color:var(--brass);font-weight:600}
+header.top nav{display:flex;gap:6px;align-items:center}header.top nav a{padding:8px 14px;border-radius:999px;text-decoration:none;font-size:15px;color:var(--ivory);transition:background .25s var(--ease)}
+header.top nav a:hover{background:var(--ink3)}header.top nav a.cta{border:1px solid var(--brass);color:var(--brass)}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:40px 0 30px;min-height:min(78dvh,680px)}
+.hero .lede{max-width:46ch;color:#CFCABB;font-size:18px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font:500 12px "JetBrains Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:14px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--brass)}
+.dossier{position:relative}.dossier .tag{position:absolute;top:-14px;right:18px;background:var(--stamp);color:#fff;padding:4px 14px;transform:rotate(4deg);font:500 12px "JetBrains Mono",monospace;letter-spacing:.18em}
+.card{background:var(--paper);color:#23211C;border-radius:20px;padding:28px;box-shadow:0 30px 60px -28px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.5)}
+.card h2,.card h3,.card h1{color:#1B1A16}label{display:block;font-weight:500;margin:14px 0 6px;font-size:14.5px}
+select,input[type=text],input[type=email],input[type=password],input[type=number],textarea{width:100%;padding:13px 14px;border:1px solid #A89E86;border-radius:10px;font:inherit;background:#FBF8EF;color:#1B1A16}
+input.code{font-size:24px;letter-spacing:.16em;text-transform:uppercase;font-family:"JetBrains Mono",monospace;text-align:center}
+.btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;background:var(--brass);color:#14161C;border:0;border-radius:10px;padding:13px 22px;font:600 16px Outfit,sans-serif;cursor:pointer;text-decoration:none;transition:transform .25s var(--ease),filter .25s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:translateY(1px) scale(.985)}
+.btn.ghost{background:transparent;color:var(--brass);border:1px solid var(--brass)}.card .btn.ghost{color:#6B5522;border-color:#6B5522}.btn.small{padding:9px 15px;font-size:14px}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #E8CB84;outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.muted{color:var(--muted)}.card .muted{color:#6B6457}
+section{padding:34px 0}.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:18px}.sec-head h2{margin:0}.sec-head a{font-size:15px;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 20px}.tabs button{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);background:transparent;color:var(--ivory);border-radius:999px;padding:8px 16px;font:500 14px Outfit;cursor:pointer;transition:all .25s var(--ease)}
+.tabs button:hover{border-color:var(--c)}.tabs button.on{background:var(--c);border-color:var(--c);color:#fff}
+.shelf{margin:8px 0 30px}.shelf h3{color:#D9D3C0}.shelf .books{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:18px}
+.book{background:var(--ink2);border-radius:14px;overflow:hidden;text-decoration:none;color:var(--ivory);display:block;border:1px solid var(--line);transition:transform .45s var(--ease),border-color .3s}
+.book:hover{transform:translateY(-5px);border-color:var(--c)}
+.book img,.book .ph{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:var(--ink3)}
+.book .ph{display:flex;align-items:center;justify-content:center;color:var(--c)}.book .ph .ic{width:42px;height:42px}
+.book .meta{padding:11px 13px 14px;font-size:13px}.book .meta b{display:block;font:600 15.5px Fraunces,serif;margin-bottom:5px;line-height:1.25}
+.label{display:inline-flex;gap:6px;align-items:center;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--c);color:#fff}
+.newgrid{display:grid;grid-template-columns:1.35fr 1fr 1fr;grid-auto-rows:auto;gap:18px}.newgrid .book:first-child{grid-row:span 2;display:grid;grid-template-rows:1fr auto}
+.newgrid .book:first-child img,.newgrid .book:first-child .ph{height:100%;aspect-ratio:auto;min-height:340px}
+.free{display:grid;grid-template-columns:.8fr 1.2fr;gap:36px;align-items:center;background:var(--ink2);border:1px solid var(--line);border-radius:24px;padding:34px}
+.free ul{list-style:none;margin:0;padding:0}.free li{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.free li:last-child{border:0}
+.free .no{color:var(--brass)}
+.how{counter-reset:s;list-style:none;margin:0;padding:0;max-width:760px}.how li{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.how li::before{counter-increment:s;content:"0" counter(s);font:500 22px "JetBrains Mono",monospace;color:var(--brass)}.how b{font:600 19px Fraunces,serif;display:block}
+.ranks{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}.ranks div{padding:18px 18px 8px 0}.ranks div+div{padding-left:18px;border-left:1px solid var(--line)}
+.ai-note{display:inline-block;margin:6px 0 8px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;color:#D3CBB6}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:26px 20px;text-align:center;font-size:14px;color:var(--muted)}
+details{border-top:1px solid var(--line);padding:14px 0}details summary{cursor:pointer;font-weight:500}
+.result{max-width:680px;margin:34px auto}.stamp{display:inline-block;border:4px solid var(--stamp);color:var(--stamp);padding:6px 18px;font:700 30px "JetBrains Mono",monospace;transform:rotate(-6deg);animation:stamp .5s var(--ease)}
+@keyframes stamp{from{transform:scale(2.2) rotate(-6deg);opacity:0}to{transform:scale(1) rotate(-6deg);opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}.hero>*,.book{animation:rise .7s var(--ease) both}.book:nth-child(2){animation-delay:.06s}.book:nth-child(3){animation-delay:.12s}.book:nth-child(4){animation-delay:.18s}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-.ending{white-space:pre-wrap;font-family:Georgia,serif;font-size:17px;line-height:1.7}
-.reward{border:2px dashed var(--brass);border-radius:10px;padding:14px;margin:16px 0;background:#fff8e6}
-.err{background:#fbe5e1;color:#7a1f16;border-radius:8px;padding:10px 12px;margin:10px 0}.ok{background:#e4f1e1;color:#1e4d17;border-radius:8px;padding:10px 12px;margin:10px 0}
-table.t{width:100%;border-collapse:collapse;font-size:14px}table.t td,table.t th{border-bottom:1px solid #d6ccb6;padding:6px;text-align:left}
-.bar{height:10px;background:#d6ccb6;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--brass)}
-.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.file{border-radius:8px;padding:10px 10px 28px;background:#e6dcc5;font-size:13px;position:relative;min-height:70px}
-.file.solved::after{content:"SOLVED";position:absolute;right:6px;bottom:6px;color:var(--stamp);border:2px solid var(--stamp);font:700 11px "Special Elite";padding:1px 5px;transform:rotate(-8deg)}
-.file.open{opacity:.55}
-@media (max-width:760px){.hero{grid-template-columns:1fr}.hero .deco{display:none}.steps,.tiers{grid-template-columns:1fr 1fr}header.top nav a{margin-left:10px}}
+.ending{white-space:pre-wrap;font-family:Fraunces,Georgia,serif;font-size:17.5px;line-height:1.75}
+.reward{border:1.5px dashed #8B6F2E;border-radius:14px;padding:16px;margin:18px 0;background:#F6EBCB}
+.err{background:#F4DDD7;color:#7A1F16;border-radius:10px;padding:10px 12px;margin:10px 0}.ok{background:#DDEBD8;color:#1E4D17;border-radius:10px;padding:10px 12px;margin:10px 0}
+table.t{width:100%;border-collapse:collapse;font-size:14.5px}table.t td,table.t th{border-bottom:1px solid #D2C8B0;padding:8px 6px;text-align:left}
+.bar{height:10px;background:#D2C8B0;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:#8B6F2E}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}.file{border-radius:10px;padding:10px 10px 28px;background:#E1D7BE;font-size:13px;position:relative;min-height:70px}
+.file.solved::after{content:"SOLVED";position:absolute;right:6px;bottom:6px;color:var(--stamp);border:2px solid var(--stamp);font:700 11px "JetBrains Mono";padding:1px 5px;transform:rotate(-8deg)}.file.open{opacity:.55}
+@media (max-width:860px){.hero{grid-template-columns:1fr;gap:28px;min-height:0;padding-top:20px}.newgrid,.free{grid-template-columns:1fr}.newgrid .book:first-child{grid-row:auto}.newgrid .book:first-child img,.newgrid .book:first-child .ph{min-height:0;aspect-ratio:3/4}.ranks{grid-template-columns:1fr 1fr}.ranks div:nth-child(3){border-left:0;padding-left:0}header.top nav a{padding:8px 10px}}
 `;
 
 function layout(title, body, o = {}) {
   const ts = o.turnstile ? `<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>` : "";
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)} · Colorilax Case Vault</title><meta name="description" content="Solved your Colorilax case? Enter the final code, read the extended ending and claim your reward.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700&family=Special+Elite&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%2312141A'/%3E%3Ccircle cx='22' cy='22' r='14' fill='none' stroke='%23C3A15A' stroke-width='3'/%3E%3Cpath d='m33 33 9 9' stroke='%23C3A15A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>${CSS}</style>${ts}</head><body>
-<header class="top"><a class="brand" href="/"><img src="/assets/emblem.png" alt="" width="40" height="40" onerror="this.remove()"><span><small>COLORILAX</small> Case <b>Vault</b></span></a><nav><a href="/cases">Case files</a><a href="${o.user ? "/account" : "/login"}">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
+<header class="top"><a class="brand" href="/">${LOGO}<span><small>COLORILAX</small>Case <b>Vault</b></span></a><nav><a href="/cases">Case files</a><a class="cta" href="${o.user ? "/account" : "/login"}">${o.user ? "Detective File" : "Sign in"}</a></nav></header>
 <main>${body}</main>
 <footer><a href="/rules">Reward rules</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${esc(o.support || DEFAULT_RULES.support_email)}">Contact</a>
 <p style="margin:10px 0 4px">© ${new Date().getUTCFullYear()} Colorilax · HaloSpark e-Commerce Inc. All rights reserved.</p>
-<p class="ai-note">✦ All Colorilax books are created with the help of AI tools, then checked and finished by our team.</p><span class="mono" style="font-size:11px;opacity:.6">Case Vault v${VERSION}</span></footer>
+<p class="ai-note">All Colorilax books are created with the help of AI tools, then checked and finished by our team.</p><span class="mono" style="font-size:11px;opacity:.6">Case Vault v${VERSION}</span></footer>
 </body></html>`;
 }
 const lineOf = (b) => LINES[b.line] || LINES.mystery;
@@ -98,24 +128,43 @@ async function homePage(env, ctx, url) {
   const series = {};
   for (const b of books) (series[b.series_id || `single-${b.line}`] ||= { title: b.series_title || "Single cases", line: b.line, books: [] }).books.push(b);
   const upcoming = books.filter((b) => !released(b)).slice(0, 6);
-  const tierInfo = { Rookie: "15% off the next book after every case · extended endings", Detective: "New-case e-mails 48 hours early",
-    Inspector: "A free short case every quarter · redeem points for books", "Chief Inspector": "Your name on a minor character in a new book (with your OK)" };
-  const body = `<div class="wrap"><div class="hero"><div class="card">
-<h1>Solved your case? Enter the final code</h1>
+  const fresh = await all(env, "SELECT b.*, s.title AS series_title, s.total AS series_total FROM books b LEFT JOIN series s ON s.series_id=b.series_id WHERE b.status='active' ORDER BY COALESCE(b.release_date,'') DESC, b.rowid DESC LIMIT 5");
+  let freeBooks = [];
+  try { freeBooks = await all(env, "SELECT * FROM free_books WHERE active=1 ORDER BY updated DESC LIMIT 6"); } catch (e) { freeBooks = []; }
+  const shop = R.shop_url || "https://colorilax.com";
+  const tierInfo = { Rookie: `${R.coupon_pct}% off the next book after every case, plus extended endings`, Detective: "New-case e-mails 48 hours early",
+    Inspector: "A free short case every quarter, and points that can be spent on books", "Chief Inspector": "Your name on a minor character in a new book (with your OK)" };
+  const body = `<div class="wrap"><div class="hero"><div>
+<span class="eyebrow">Colorilax mystery and escape books</span>
+<h1>Finished the last puzzle? Open the vault.</h1>
+<p class="lede">Every case ends with one final code. Enter it to read the extended ending, a few pages that are not in the book, then collect points and ${R.coupon_pct}% off your next case.</p>
+<div class="row" style="margin-top:18px"><a class="btn" href="#new">New case files ${ICON.arrow}</a><a class="btn ghost" href="#free">Free books</a></div></div>
+<div class="dossier"><span class="tag">CONFIDENTIAL</span><div class="card">
+<h2 style="font-size:24px">Enter the final code</h2>
 <form method="post" action="/check">${bookSelect(books, selected)}
 <div id="answers">${answerFields(sel)}</div>
 ${site ? `<div class="cf-turnstile" data-sitekey="${esc(site)}" data-appearance="interaction-only"></div>` : ""}
-<div class="row" style="margin-top:14px"><button class="btn" type="submit">Open the vault</button><a class="btn ghost" href="/cases">Browse the case files</a></div>
-<p class="muted" style="font-size:14px;margin-bottom:0">Stuck? The full logical solution is printed at the back of your book. No account is needed to check an answer.</p></form></div>
-<div class="deco"><span class="tag mono">CONFIDENTIAL</span><h2 class="mono" style="color:var(--brass)">CASE FILE</h2>
-<p>Every Colorilax mystery ends with one final code. Type it here to open the extended ending, a few pages that are not in the book, and collect your reward.</p>
-<p class="mono muted">#${String(books.length).padStart(3, "0")} cases on file</p></div></div>
-<section><div class="tabs" role="tablist"><button class="on" style="--c:#C9A24A" data-f="">All</button>${Object.entries(LINES).map(([k, l]) => `<button style="--c:${l.color}" data-f="${k}">${l.icon} ${l.name}</button>`).join("")}</div>
+<div class="row" style="margin-top:16px"><button class="btn" type="submit">Open the vault</button><a class="btn ghost" href="/cases">Browse case files</a></div>
+<p class="muted" style="font-size:14px;margin-bottom:0">Stuck? The full logical solution is printed at the back of your book. No account is needed to check an answer.</p></form></div></div></div>
+
+${fresh.length ? `<section id="new"><div class="sec-head"><h2>New case files</h2><a href="/cases">All cases ${ICON.arrow}</a></div><div class="newgrid">${fresh.map(bookCard).join("")}</div></section>` : ""}
+
+<section id="free"><div class="free"><div><span class="eyebrow">${ICON.gift} On the house</span><h2>Free coloring books</h2>
+<p class="muted">Join Colorilax and pick one printable book on us. One per e-mail address.</p>
+<a class="btn" href="${esc(shop)}/pages/free-book">Claim your free book ${ICON.arrow}</a></div>
+<ul>${freeBooks.length ? freeBooks.map((f) => `<li><span><b>${esc(f.title)}</b>${f.interest ? `<br><span class="muted" style="font-size:13px">${esc(f.interest)}</span>` : ""}</span><span class="mono no">${esc(f.catalog_no || "FREE")}</span></li>`).join("")
+    : `<li><span class="muted">New free books are added regularly. Join to be the first to know.</span></li>`}</ul></div></section>
+
+<section><h2>All the case files</h2><div class="tabs" role="tablist"><button class="on" style="--c:#C3A15A" data-f="">All</button>${Object.entries(LINES).map(([k, l]) => `<button style="--c:${l.color}" data-f="${k}">${l.icon} ${l.name}</button>`).join("")}</div>
 ${Object.values(series).map((s) => `<div class="shelf" data-line="${esc(s.line)}"><h3>${esc(s.title)}</h3><div class="books">${s.books.map(bookCard).join("")}</div></div>`).join("") || `<p class="muted">The first case files open soon.</p>`}</section>
 ${upcoming.length ? `<section><h2>Opening soon</h2><div class="shelf"><div class="books">${upcoming.map(bookCard).join("")}</div></div></section>` : ""}
-<section><h2>How it works</h2><div class="steps"><div><b class="mono">01</b><h3>Solve in the book</h3>Every puzzle gives you a clue. The last one gives you the final code.</div>
-<div><b class="mono">02</b><h3>Enter the code</h3>Pick your book, type the code, open the vault.</div><div><b class="mono">03</b><h3>Read the ending, get rewarded</h3>Extended ending for everyone. Points and ${R.coupon_pct}% off the next book for detectives with an account.</div></div></section>
-<section><h2>Detective ranks</h2><div class="tiers">${R.tiers.map(([n, p]) => `<div><b>${esc(n)}</b><br><span class="mono muted">${p} pts</span><p style="margin:6px 0 0;font-size:14px">${esc(tierInfo[n] || "")}</p></div>`).join("")}</div></section>
+
+<section><h2>How it works</h2><ol class="how"><li><div><b>Solve in the book</b>Every puzzle gives you a clue. The last one gives you the final code.</div></li>
+<li><div><b>Enter the code</b>Pick your book, type the code, open the vault.</div></li>
+<li><div><b>Read the ending, get rewarded</b>The extended ending is for everyone. Points and ${R.coupon_pct}% off the next book go to detectives with an account.</div></li></ol></section>
+
+<section><h2>Detective ranks</h2><div class="ranks">${R.tiers.map(([n, p]) => `<div><b>${esc(n)}</b><br><span class="mono muted">${p} pts</span><p style="margin:6px 0 0;font-size:14.5px">${esc(tierInfo[n] || "")}</p></div>`).join("")}</div></section>
+
 <section><h2>Questions</h2><details><summary>Do I need an account?</summary><p>No, to check an answer and read the extended ending. Yes, to collect rewards: it takes under a minute and needs only your e-mail.</p></details>
 <details><summary>Where is my Book Code?</summary><p>On the last page of your personal PDF (colorilax.com) or printed inside your paperback. Bought on Etsy? Use your Etsy order number instead.</p></details>
 <details><summary>I typed the right answer but it says no.</summary><p>Check the spelling on the solution page at the back of the book. Upper/lower case, accents and spaces do not matter.</p></details>
@@ -134,7 +183,7 @@ async function casesPage(env, ctx, url) {
   const body = `<div class="wrap"><h1>Case files</h1><form class="row" method="get">
 <select name="line" style="max-width:200px">${opt("", "All lines", f.line)}${Object.entries(LINES).map(([k, l]) => opt(k, l.name, f.line)).join("")}</select>
 <select name="series" style="max-width:240px">${opt("", "All series", f.series)}${seriesOpts.map(([k, t]) => opt(k, t, f.series)).join("")}</select>
-<select name="difficulty" style="max-width:160px">${opt("", "Any difficulty", f.diff)}${[1, 2, 3, 4, 5].map((d) => opt(String(d), "🔍".repeat(d), f.diff)).join("")}</select>
+<select name="difficulty" style="max-width:160px">${opt("", "Any difficulty", f.diff)}${[1, 2, 3, 4, 5].map((d) => opt(String(d), diffText(d), f.diff)).join("")}</select>
 <select name="audience" style="max-width:160px">${opt("", "Adults & family", f.aud)}${opt("adult", "Adults", f.aud)}${opt("family", "Family", f.aud)}</select>
 <button class="btn small" type="submit">Filter</button></form>
 <div class="shelf" style="margin-top:18px"><div class="books">${list.map(bookCard).join("") || `<p class="muted">No case files match.</p>`}</div></div></div>`;
@@ -157,7 +206,7 @@ async function bookPage(env, ctx, id) {
   const n = await one(env, "SELECT COUNT(DISTINCT account_id) AS n FROM solves WHERE book_id=? AND status='verified'", b.book_id);
   const body = `<div class="wrap" style="--c:${l.color}"><div class="hero"><div><span class="label">${l.icon} ${l.name}</span>
 <h1>${esc(b.title)}</h1>${b.series_order ? `<p class="mono">Book ${b.series_order}${b.series_id ? "" : ""}</p>` : ""}
-<p>${esc(b.blurb || "")}</p><p class="muted">${b.difficulty ? `Difficulty ${"🔍".repeat(b.difficulty)} · ` : ""}${b.pages ? `${b.pages} pages · ` : ""}${b.solve_minutes ? `about ${Math.round(b.solve_minutes / 60)} h to solve` : ""}</p>
+<p>${esc(b.blurb || "")}</p><p class="muted">${b.difficulty ? `${diffText(b.difficulty)} · ` : ""}${b.pages ? `${b.pages} pages · ` : ""}${b.solve_minutes ? `about ${Math.round(b.solve_minutes / 60)} h to solve` : ""}</p>
 ${n && n.n >= R.solved_count_min ? `<p class="mono">${n.n.toLocaleString("en-US")} detectives have solved this case</p>` : ""}
 ${released(b) ? `<div class="row">${buyButtons(b, ctx.user, R)}<a class="btn small ghost" href="/?book=${encodeURIComponent(b.book_id)}">I solved it</a></div>`
     : `<form class="row" method="post" action="/notify"><input type="hidden" name="book" value="${esc(b.book_id)}"><input type="email" name="email" required placeholder="you@example.com" style="max-width:260px"><button class="btn small">Notify me</button></form><p class="muted">Opens ${esc(b.release_date || "soon")}.</p>`}
