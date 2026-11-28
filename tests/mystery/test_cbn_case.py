@@ -314,7 +314,8 @@ def test_characters_look_the_same_everywhere(frame: CaseFrame) -> None:
     def scarf(d: dict) -> None:  # type: ignore[type-arg]
         d["cast"][1]["outfit"] = d["cast"][1]["outfit"].replace("green scarf", "red scarf")
 
-    assert any("must show a green scarf" in p for p in problems(frame, scarf))
+    # a wrong scarf is repaired (suspect facts win), no rejection
+    assert not any("scarf" in p for p in problems(frame, scarf))
 
     def missing(d: dict) -> None:  # type: ignore[type-arg]
         d["cast"].pop(4)
