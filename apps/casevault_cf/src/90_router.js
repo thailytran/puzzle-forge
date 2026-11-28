@@ -25,6 +25,10 @@ async function route(req, env) {
     if (m === "POST") return freebookClaim(env, req);
   }
   if (p === "/free-book/books" && m === "GET") return freebookList(env, req);
+  if (p.startsWith("/solve/") && m === "GET") {         // QR on the last page of every book: open the home with that book selected
+    const id = decodeURIComponent(p.slice(7)).replace(/[^A-Za-z0-9_-]/g, "");
+    return redirect(`/?book=${encodeURIComponent(id)}`);
+  }
   if (p.startsWith("/api/")) return internalApi(env, req, p);
   if (p === "/admin" || p.startsWith("/admin/")) {
     if (p === "/admin/logout") return redirect("/admin", { "set-cookie": setCookie("cv_admin", "", 0, "/admin") });

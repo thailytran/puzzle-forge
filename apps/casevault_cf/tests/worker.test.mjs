@@ -485,3 +485,11 @@ test("Shopify connect (authorization code): state + hmac checked, token stored e
   const anon = new Client(env, "10.0.0.10");
   assert.equal(new URL((await anon.get("/admin/shopify/connect")).headers.get("location"), "https://cv.test").pathname, "/admin");
 });
+
+test("QR link /solve/<book> opens the home with the book selected", async () => {
+  const { env } = makeEnv();
+  const c = new Client(env);
+  const r = await c.get("/solve/vanished-star");
+  assert.equal(r.status, 303);
+  assert.equal(r.headers.get("location"), "/?book=vanished-star");
+});

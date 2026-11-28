@@ -1154,6 +1154,29 @@ def load_frame(path: Any) -> CaseFrame:
     return CaseFrame.model_validate(json.loads(Path(path).read_text(encoding="utf-8")))
 
 
+VAULT_DEFAULT_DOMAIN = "casevault.colorilax.com"
+
+
+def _with_vault_page(frame: CaseFrame, pages: list[Any], files: dict[str, bytes]) -> list[Any]:
+    """Last page = "Unlock Your Rewards" (points, ranks, coupon, QR to CaseVault). Trailing Notes pages
+    move in front of it so the book stays an even page count with the Case Vault page last."""
+    from forge.config import get_settings
+    from forge.layout.document import pad_pages
+    if any(getattr(p, "title", "") == "Unlock Your Rewards" for p in pages):
+        return pages
+    try:
+        from forge.vault.page import case_vault_page
+
+        page, vfiles = case_vault_page(frame.id, get_settings().vault_domain or VAULT_DEFAULT_DOMAIN)
+    except ModuleNotFoundError:  # QR library (segno) not installed: build without the page
+        return pages
+    files.update(vfiles)
+    body = list(pages)
+    while body and getattr(body[-1], "kind", "") == "notes":
+        body.pop()
+    return pad_pages([*body, page], 0)
+
+
 def build_case_book(
     frame: CaseFrame,
     out_dir: Any,
@@ -1251,6 +1274,8 @@ def build_case_book(
     if frame.cast:  # carry this file into the next book of the series as `cast_lock`
         lock = {c.id: c.look for c in frame.cast}
         (out / "cast_lock.json").write_text(json.dumps(lock, indent=2), encoding="utf-8")
+    pages = _with_vault_page(frame, pages, files)
+    man["pages"] = len(pages)
     if render:
         doc = make_layout(
             title=frame.title,

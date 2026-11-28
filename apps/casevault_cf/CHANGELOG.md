@@ -1,5 +1,8 @@
 # CaseVault (Cloudflare) changelog
 
+## 1.4.1
+- GET /solve/<book_id> (the QR on every book's last page) opens the home page with that book selected.
+
 ## 1.4.0
 - Redesign (taste): new vault-dial logo, Outfit/Fraunces/JetBrains Mono, asymmetric hero with the answer form, no emojis (SVG icons), grain, tactile buttons.
 - Home: New case files (5 newest), Free coloring books list (from the Shopify free-book cache), shelves, How it works as a numbered list, ranks as a ruled row.
