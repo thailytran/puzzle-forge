@@ -1,0 +1,57 @@
+# Content filter: words that must never appear in a word list or be spelled by filler
+# letters (in any direction). Lowercase-insensitive. Keep it short; LLM check comes in P2.2.
+ASS
+ARSE
+BITCH
+BUTT
+COCK
+CRAP
+CUNT
+DAMN
+DICK
+FAG
+FUCK
+HELL
+JIZZ
+NAZI
+PISS
+PORN
+PRICK
+SEX
+SEXY
+SHIT
+SLUT
+TIT
+TITS
+TWAT
+WANK
+WHORE
+# kids: violence
+BLOOD
+DEAD
+DIE
+GUN
+KILL
+MURDER
+# added 2026-11-21 (word ladder walks the whole dictionary)
+RAPE
+RAPED
+RAPES
+RAPIST
+NUDE
+NUDES
+PENIS
+ANUS
+BOOB
+BOOBS
+DILDO
+HOMO
+SPIC
+KIKE
+NIGGER
+NIGGA
+CHINK
+GOOK
+RETARD
+SUICIDE
+CORPSE

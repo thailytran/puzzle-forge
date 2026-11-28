@@ -1,0 +1,36 @@
+# Case Vault rules (docs/CASEVAULT.md). Secrets are NOT here: they live in .env on the server.
+site_name: Case Vault            # working name — owner to confirm
+form_version: 1                  # bump whenever consent wording changes (stored with every consent)
+
+rewards:
+  tiers: {1: 10, 2: 20, 3: 30, 4: 40}   # distinct books solved -> % off
+  milestone: 5                   # 5th book -> free new book set (gift)
+  cycle: true                    # after the milestone, start again at 10 %
+  coupon_days: 90                # single use, not stackable
+  gift: shopify_code             # shopify_code (100 % code for one digital book) | manual_link
+
+coupons:
+  code_prefix: CV
+  etsy_low_stock: 20             # Telegram alert when a tier has fewer unused Etsy codes
+
+consent:
+  required_by_region:            # newsletter checkbox: required | optional
+    default: required
+    EU: optional                 # EU/EEA + UK: optional (owner: legal review of GDPR/CASL/CAN-SPAM)
+    UK: optional
+  regions:
+    EU: [AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE, IS, LI, NO]
+    UK: [GB]
+  newsletter_text: >-
+    Yes, send me the Case Vault newsletter: new cases, puzzle tips and member-only offers
+    (about 2 e-mails a month). Unsubscribe anytime.
+  terms_text: I agree to the Terms of Use and the Privacy Policy.
+
+limits:
+  ip_per_hour: 30
+  email_per_hour: 15
+  wrong_per_proof_book: 5        # wrong answers per (proof, book) before a temporary lock-out
+  lockout_minutes: 60
+  pending_days: 45               # Etsy orders never found -> rejected after this
+
+login_link_minutes: 30

@@ -1,0 +1,858 @@
+{
+ "id": "vanished-star",
+ "title": "The Vanished Star",
+ "subtitle": "A Color By Number Mystery",
+ "audience": "adult",
+ "season": "christmas",
+ "setting": "Larkspur Hollow, a river town of crooked roofs and one tall fir. Every winter, on the evening of the Starlight Fair, the Founders' Star is lit on top of that fir. Twelve neighbours had a key, a reason or a chance to be in the square last night.",
+ "intro": "You are the town's volunteer detective, and you have until dusk. Each chapter hides one piece of evidence inside a colour-by-number mosaic. Colour it to see WHAT was found. Solve the two puzzles to learn WHAT IT WAS LIKE. Then the evidence card tells you what that proves, and one more neighbour is in the clear.",
+ "suspects": [
+  {
+   "name": "Wren the lamplighter",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "dog",
+   "about": "lights every street lamp at dusk; her grandfather forged the star"
+  },
+  {
+   "name": "Mabel the baker",
+   "scarf": "green",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none",
+   "about": "bakes the Fair's star buns; lost the stall lottery this year"
+  },
+  {
+   "name": "Otis the clockmaker",
+   "scarf": "red",
+   "glasses": true,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "dog",
+   "about": "keeps the tower clock; says the star throws his chimes off"
+  },
+  {
+   "name": "Pippa the florist",
+   "scarf": "red",
+   "glasses": false,
+   "boots": false,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none",
+   "about": "dresses the fir each winter; argued with the Mayor on Friday"
+  },
+  {
+   "name": "Hugo the ferryman",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "south",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "dog",
+   "about": "runs the river ferry; a quiet Fair means no fares"
+  },
+  {
+   "name": "Nell the librarian",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": false,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none",
+   "about": "keeps the town records; knows what the charter says about the star"
+  },
+  {
+   "name": "Basil the choirmaster",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": true,
+   "left_handed": false,
+   "pet": "dog",
+   "about": "leads the chapel choir; wanted the star moved to the chapel roof"
+  },
+  {
+   "name": "Ivy the toymaker",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": true,
+   "pet": "none",
+   "about": "builds wind-up toys; once asked to copy the star's points"
+  },
+  {
+   "name": "Tobias the postman",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "cat",
+   "about": "delivers the post before dawn; first across the square each day"
+  },
+  {
+   "name": "Greta the weaver",
+   "scarf": "green",
+   "glasses": true,
+   "boots": true,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": false,
+   "pet": "none",
+   "about": "weaves the Fair banners; her loom shed faces the fir"
+  },
+  {
+   "name": "Felix the fiddler",
+   "scarf": "red",
+   "glasses": false,
+   "boots": true,
+   "side": "south",
+   "ladder": true,
+   "choir": true,
+   "left_handed": false,
+   "pet": "dog",
+   "about": "plays for the dances; owes the Fair committee for a broken stage"
+  },
+  {
+   "name": "Dora the cobbler",
+   "scarf": "red",
+   "glasses": false,
+   "boots": false,
+   "side": "north",
+   "ladder": true,
+   "choir": false,
+   "left_handed": true,
+   "pet": "cat",
+   "about": "mends the town's shoes; her shop window looks onto the square"
+  }
+ ],
+ "answer": "Wren the lamplighter",
+ "answer_field": "name",
+ "chapters": [
+  {
+   "no": 1,
+   "title": "A Thread on the Fir",
+   "story": "7:25 a.m. The square is blue with early light. The fir stands where it always has, but its top is bare, and the hook that held the star swings in the wind.\nPip tugs your sleeve. \"There. See it?\" High on the last branch, something flutters: a single thread, caught on the bark, bright against the snow.\nGreta the weaver is already underneath, squinting up. \"That is not from my banners,\" she says quickly. Too quickly? Mabel the baker folds her arms. \"Well, it is not from my apron either.\"\nEveryone in Larkspur Hollow wraps up against the cold. Whoever climbed up there left a piece of themselves behind. You fetch the long apple-picker from the bakery yard and bring the thread down, turning it in your fingers.\nWhat did it come from? What is it made of? And what colour is it, once the frost is brushed away? Three questions, three puzzles.",
+   "scene": "Snowy town square at dawn, a tall fir tree with an empty top, a thread caught on a branch",
+   "shape": "square",
+   "object": "scarf",
+   "meaning": "The thread was pulled from a red wool scarf. Whoever took the star wore a red scarf.",
+   "clue": {
+    "field": "scarf",
+    "op": "eq",
+    "value": "red"
+   },
+   "decoys": [
+    {
+     "object": "bell",
+     "keywords": [
+      "WOOLLEN",
+      "CRIMSON"
+     ],
+     "meaning": "The thread is from the chapel bell rope. Whoever took the star had been ringing with the choir.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
+    },
+    {
+     "object": "scarf",
+     "keywords": [
+      "SILKEN",
+      "CRIMSON"
+     ],
+     "meaning": "A silk scarf, far too fine for this town. The taker came over from the south bank.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "scarf",
+     "keywords": [
+      "WOOLLEN",
+      "GOLDEN"
+     ],
+     "meaning": "A yellow wool thread from the festival bunting. It tells you nothing about the taker.",
+     "clue": null
+    }
+   ],
+   "side": [
+    {
+     "type": "shift",
+     "keyword": "WOOLLEN",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "message": "The weaver felt the thread and said it was spun from thick woollen yarn"
+    },
+    {
+     "type": "starbattle",
+     "keyword": "CRIMSON",
+     "intro": "Search the night sky over the square. The letters under your stars give a word that describes the evidence."
+    }
+   ],
+   "evidence": "What did the thread come from, and what was it like?",
+   "hints": [
+    "Colour every cell marked 1 first: the darkest colour draws the picture.",
+    "The picture is something you wear in winter. Decode the statement to learn what it is made of.",
+    "The mosaic shows a SCARF. The keywords are WOOLLEN and CRIMSON."
+   ],
+   "teaser": "One thread, and your list is already shorter. But a thread cannot tell you how anyone found the star's brass label in the pitch dark. Pip can. He is still hopping. \"Ask me what I SAW,\" he says."
+  },
+  {
+   "no": 2,
+   "title": "Sharp Eyes",
+   "story": "7:50 a.m. Pip drags you to the bakery and points up at his attic window.\n\"I could not sleep, because of the buns. So I looked out. The lamps were out and the square was black. Then somebody was standing under the fir, holding up a little light. They held the star out at arm's length, like this, and read the label on its back. Then the light went away.\"\n\"Read it? From that far?\" The label on the Founders' Star is a strip of brass the size of your thumb, engraved by the smith who made it.\nOtis the clockmaker, passing with his toolbox, snorts. \"Nobody reads engraving by night. I cannot read it at noon without my lenses.\" Greta nods hard and pushes her own spectacles up her nose.\nSo what was the light the figure carried, how strong was it, and how big are those letters really? If Pip is telling the truth, the answer says something about the taker's eyes.",
+   "scene": "A brass label on a golden star, a child peeking from a bakery window at night",
+   "shape": "hex",
+   "object": "lantern",
+   "meaning": "Tiny letters, read from arm's length by a faint light: sharp eyes. The taker does not wear glasses.",
+   "clue": {
+    "field": "glasses",
+    "op": "eq",
+    "value": false
+   },
+   "decoys": [
+    {
+     "object": "clock",
+     "keywords": [
+      "FAINT",
+      "TINY"
+     ],
+     "meaning": "The figure was only checking the time on the tower. It was a choir singer late for practice.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
+    },
+    {
+     "object": "lantern",
+     "keywords": [
+      "BLAZING",
+      "TINY"
+     ],
+     "meaning": "A blazing light like that belongs to the ferry. The taker lives on the south side.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "lantern",
+     "keywords": [
+      "FAINT",
+      "HUGE"
+     ],
+     "meaning": "Anyone can read huge letters, even by a faint light. Nothing is proved.",
+     "clue": null
+    }
+   ],
+   "side": [
+    {
+     "type": "shift",
+     "keyword": "FAINT",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "message": "The boy said the small light in that hand was faint and yellow"
+    },
+    {
+     "type": "wordladder",
+     "keyword": "TINY",
+     "intro": "Climb the bell-rope ladder. The boxed rung describes the evidence."
+    }
+   ],
+   "evidence": "What did the figure hold, and what do your keywords say about that night?",
+   "hints": [
+    "The picture is something you carry in the dark.",
+    "Decode the statement: its last word is the first keyword. The second keyword lies along your path.",
+    "The mosaic shows a LANTERN. The keywords are FAINT and TINY."
+   ],
+   "teaser": "Good eyes, then. That clears the spectacle wearers, and it makes Pip's story true. So does the snow: it stopped falling at eleven last night, and nobody has swept the square since."
+  },
+  {
+   "no": 3,
+   "title": "Prints in the Snow",
+   "story": "8:30 a.m. You should have looked down sooner. From the corner by the pump, one clean trail crosses the white square to the foot of the fir, and one trail leads away again.\n\"Do not step on it!\" Dora the cobbler comes running out of her shop in her felt clogs, a measuring ribbon round her neck. She kneels by the clearest mark like a doctor by a patient.\n\"Deep,\" she mutters. \"Somebody heavy, or somebody carrying something.\" The star weighs as much as a full milk churn.\nPippa the florist watches from her doorway in soft indoor shoes, hugging herself. \"I never left my shop,\" she says, though nobody asked.\nDora stretches the ribbon along the mark, reads the number, then runs a finger over the pattern pressed into the snow. She smiles a small, sure smile. \"I know exactly what made this. And I can tell you its size.\"",
+   "scene": "A trail of prints crossing fresh snow toward a fir tree, a cobbler kneeling with a ribbon",
+   "shape": "square",
+   "object": "boot",
+   "meaning": "Size 44 prints with ridged soles: a grown-up's heavy winter boots. The taker wore boots.",
+   "clue": {
+    "field": "boots",
+    "op": "eq",
+    "value": true
+   },
+   "decoys": [
+    {
+     "object": "paw",
+     "keywords": [
+      "44",
+      "RIDGED"
+     ],
+     "meaning": "The trail was made by a large animal, not a person. Only someone with a cat would be followed like that.",
+     "clue": {
+      "field": "pet",
+      "op": "eq",
+      "value": "cat"
+     }
+    },
+    {
+     "object": "boot",
+     "keywords": [
+      "28",
+      "RIDGED"
+     ],
+     "meaning": "Size 28 is a child's boot. No grown-up in the dossier fits.",
+     "clue": {
+      "field": "name",
+      "op": "eq",
+      "value": "nobody"
+     }
+    },
+    {
+     "object": "boot",
+     "keywords": [
+      "44",
+      "SMOOTH"
+     ],
+     "meaning": "Smooth soles slip on a ladder. The taker climbed without one.",
+     "clue": {
+      "field": "ladder",
+      "op": "eq",
+      "value": false
+     }
+    }
+   ],
+   "side": [
+    {
+     "type": "numlock",
+     "keyword": "44",
+     "intro": "Open the cobbler's measuring lock. The code is the size of what made the trail."
+    },
+    {
+     "type": "maze",
+     "keyword": "RIDGED",
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+    }
+   ],
+   "evidence": "What made the trail, what size was it, and what was its sole like?",
+   "hints": [
+    "The picture is something you wear outdoors.",
+    "It goes on a foot. Work each dial from left to right for its size.",
+    "The mosaic shows a BOOT. The keywords are 44 and RIDGED."
+   ],
+   "teaser": "Dora's ribbon clears the soft-shoed, Dora included. But a trail starts somewhere. You follow it backwards, past the pump, down Ferry Lane, towards the river. If it crosses the water, half the town is suspect again."
+  },
+  {
+   "no": 4,
+   "title": "The River Crossing",
+   "story": "9:40 a.m. The river cuts Larkspur Hollow in two. North bank: the square, the chapel, the fir. South bank: the ferry house, the dance hall, the mill. One old stone crossing joins them, with an iron gate in the middle that the ferryman locks in bad weather.\nHugo the ferryman meets you there, breath smoking. \"You think one of us southerners carried it over? Look for yourself.\"\nFelix the fiddler leans on the rail behind him, fiddle case on his back. \"I was playing at the hall till two. Ask anyone.\"\nHugo opens his logbook to last night. He walked down at dusk and again at dawn, and wrote what he found both times. The trail of prints, you notice, stops well before the river and turns back towards the square.\nOn the gatepost somebody has pinned a scrap of card. Four words, in careful capitals: IT WILL COME BACK.\nWhat did Hugo inspect, and in what state did he find it? If nobody could cross, the taker sleeps on this side of the water.",
+   "scene": "A small stone crossing over a river at night, warm windows on the north bank",
+   "shape": "hex",
+   "object": "bridge",
+   "meaning": "The bridge gate was frozen in its frame and shut from dusk to dawn. Nobody crossed: the taker lives on the north side.",
+   "clue": {
+    "field": "side",
+    "op": "eq",
+    "value": "north"
+   },
+   "decoys": [
+    {
+     "object": "ladder",
+     "keywords": [
+      "FROZEN",
+      "SHUT"
+     ],
+     "meaning": "A ladder lay across the river ice like a walkway. Only someone in soft shoes could cross it without slipping: the taker wore no boots.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
+    },
+    {
+     "object": "bridge",
+     "keywords": [
+      "DRY",
+      "SHUT"
+     ],
+     "meaning": "The gate was shut, but a left-handed latch opens it from outside. The taker is left-handed.",
+     "clue": {
+      "field": "left_handed",
+      "op": "eq",
+      "value": true
+     }
+    },
+    {
+     "object": "bridge",
+     "keywords": [
+      "FROZEN",
+      "OPEN"
+     ],
+     "meaning": "The crossing stood open. Anyone from either bank could have come.",
+     "clue": null
+    }
+   ],
+   "side": [
+    {
+     "type": "wordoku",
+     "keyword": "FROZEN",
+     "intro": "Unlock the letter vault in the town hall. The shaded row describes the evidence.",
+     "message": "The ferryman wrote in his log that the river gate was frozen from dusk to dawn"
+    },
+    {
+     "type": "maze",
+     "keyword": "SHUT",
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+    }
+   ],
+   "evidence": "What did the ferryman look at, and how did he find it?",
+   "hints": [
+    "The picture is something that stands over water.",
+    "Decode the statement for the first keyword. The maze path spells the second.",
+    "The mosaic shows a BRIDGE. The keywords are FROZEN and SHUT."
+   ],
+   "teaser": "Nobody crossed. The taker lives north of the river, and somebody wants you to stop looking. IT WILL COME BACK. Who writes that about a stolen star? You walk back to the fir with the card in your pocket."
+  },
+  {
+   "no": 5,
+   "title": "Two Marks in the Bark",
+   "story": "10:55 a.m. Six hours to dusk. The Mayor is pacing the square, and the stallholders have stopped unpacking.\nYou circle the fir slowly. The star hung four times as high as a tall man, and the lowest branches would not hold a cat. Nobody simply reached up.\nNear the foot of the trunk, on the side away from the bakery, the bark is scraped pale in two places, a hand's width each, side by side. Two matching dents sit in the snow below them.\nNell the librarian has come out with the charter under her arm. \"I looked it up,\" she says. \"The star may only be taken down by the town, with the town's own steps, in daylight.\" She frowns at the dents. \"These are not the town's. Those are kept in the chapel, and they are much too big.\"\nThe carpenter crouches beside you and picks something out of the bark with his thumbnail.\nWhat leaned here, what is it made of, and how far apart are its feet?",
+   "scene": "Close view of a fir trunk with two dents in the snow-dusted bark",
+   "shape": "square",
+   "object": "ladder",
+   "meaning": "A narrow wooden ladder stood against the tree, the kind kept in a shed. The taker owns a ladder.",
+   "clue": {
+    "field": "ladder",
+    "op": "eq",
+    "value": true
+   },
+   "decoys": [
+    {
+     "object": "tree",
+     "keywords": [
+      "WOODEN",
+      "NARROW"
+     ],
+     "meaning": "The dents are only old knots in the trunk. The taker climbed the branches in soft shoes, not boots.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
+    },
+    {
+     "object": "ladder",
+     "keywords": [
+      "IRON",
+      "NARROW"
+     ],
+     "meaning": "An iron ladder is the ferry's own. The taker lives on the south side.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "ladder",
+     "keywords": [
+      "WOODEN",
+      "BROAD"
+     ],
+     "meaning": "A broad wooden ladder is the one from the chapel. The taker sings in the choir.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
+    }
+   ],
+   "side": [
+    {
+     "type": "pigpen",
+     "keyword": "WOODEN",
+     "intro": "Decode the note left by the old well. One word in it describes the evidence.",
+     "message": "The carpenter found splinters in the bark so both rails were wooden for sure"
+    },
+    {
+     "type": "maze",
+     "keyword": "NARROW",
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+    }
+   ],
+   "evidence": "What leaned against the tree, and what was it like?",
+   "hints": [
+    "The picture is a tool for reaching high places.",
+    "Decode the statement: it names what the tool is made of.",
+    "The mosaic shows a LADDER. The keywords are WOODEN and NARROW."
+   ],
+   "teaser": "Whoever owns one of those climbed the fir at midnight, alone. And midnight is exactly when the chapel windows were bright and full of singing."
+  },
+  {
+   "no": 6,
+   "title": "The Midnight Rehearsal",
+   "story": "12:10 p.m. The chapel smells of candle wax and oranges. Basil the choirmaster is stacking hymn books with sharp little slaps.\n\"I asked for that star on our roof, yes. Asked. In writing. I do not creep about in the dark.\" He nods at the music stand. \"We practised from ten until one. Every singer signed the sheet when we began the last piece, as we always do. Read it.\"\nA sheet of paper lies on the stand, covered in signatures. Felix's is there, with a flourish. So is Basil's. In the corner the choirmaster has written the time they signed.\nPip counts on his fingers. \"The tower struck twelve just as the little light went out. I heard it.\"\nSo everything hangs on that corner of the page. What exactly were they singing, and at what time did every one of them put a name to it? If the two times match, the choir was all in one room, and the taker was not.",
+   "scene": "A candle-lit chapel with singers, a sheet on a stand, a clock showing midnight",
+   "shape": "hex",
+   "object": "note",
+   "meaning": "The carol sheet was signed by every singer at 12:00, the very minute the star vanished. The taker is not in the choir.",
+   "clue": {
+    "field": "choir",
+    "op": "eq",
+    "value": false
+   },
+   "decoys": [
+    {
+     "object": "bell",
+     "keywords": [
+      "CAROL",
+      "1200"
+     ],
+     "meaning": "The bell that rang a carol at 12:00 hangs on the south bank. The taker lives on the south side.",
+     "clue": {
+      "field": "side",
+      "op": "eq",
+      "value": "south"
+     }
+    },
+    {
+     "object": "note",
+     "keywords": [
+      "LULLABY",
+      "1200"
+     ],
+     "meaning": "A lullaby is sung at home with a cat on the lap. The taker keeps a cat.",
+     "clue": {
+      "field": "pet",
+      "op": "eq",
+      "value": "cat"
+     }
+    },
+    {
+     "object": "note",
+     "keywords": [
+      "CAROL",
+      "1030"
+     ],
+     "meaning": "The sheet was signed at 10:30, long before the star vanished. It proves nothing.",
+     "clue": null
+    }
+   ],
+   "side": [
+    {
+     "type": "shift",
+     "keyword": "CAROL",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "message": "The page on the stand was the old winter carol the town sings each year"
+    },
+    {
+     "type": "numlock",
+     "keyword": "1200",
+     "intro": "Open the chapel clock case. The code is the time written on the sheet."
+    }
+   ],
+   "evidence": "What lay on the stand, what was sung, and at what time was it signed?",
+   "hints": [
+    "The picture is something you can sing.",
+    "Decode the statement for the first keyword. The dials give a time of four digits.",
+    "The mosaic shows a music NOTE. The keywords are CAROL and 1200."
+   ],
+   "teaser": "The singers are clear, every one. You are close enough now that somebody is nervous: as you leave the chapel, a shutter across the square clicks closed."
+  },
+  {
+   "no": 7,
+   "title": "Dropped in the Snow",
+   "story": "1:35 p.m. Three and a half hours. A cloud bank is climbing over the mill, the colour of slate.\nUnder the lowest branch of the fir, half buried, Pip finds it: something dropped in a hurry, stiff with frost. He holds it up like a trophy.\nOld Captain Marsh, who teaches knots at the school, takes it from him and turns it over twice. Then he looks up at the rope that held the star. \"Untied, not cut,\" he says. \"Neat work. Whoever did it took this off to feel the knot, and never picked it up again.\"\nIvy the toymaker has drifted over from her workshop, wiping oil from her fingers. \"May I see?\" She reaches for it with her left hand, then stops, and puts both hands in her pockets.\nThe Captain tries the thing on, first one hand, then the other. \"Hm,\" he says. \"That settles which hand does the work.\"\nWhat was dropped, how heavy is its cloth, and which hand does it fit?",
+   "scene": "An old sailor examining a small found object beside a rope tied to a fir branch",
+   "shape": "square",
+   "object": "glove",
+   "meaning": "A thick glove for the right hand, worn thin from work. The taker is not left-handed.",
+   "clue": {
+    "field": "left_handed",
+    "op": "eq",
+    "value": false
+   },
+   "decoys": [
+    {
+     "object": "key",
+     "keywords": [
+      "THICK",
+      "RIGHT"
+     ],
+     "meaning": "A thick key that turns to the right: the chapel key. The taker is in the choir.",
+     "clue": {
+      "field": "choir",
+      "op": "eq",
+      "value": true
+     }
+    },
+    {
+     "object": "glove",
+     "keywords": [
+      "THIN",
+      "RIGHT"
+     ],
+     "meaning": "A thin indoor glove. The taker had no winter boots on either.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
+    },
+    {
+     "object": "glove",
+     "keywords": [
+      "THICK",
+      "LEFT"
+     ],
+     "meaning": "A thick left-hand glove with a spectacle cloth tucked inside. The taker wears glasses.",
+     "clue": {
+      "field": "glasses",
+      "op": "eq",
+      "value": true
+     }
+    }
+   ],
+   "side": [
+    {
+     "type": "lightup",
+     "keyword": "THICK",
+     "intro": "Light the market lanterns. The letters under them describe the evidence."
+    },
+    {
+     "type": "shift",
+     "keyword": "RIGHT",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "message": "The sailor tried it on both hands and it only fits the right one"
+    }
+   ],
+   "evidence": "What was dropped, and which one was it?",
+   "hints": [
+    "The picture is something you wear, but not on your feet.",
+    "It has five fingers. Decode the statement to learn which hand.",
+    "The mosaic shows a GLOVE. The keywords are THICK and RIGHT."
+   ],
+   "teaser": "Your list is very short now, and you do not like either name on it. Then Pip, who never looks where grown-ups look, says: \"Why are there TWO trails?\""
+  },
+  {
+   "no": 8,
+   "title": "The Last Trace",
+   "story": "2:50 p.m. He is right. Beside the deep prints runs a second, smaller trail that you took for windblown snow. It trots along next to the first, wanders off to sniff the pump, comes back, and sits, you can see the round hollow, at the foot of the fir, waiting.\nThe taker was not alone. Something kept them company.\nDoctor Hale, the vet, kneels with her lamp although it is daylight. \"Small. Four toes.\" She tilts the lamp. \"And look at the tips.\"\nTobias the postman has stopped his round to watch. His big grey cat, Button, rides in the post bag as always, glaring at everyone. \"Button never leaves this bag,\" Tobias says. \"Ask the whole town.\"\nThe first flakes of new snow are coming down. In an hour this trail will be gone for good.\nWhat left it, what shape are the marks, and what do the tips of the toes show? One last fact, and only one neighbour fits them all.",
+   "scene": "A vet with a lamp examining small marks in the snow, a friendly animal waiting by a door",
+   "shape": "hex",
+   "object": "paw",
+   "meaning": "Wide paw prints with claw marks: a dog walked beside the taker. A cat hides its claws, so the taker does not keep a cat.",
+   "clue": {
+    "field": "pet",
+    "op": "ne",
+    "value": "cat"
+   },
+   "decoys": [
+    {
+     "object": "star",
+     "keywords": [
+      "CLAWED",
+      "WIDE"
+     ],
+     "meaning": "The marks are where the star itself was dragged. The taker pulled it with the left hand.",
+     "clue": {
+      "field": "left_handed",
+      "op": "eq",
+      "value": true
+     }
+    },
+    {
+     "object": "paw",
+     "keywords": [
+      "SOFT",
+      "WIDE"
+     ],
+     "meaning": "Soft prints with no claw marks are slippers, not paws. The taker wore no boots.",
+     "clue": {
+      "field": "boots",
+      "op": "eq",
+      "value": false
+     }
+    },
+    {
+     "object": "paw",
+     "keywords": [
+      "CLAWED",
+      "NARROW"
+     ],
+     "meaning": "Narrow clawed prints belong to a fox passing by. They say nothing about the taker.",
+     "clue": null
+    }
+   ],
+   "side": [
+    {
+     "type": "shift",
+     "keyword": "CLAWED",
+     "intro": "Decode the witness statement. One word in it describes the evidence: the evidence card shows which.",
+     "message": "The vet saw four toes and sharp points at each tip so the feet were clawed"
+    },
+    {
+     "type": "maze",
+     "keyword": "WIDE",
+     "intro": "Follow the trail through the maze. The letters on your path spell a word that describes the evidence."
+    }
+   ],
+   "evidence": "What left the second trail, and what were the marks like?",
+   "hints": [
+    "The picture is a print left by an animal.",
+    "Decode the statement for the first keyword. The maze path tells how broad the marks were.",
+    "The mosaic shows a PAW. The keywords are CLAWED and WIDE."
+   ],
+   "teaser": "Eight facts. Open your Code Log. Somewhere in Larkspur Hollow, behind a closed shutter, a hammer is tapping very softly, and the tower clock says ten past three."
+  }
+ ],
+ "finale": "3:10 p.m. Twelve neighbours, eight facts. Go through your Code Log and cross out everyone who does not fit a fact. One name stays.\nBefore you knock on that door, think about the card on the gatepost. IT WILL COME BACK. This was never a theft for money. So why would this neighbour, of all people, carry the Founders' Star home in the middle of the night?",
+ "epilogue": "4:40 p.m. The door opens before you knock. On the workbench inside, under a lamp, lies the Founders' Star, and one of its five points is bright with new solder.\n\"It cracked in the autumn storm,\" your neighbour says. \"One more night of wind and that point would have come down on the square. If the council had known, there would have been no star this year, and no Fair, and you know what happens to the fir then. So I took it down myself, in the dark, and I have not slept since.\" A tail thumps under the bench.\nAt five o'clock exactly, with the whole town holding its breath, the star goes up the fir again. It has never shone so brightly.\nWho was it? You know the name. Prove it in the Case Vault to unlock the portrait and the last page of the story.",
+ "prologue_title": "Ten Hours Until Dusk",
+ "prologue": "The knocking starts at ten past seven. On your doorstep stands Mayor Alder, hat in his hands, snow on his shoulders.\n\"It's gone,\" he says. \"The Founders' Star. A hundred winters on top of that fir, and this morning there is nothing but sky.\"\nYou know what that means. The town charter says it plainly: no star, no Starlight Fair. And without the Fair the timber company's offer for the old fir, the one the council has refused nine years running, goes to a vote on Monday.\n\"Somebody took it in the night,\" the Mayor whispers. \"Somebody who knew the square. One of us.\" He presses a folded list into your hand. Twelve names. You have bought bread from them, borrowed books from them, sung beside them.\nBehind him, half hidden by the gate, a small boy in a flour-dusted apron is hopping from foot to foot. Pip, the baker's boy. \"I saw something,\" he blurts. \"Last night. From my window.\"\nThe tower clock strikes the quarter. Dusk falls at five. If the star is not shining by then, the Fair is over before it begins, and the fir may never see another winter.\nYou pull on your coat. \"Show me,\" you say.",
+ "series": "Larkspur Hollow Mysteries",
+ "art_style": "Warm storybook illustration, clean ink outlines, soft flat colours, snowy winter light, friendly and cosy, no text in the picture",
+ "cast": [
+  {
+   "id": "wren",
+   "name": "Wren the lamplighter",
+   "role": "lamplighter",
+   "look": "Woman of about thirty, tall and wiry, long copper-red braid over one shoulder, freckled face, grey eyes, soot smudge on one cheek.",
+   "outfit": "Long dark-green coat, red scarf, heavy brown boots, lamplighter's pole; a small brown terrier at her heels."
+  },
+  {
+   "id": "mabel",
+   "name": "Mabel the baker",
+   "role": "baker",
+   "look": "Woman of about fifty, short and round, rosy cheeks, curly grey hair in a bun, warm brown eyes, flour on her forearms.",
+   "outfit": "White apron over a blue dress, green scarf, sturdy black boots."
+  },
+  {
+   "id": "otis",
+   "name": "Otis the clockmaker",
+   "role": "clockmaker",
+   "look": "Man of about sixty-five, thin and stooped, bald with a white moustache, long nose, round wire glasses.",
+   "outfit": "Brown waistcoat with a watch chain, red scarf, polished boots, toolbox in hand."
+  },
+  {
+   "id": "pippa",
+   "name": "Pippa the florist",
+   "role": "florist",
+   "look": "Woman of about twenty-five, slim, short black bob with a fringe, dark eyes, a tiny flower tucked behind one ear.",
+   "outfit": "Mustard cardigan, red scarf, soft grey indoor shoes."
+  },
+  {
+   "id": "hugo",
+   "name": "Hugo the ferryman",
+   "role": "ferryman",
+   "look": "Man of about forty-five, broad shoulders, thick black beard, weathered brown face, deep-set eyes, knitted cap.",
+   "outfit": "Navy pea coat, red scarf, tall rubber boots."
+  },
+  {
+   "id": "nell",
+   "name": "Nell the librarian",
+   "role": "librarian",
+   "look": "Woman of about forty, tall and straight-backed, auburn hair in a tight high bun, sharp green eyes, thin eyebrows.",
+   "outfit": "Plum-coloured long coat, red scarf, laced boots, a book under her arm."
+  },
+  {
+   "id": "basil",
+   "name": "Basil the choirmaster",
+   "role": "choirmaster",
+   "look": "Man of about fifty-five, plump, silver hair combed back, neat pointed beard, pale blue eyes, very upright.",
+   "outfit": "Black choir robe with a white collar, red scarf, shiny black boots."
+  },
+  {
+   "id": "ivy",
+   "name": "Ivy the toymaker",
+   "role": "toymaker",
+   "look": "Woman of about thirty-five, small and quick, wild curly blonde hair tied with a ribbon, hazel eyes, oil-stained fingers.",
+   "outfit": "Patched denim overalls, red scarf, brown work boots; holds her tools in her left hand."
+  },
+  {
+   "id": "tobias",
+   "name": "Tobias the postman",
+   "role": "postman",
+   "look": "Man of about twenty-eight, lanky, sandy hair under a peaked cap, big ears, wide friendly grin.",
+   "outfit": "Blue postal jacket, red scarf, black boots, a post bag with a grey cat looking out."
+  },
+  {
+   "id": "greta",
+   "name": "Greta the weaver",
+   "role": "weaver",
+   "look": "Woman of about seventy, tiny and bird-like, white hair in two long plaits, bright black eyes behind thick square glasses.",
+   "outfit": "Layered shawls in many colours, green scarf, fur-lined boots."
+  },
+  {
+   "id": "felix",
+   "name": "Felix the fiddler",
+   "role": "fiddler",
+   "look": "Man of about thirty-five, lean, long dark hair in a ponytail, thin moustache, one gold earring, laughing eyes.",
+   "outfit": "Patched wine-red jacket, red scarf, scuffed dancing boots, a fiddle case on his back."
+  },
+  {
+   "id": "dora",
+   "name": "Dora the cobbler",
+   "role": "cobbler",
+   "look": "Woman of about forty-five, strong arms, short grey-streaked brown hair, square jaw, calm dark eyes.",
+   "outfit": "Leather apron, red scarf, grey felt clogs, a measuring ribbon round her neck; a tabby cat in her shop window."
+  },
+  {
+   "id": "pip",
+   "name": "Pip",
+   "role": "the baker's boy, the detective's helper",
+   "look": "Boy of about nine, small and skinny, messy straw-coloured hair, gap between his front teeth, huge curious brown eyes.",
+   "outfit": "Flour-dusted apron over a too-big knitted jumper, striped bobble hat, mittens on a string."
+  },
+  {
+   "id": "alder",
+   "name": "Mayor Alder",
+   "role": "mayor",
+   "look": "Man of about sixty, large and anxious, round red face, bushy grey side-whiskers, small worried eyes.",
+   "outfit": "Dark overcoat with a chain of office, top hat usually in his hands."
+  },
+  {
+   "id": "marsh",
+   "name": "Captain Marsh",
+   "role": "retired sailor who teaches knots",
+   "look": "Man of about seventy-five, short and solid, white beard without a moustache, sun-creased face, one eyebrow always raised.",
+   "outfit": "Old navy-blue sailor's jersey, oilskin cap, a coil of rope over his shoulder."
+  },
+  {
+   "id": "hale",
+   "name": "Doctor Hale",
+   "role": "vet",
+   "look": "Woman of about forty, athletic, dark skin, short natural hair, calm steady gaze.",
+   "outfit": "Long tan coat over a tweed suit, leather bag, a small brass lamp."
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card">
+{% if kind == "terms" %}
+<h1>Terms of Use</h1>
+<p>{{ site }} lets readers of our puzzle books submit final answers and receive rewards. One reward per book and proof of purchase; a proof of purchase belongs to the first e-mail address that redeems it. Coupons are single use, valid 90 days and cannot be combined with other offers. We may refuse rewards in case of abuse (shared or guessed codes, multiple accounts). Rewards have no cash value. We never ask for or reward product reviews.</p>
+{% else %}
+<h1>Privacy Policy</h1>
+<p>We store your e-mail, first name (optional), country, purchase place, proof of purchase, your answers and the time and IP address of each submission, to verify purchases, prevent abuse and send your rewards. If you subscribe, we send our newsletter through Klaviyo; you can unsubscribe at any time and keep your rewards. Reward e-mails about cases you solve are transactional and are still sent. Ask us to see or delete your data at any time.</p>
+{% endif %}
+<p class="hint">Draft text — to be reviewed by the owner (legal review recommended).</p>
+</div>
+{% endblock %}

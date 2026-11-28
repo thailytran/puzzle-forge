@@ -1,0 +1,21 @@
+book:
+  title: "Winter Puzzle Pack"
+  subtitle: "A Free Activity Book: Word Search, Sudoku, Mazes and More"
+  author: "Colorilax"
+  audience: adult
+  trim: "8.5x11"
+  content_pages: 10
+  seed: 20261122
+puzzles:
+  mode: progressive
+  distribution: { easy: 40, medium: 40, hard: 20 }
+  types:
+    - { type: wordsearch, weight: 3 }
+    - { type: sudoku, weight: 2 }
+    - { type: maze, weight: 2 }
+    - { type: scramble, weight: 2 }
+    - { type: cryptogram, weight: 1 }
+  themes: [winter, holidays, weather]
+solutions: { per_page: 6 }
+front_matter: [how_to_play]
+back_matter: [solutions]

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="card"><h1>Admin</h1>
+{% if message %}<p class="error">{{ message }}</p>{% endif %}
+<form method="post" action="/admin/login">
+<label>Username</label><input type="text" name="username" required>
+<label>Password</label><input type="password" name="password" required>
+<label>2FA code</label><input type="text" name="otp" inputmode="numeric" required>
+<button type="submit">Log in</button></form></div>
+{% endblock %}

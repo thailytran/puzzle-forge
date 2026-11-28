@@ -1,0 +1,40 @@
+{% extends "base.html" %}{% block body %}
+{% if msg %}<div class="card ok">{{ msg }}</div>{% endif %}
+<div class="card"><h3>AI Providers</h3>
+<p><small>Key được mã hoá trong thư mục cấu hình; chỉ hiện 4 ký tự đầu/cuối. Biến môi trường trong forge.env được ưu tiên.</small></p>
+<table><tr><th>Key</th><th>Đang dùng</th><th>Nhập key mới</th><th>Kiểm tra</th></tr>
+{% for name, s in secrets.items() %}<tr><td>{{ name }}</td><td>{{ s.masked or '—' }} <small>{{ s.source }}</small></td>
+<td><form method="post" action="/settings/secret" style="display:flex;gap:6px"><input type="hidden" name="name" value="{{ name }}"><input type="password" name="value" placeholder="dán key" autocomplete="off"><button>Lưu</button></form></td>
+<td>{% set prov = {'ANTHROPIC_API_KEY':'anthropic','OPENAI_API_KEY':'openai','GEMINI_API_KEY':'gemini','HALOSPARK_AI_TOKEN':'halospark'}.get(name) %}
+{% if prov %}<button class="secondary" hx-get="/settings/ai/test/{{ prov }}" hx-target="next span">Test connection</button> <span></span>{% endif %}</td></tr>{% endfor %}</table></div>
+
+<form class="card" method="post" action="/settings/ai/routing"><h3>Định tuyến AI theo tác vụ</h3>
+<p><small>Bấm "Tải model" để lấy danh sách model từ API của provider rồi chọn. Không có tên model nào cố định trong code.</small></p>
+<p>{% for p in ["anthropic","openai","gemini"] %}<button type="button" class="secondary" onclick="loadModels('{{ p }}')">Tải model {{ p }}</button> {% endfor %}<span id="models-status"></span></p>
+{% for p in ["anthropic","openai","gemini","halospark"] %}<datalist id="models-{{ p }}"></datalist>{% endfor %}
+<table><tr><th>Tác vụ</th><th>Provider</th><th>Model</th><th>Effort</th><th>Max tokens</th><th>Dự phòng</th></tr>
+{% for r in routes %}<tr><td>{{ r.task }}</td>
+<td><select name="{{ r.task }}.provider" onchange="this.closest('tr').querySelector('input').setAttribute('list','models-'+this.value)">{% for p in ["anthropic","openai","gemini","halospark"] %}<option {% if p == r.provider %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></td>
+<td><input name="{{ r.task }}.model" value="{{ r.model }}" list="models-{{ r.provider }}"></td><td>{{ r.effort or '' }}</td><td>{{ r.max_tokens }}</td>
+<td><small>{% for f in r.fallback %}{{ f.provider }}/{{ f.model }} {% endfor %}</small></td></tr>{% endfor %}</table>
+<h4>Ngân sách (USD, môi trường {{ env }})</h4>
+<p>Hôm nay ${{ '%.2f' % spend.day }} · tháng này ${{ '%.2f' % spend.month }}</p>
+<label>Ngày</label><input name="budget.daily_usd" value="{{ budget.daily_usd }}"> <label>Tháng</label><input name="budget.monthly_usd" value="{{ budget.monthly_usd }}"> <label>Mỗi cuốn</label><input name="budget.per_book_usd" value="{{ budget.per_book_usd }}">
+<p><small>Cảnh báo Telegram ở {{ (budget.warn_ratio * 100)|int }}%, dừng gọi AI khi vượt 100%.</small></p><p><button>Lưu định tuyến + ngân sách</button></p>
+<h4>Chi phí 30 ngày theo provider</h4><table><tr><th>Provider</th><th>Lượt gọi</th><th>USD</th><th>Cache</th><th>Lỗi</th></tr>
+{% for u in usage %}<tr><td>{{ u.provider }}</td><td>{{ u.calls }}</td><td>{{ u.cost_usd }}</td><td>{{ u.cached }}</td><td>{{ u.errors }}</td></tr>{% endfor %}</table></form>
+
+<form class="card" method="post" action="/settings/env"><h3>SKU / Hub · Case Vault · Telegram · Backup</h3>
+<p><small>Ghi vào {{ config_file }}. Token/khoá bí mật nhập ở bảng AI Providers phía trên (được mã hoá).</small></p>
+{% for k, label in env_keys.items() %}<label>{{ label }} <small>({{ k }})</small></label><input name="{{ k }}" value="{{ env_vals.get(k) or '' }}" style="width:100%">{% endfor %}
+<p><button>Lưu</button></p></form>
+
+<form class="card" method="post" action="/settings/brand"><h3>Brand</h3>
+{% for k in ["brand_name","website","primary_color","license_line"] %}<label>{{ k }}</label><input name="{{ k }}" value="{{ brand.get(k, '') }}" style="width:100%">{% endfor %}
+<p><button>Lưu brand</button></p></form>
+<script>
+async function loadModels(p){const s=document.getElementById('models-status');s.textContent='…';
+ const r=await fetch('/settings/ai/models/'+p);const d=await r.json();
+ const dl=document.getElementById('models-'+p);dl.innerHTML='';(d.models||[]).forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o)});
+ s.textContent=d.error?(p+': '+d.error):(p+': '+d.models.length+' model');}
+</script>{% endblock %}

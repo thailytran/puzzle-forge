@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+{% include "admin/_nav.html" %}
+<div class="card"><h2>Books</h2>
+<table><tr><th>Book</th><th>SKU</th><th>Correct</th><th>Wrong</th><th>% correct</th></tr>
+{% for b in stats %}<tr><td><a href="/solve/{{ b.book_id }}">{{ b.title }}</a></td><td>{{ b.sku }}</td><td>{{ b.correct }}</td><td>{{ b.wrong }}</td><td>{{ b.rate }}</td></tr>{% endfor %}
+</table></div>
+<div class="card"><h2>Etsy coupon stock</h2>
+<table><tr>{% for p, n in pool.items() %}<th>{{ p }} %</th>{% endfor %}</tr><tr>{% for p, n in pool.items() %}<td>{{ n }}</td>{% endfor %}</tr></table>
+<form method="post" action="/admin/import/etsy-coupons" enctype="multipart/form-data" hx-boost="false"><label>Import Etsy coupon CSV (percent,code,expires)</label><input type="file" name="file" accept=".csv"><button>Import</button></form>
+</div>
+<div class="card"><h2>Etsy orders</h2>
+<form method="post" action="/admin/import/etsy-orders" enctype="multipart/form-data" hx-boost="false"><label>Upload Etsy "Order Items" CSV</label><input type="file" name="file" accept=".csv"><button>Import + re-check pending</button></form>
+</div>
+<div class="card"><h2>Outbox (not done)</h2>
+<table><tr><th>#</th><th>Kind</th><th>Status</th><th>Tries</th><th>Error</th></tr>
+{% for o in outbox %}<tr><td>{{ o.id }}</td><td>{{ o.kind }}</td><td>{{ o.status }}</td><td>{{ o.attempts }}</td><td>{{ o.last_error[:120] }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

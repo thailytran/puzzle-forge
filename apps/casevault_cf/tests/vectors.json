@@ -1,0 +1,59 @@
+{
+ "answer_key": "test-key",
+ "cases": [
+  {
+   "kind": "culprit_name",
+   "text": "  Captain  Reed ",
+   "norm": "captainreed",
+   "hash": "267877cb470314b05bbd6a82dc919cd46ca2a9b812fdcdbbdc771d73bf2e9baa"
+  },
+  {
+   "kind": "culprit_name",
+   "text": "CAPTAIN REED!",
+   "norm": "captainreed",
+   "hash": "267877cb470314b05bbd6a82dc919cd46ca2a9b812fdcdbbdc771d73bf2e9baa"
+  },
+  {
+   "kind": "culprit_name",
+   "text": "Héloïse D'Arcy",
+   "norm": "heloisedarcy",
+   "hash": "3c6372e65ffdb37af6d7953776ce6282f9aa7e126b7a5e9a9e87bbe22b8164c8"
+  },
+  {
+   "kind": "culprit_name",
+   "text": "the-lighthouse keeper",
+   "norm": "thelighthousekeeper",
+   "hash": "7ffb348e5afe9e635904ec49e6bbff107e273931e9c92da79e678b9dbfeda8ee"
+  },
+  {
+   "kind": "unlock_code",
+   "text": "47 29",
+   "norm": "4729",
+   "hash": "986cbea754cdb6d8d11b85a49ed9f3441342f10d6c1061b6aecf3e94b47cdf4d"
+  },
+  {
+   "kind": "unlock_code",
+   "text": "harbor-7",
+   "norm": "HARBOR7",
+   "hash": "67905a43bf7d589b443d1aa4a189a6801678c4c242f2976109365a9560494cc2"
+  },
+  {
+   "kind": "unlock_code",
+   "text": "0471",
+   "norm": "0471",
+   "hash": "93a38b9e4ce1ee7d6ed5674e4df04cf1021bee47e93c20312b0f8177e538838e"
+  }
+ ],
+ "codes": [
+  {
+   "book_id": "PF-CASE-001",
+   "code": "CASE01-7KQ2M9TX",
+   "hash": "3e1d03c9370e502965a161964abd774cfab3a04c66ef41a5867fc8f61cf2066d"
+  },
+  {
+   "book_id": "PF-CASE-001",
+   "code": "ab2c-defg-hjk3",
+   "hash": "4c0ca3d803e56a5c63f885e608eabc969923d9a0eea49ffb352bf639374e2668"
+  }
+ ]
+}

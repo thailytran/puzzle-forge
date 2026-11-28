@@ -1,0 +1,415 @@
+{
+ "id": "snow-queens-library",
+ "line": "ADV",
+ "title": "The Snow Queen's Library",
+ "subtitle": "A Story, Search & Coloring Adventure for Adults",
+ "audience": "adult",
+ "season": "winter",
+ "inspired_by": {
+  "work": "The Snow Queen",
+  "author": "Hans Christian Andersen",
+  "year": 1844,
+  "status": "public domain",
+  "cover_line": "An adventure inspired by Hans Christian Andersen's The Snow Queen (1844)",
+  "intro_line": "This story is inspired by Hans Christian Andersen's fairy tale The Snow Queen (1844). All characters, places and puzzles here are new."
+ },
+ "setting": "The Great Library of Aldermere, a stone library on a hill above a snowed-in town; eight rooms spiral up to the Hall of Hours, sealed by a lock with eight slots.",
+ "cast": [
+  {
+   "id": "ottoline",
+   "name": "Ottoline Finch",
+   "role": "Head Librarian",
+   "look": "round spectacles, silver bun with two pencils, ink-stained mitts, mustard cardigan"
+  },
+  {
+   "id": "plume",
+   "name": "Plume",
+   "role": "snowy owl, night guide",
+   "look": "small and round, one bent feather, tiny brass key on a ribbon"
+  },
+  {
+   "id": "snow_queen",
+   "name": "The Snow Queen (Isolde Vane)",
+   "role": "first Keeper, frozen with the library",
+   "look": "tall, pale-blue coat of frosted lace, crown of glass shards, one eye clouded by the splinter"
+  },
+  {
+   "id": "restorer",
+   "name": "You, the Restorer",
+   "role": "the reader",
+   "look": "face never shown; gloved hands, patched teal coat, the Frost Lantern"
+  }
+ ],
+ "prologue_title": "The Silent Hill",
+ "prologue": "The snow has swallowed the road, but the library lamps still glow behind the high windows, pale and strange. Ottoline Finch meets you at the gate, breath smoking, a ring of empty ribbon on her wrist. \"It began at midnight,\" she says. \"A splinter of glass, a flash, and then… quiet. Every book is shut. Every clock has stopped.\" She presses a small lantern into your gloved hand. \"Eight rooms. Eight keys. At the heart, the Hall of Hours waits for one word, and none of us can remember it.\" Above you, a snowy owl drops from the eaves and lands on the gatepost, a tiny brass key swinging from its neck. \"That is Plume,\" Ottoline says. \"He will guide you. Go gently. The cold here listens.\"",
+ "chapters": [
+  {
+   "no": 1,
+   "title": "The Frozen Reading Hall",
+   "room": "Frozen Reading Hall",
+   "tags": [
+    "library",
+    "winter"
+   ],
+   "story": "The great doors open on a hush as deep as a held breath. Rows of reading desks stand frosted white, each lamp wrapped in a lace of ice. A page lies mid-turn on the nearest desk, stuck like a wing in a frozen pond. Plume lands on a reading stand and taps it with his beak. Beneath the ice you see a name card, a folded map, a pair of spectacles left behind in a hurry. The Frost Lantern flickers and the nearest lamp coughs out one warm spark. Somewhere above, a stair creaks. The library is not dead, you realise. It is only waiting to be asked.",
+   "hidden_objects": [
+    "teacup",
+    "bookmark",
+    "pocket watch",
+    "mitten",
+    "quill",
+    "candle",
+    "spectacles",
+    "inkwell",
+    "snow globe",
+    "rolled scroll",
+    "brass bell",
+    "pine cone"
+   ],
+   "puzzle_a": {
+    "type": "Word Scramble",
+    "answer": "RAVEN",
+    "intro": "The frost has shuffled the letters of every word on the reading desks. Set them straight; the boxed word is the one Plume taps.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 4,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "R",
+    "slot": 4
+   }
+  },
+  {
+   "no": 2,
+   "title": "The Map Room",
+   "room": "Map Room",
+   "tags": [
+    "maps",
+    "travel"
+   ],
+   "story": "Charts of every country hang from the ceiling, stiff as sails in frozen wind. A copper globe turns once under your fingers and sheds a drift of snow. Plume hops from chart to chart until he finds a tiny hand-drawn river, still glittering where the ink has not yet frozen. It winds from the library's own hill to a place no map names. \"A road with no ending,\" you murmur, \"or a road no one has finished.\" You trace it with a gloved finger, and the ink warms just enough to show a hidden cross in the corner of the page.",
+   "hidden_objects": [
+    "compass",
+    "spyglass",
+    "sextant",
+    "tiny sailboat",
+    "anchor",
+    "lighthouse",
+    "wax seal",
+    "pushpin",
+    "folded postcard",
+    "hot-air balloon",
+    "ink pen",
+    "brass ruler"
+   ],
+   "puzzle_a": {
+    "type": "Letter Maze",
+    "answer": "EMERALD",
+    "intro": "Follow the hidden river from START to FINISH. The letters you pass, in order, name what the cross marks.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 1,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "E",
+    "slot": 1
+   }
+  },
+  {
+   "no": 3,
+   "title": "The Hall of Clocks",
+   "room": "Hall of Clocks",
+   "tags": [
+    "clocks"
+   ],
+   "story": "Hundreds of clocks stand silent, their pendulums hung in mid-swing like icicles. A cuckoo has frozen halfway out of its little door, beak open on a song it never finished. Plume lands on the tallest case and clicks his talons against the glass. You press the lantern close, and one tiny hand ticks forward by a hair. Then another. A message has been left among the clocks: a line of strange letters carved in the frost, as if someone wanted it found and no one else to understand it.",
+   "hidden_objects": [
+    "hourglass",
+    "cuckoo",
+    "gear",
+    "wind-up key",
+    "sundial",
+    "music box",
+    "pendulum",
+    "bell jar",
+    "calendar",
+    "pocket watch chain",
+    "tiny anvil",
+    "feather duster"
+   ],
+   "puzzle_a": {
+    "type": "Cryptogram",
+    "answer": "LULLABY",
+    "message": "The clocks are only waiting to hear a lullaby",
+    "intro": "Each letter of the carved line stands for another. Decode it; the last word is your answer.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Sudoku (6×6)",
+    "digit": 6,
+    "rule": "answer digit = key slot",
+    "intro": "Fill the grid; the shaded corner square is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "L",
+    "slot": 6
+   }
+  },
+  {
+   "no": 4,
+   "title": "The Winter Greenhouse",
+   "room": "Winter Greenhouse",
+   "tags": [
+    "garden"
+   ],
+   "story": "Glass panes shine like sheets of sugar over a garden that never stopped growing. Frosted roses lean against the walls; ivy hangs in white ropes; a fountain holds one bright coin of unfrozen water at its heart. Plume sniffs a pot of tiny buds and fluffs his feathers, delighted. Among the leaves you find a gardener's notebook, its last page marked with a drawing of a flower you have never seen. Beside it hangs a tag, written in a careful hand: *Plant me where the wind is kind.*",
+   "hidden_objects": [
+    "watering can",
+    "trowel",
+    "seed packet",
+    "snail",
+    "ladybird",
+    "bee skep",
+    "garden shears",
+    "clay pot",
+    "rose",
+    "tiny ladder",
+    "wheelbarrow",
+    "bird bath"
+   ],
+   "puzzle_a": {
+    "type": "Word Search",
+    "answer": "VELVET",
+    "intro": "Find every object of the greenhouse in the grid. The letters nobody uses, read in order, are your answer.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 2,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "V",
+    "slot": 2
+   }
+  },
+  {
+   "no": 5,
+   "title": "The Observatory",
+   "room": "Observatory",
+   "tags": [
+    "sky"
+   ],
+   "story": "The great telescope points at a sky that never changed: one star, frozen above the dome, bright as a pin in dark cloth. Charts of constellations flutter on the walls like paper birds. Plume perches on the lens and tilts his head at the star. You turn a brass wheel; the dome groans and opens a hand's breadth of night. In the eyepiece, the star blinks once, and a faint line of light points to a sealed drawer beneath the desk. Inside lies a ribbon of paper covered in shifted letters.",
+   "hidden_objects": [
+    "telescope",
+    "crescent moon",
+    "comet",
+    "planet model",
+    "star chart",
+    "brass lens",
+    "shooting star",
+    "ladder",
+    "notebook",
+    "lantern",
+    "tiny rocket",
+    "cloud"
+   ],
+   "puzzle_a": {
+    "type": "Shift Cipher",
+    "answer": "WHISPER",
+    "message": "Listen at the glass where the stars whisper",
+    "intro": "Every letter on the paper ribbon was moved along the alphabet by the same amount. The last word is your answer.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 8,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "W",
+    "slot": 8
+   }
+  },
+  {
+   "no": 6,
+   "title": "The Tapestry & Sewing Room",
+   "room": "Tapestry & Sewing Room",
+   "tags": [
+    "sewing"
+   ],
+   "story": "Spools of thread hang in frozen rainbows. A great loom holds a half-woven scene of the library itself, stopped mid-stitch with the needle still in place. Plume lifts a fallen thimble from the floor and sets it on your palm. You touch the loom and the threads soften. A pattern appears in the weaving: a row of snowflakes, each with a different number of arms. Beside it, a card of embroidery stitches written out for beginners, one of which is circled in red thread.",
+   "hidden_objects": [
+    "thimble",
+    "needle",
+    "scissors",
+    "button",
+    "spool",
+    "pin cushion",
+    "tape measure",
+    "tiny dress form",
+    "ribbon",
+    "bobbin",
+    "sewing basket",
+    "patchwork square"
+   ],
+   "puzzle_a": {
+    "type": "Star Search",
+    "answer": "ENCHANTED",
+    "intro": "Place one star in every row, column and outlined patch of the tapestry. The letters under the stars, top to bottom, are your answer.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 3,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "E",
+    "slot": 3
+   }
+  },
+  {
+   "no": 7,
+   "title": "The Hall of Mirrors",
+   "room": "Hall of Mirrors",
+   "tags": [
+    "mirrors"
+   ],
+   "story": "Every wall is a mirror, and every mirror is clouded with frost, except one small oval that shows you only the lantern, burning steadily. Plume refuses to look at it. He sits on your shoulder, feathers tight. A glass splinter glitters at the edge of the frame, sharp as a thought you wish you had not had. Four portraits hang beside it: Ottoline, a gardener, a clockmaker and a stranger in pale-blue lace. Someone carried the shard here, and left a note about who held it last.",
+   "hidden_objects": [
+    "hand mirror",
+    "picture frame",
+    "candlestick",
+    "feather boa",
+    "fan",
+    "lace glove",
+    "perfume bottle",
+    "hairbrush",
+    "tiny crown",
+    "cameo brooch",
+    "powder puff",
+    "silver tray"
+   ],
+   "puzzle_a": {
+    "type": "Lantern Lights",
+    "answer": "GLIMMER",
+    "intro": "Light the clouded hall with lanterns. The letters under your lanterns spell your answer.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 5,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "G",
+    "slot": 5
+   }
+  },
+  {
+   "no": 8,
+   "title": "The Hall of Hours Gate",
+   "room": "Hall of Hours Gate",
+   "tags": [
+    "treasure",
+    "winter"
+   ],
+   "story": "The last stair brings you to a door of ice and silver, a lock with eight round slots set into it like a ring of moons. Seven keys glow in your lantern's light; the eighth hangs on a chain around a figure at the top of the stair, a tall woman in a coat of frosted lace, one eye clouded white. She does not move. Plume lands on her shoulder and nuzzles her cheek, and the frost on her hand cracks very slightly. \"I only wanted the last story to be safe,\" she whispers. \"I did not want it forgotten.\" Behind her, a book lies open on a pedestal, its title page blank.",
+   "hidden_objects": [
+    "silver key",
+    "crown",
+    "snowflake",
+    "pedestal",
+    "open book",
+    "ribbon",
+    "glass shard",
+    "oil lamp",
+    "silver bell",
+    "feather quill",
+    "lace glove",
+    "star"
+   ],
+   "puzzle_a": {
+    "type": "Secret Symbols",
+    "answer": "ORCHARD",
+    "message": "The last key sleeps in the old orchard",
+    "intro": "The gate is carved with old symbols. Decode them; the last word is your answer.",
+    "rule": "answer's first letter = key letter"
+   },
+   "puzzle_b": {
+    "type": "Number Lock",
+    "digit": 7,
+    "rule": "answer digit = key slot",
+    "intro": "Work out the dial: its number is the slot of this chapter's key."
+   },
+   "key": {
+    "letter": "O",
+    "slot": 7
+   }
+  }
+ ],
+ "final": {
+  "word": "EVERGLOW",
+  "slots": {
+   "4": "R",
+   "1": "E",
+   "6": "L",
+   "2": "V",
+   "8": "W",
+   "3": "E",
+   "5": "G",
+   "7": "O"
+  },
+  "rule": "letters placed by slot spell the word that opens the Hall of Hours",
+  "intro": "Eight keys glow in your lantern's light. Write each key's letter into its slot. Read the slots from 1 to 8: the word that opens the Hall of Hours."
+ },
+ "epilogue_title": "The Warm Page",
+ "epilogue": "You say the word aloud, and the lock turns like a slow sunrise. The Hall of Hours opens on a room full of warm gold light, and the blank book on its pedestal fills with writing as you watch. The woman in pale blue straightens, the clouded eye clearing at last. \"Everglow,\" she says softly. \"I had forgotten the last page of my own story.\" Ottoline's footsteps echo on the stair, then her laughter. Plume lifts the brass key from his neck and sets it in the Snow Queen's palm. Outside, snow begins to fall again, gently, and every window in Aldermere glows.",
+ "art_style": "line-art black and white scenes for colouring (clean even outlines, no grey fill) + one vivid luminous painted cover; cozy winter-fantasy library; no text in pictures",
+ "guardrails": [
+  "only public-domain inspiration, all names/characters/layouts original",
+  "no Frozen/Disney elements (no Elsa, Arendelle, talking snowman, ice-power songs)",
+  "gentle tone: no violence, no romance",
+  "AI never decides puzzle answers: code builds puzzles, independent solver verifies; proposed answers are intents"
+ ],
+ "page_plan": {
+  "min_content_pages": 48,
+  "front": [
+   "title",
+   "credit/inspired-by",
+   "how to play",
+   "cast",
+   "map"
+  ],
+  "per_chapter": {
+   "story_vignette": 1,
+   "search_page": 2,
+   "puzzle_a": 1,
+   "puzzle_b": 1,
+   "notes": 1
+  },
+  "chapters": 8,
+  "back": [
+   "final puzzle",
+   "epilogue",
+   "answer key (hidden objects)",
+   "answer key (puzzles)",
+   "case notes"
+  ],
+  "trim": "8.5x11 (US Letter, portrait)"
+ }
+}

@@ -1,0 +1,451 @@
+{
+ "id": "sealed-tombs",
+ "title": "The Twelve Sealed Tombs",
+ "line": "MYS",
+ "audience": "adult",
+ "tagline": "An explorer, an engineer and one very small desert cat. Twelve sealed tombs. One family secret.",
+ "bible": {
+  "lead": {
+   "name": "Shen Lia",
+   "role": "surveyor and reader of landforms",
+   "look": "early thirties, short black bob, dust-grey field jacket, brass surveying compass on a cord, notebook full of sketches",
+   "method": "reads a place before she enters it: wind, water, slope and the way the builders thought"
+  },
+  "partner": {
+   "name": "Arlo Kwan",
+   "role": "engineer of old mechanisms",
+   "look": "tall, rolled sleeves, leather tool roll, round spectacles pushed up on his head",
+   "skill": "locks, counterweights, water clocks; never forces a door he can open"
+  },
+  "pet": {
+   "name": "Pebble",
+   "role": "small sand-coloured desert cat",
+   "look": "tufted ears, ringed tail, one white paw",
+   "skill": "finds draughts and hollow stones; comic relief; never in danger"
+  },
+  "tone": "adventurous and atmospheric, eerie but never horror: no gore, no undead, no curses that hurt anyone; every 'ghost' sign has a real cause or stays a legend; the team protects sites and never loots",
+  "recurring": [
+   "each volume ends with Lia taking a rubbing of the tomb's seal on rice paper",
+   "a rival collector, the Lacquer Hand, arrives one step late in every volume"
+  ],
+  "rules": [
+   "inspired only by public-domain sources: ancient Chinese texts and legends, historical records and early explorers' reports; names, plots, mechanisms and puzzles are new",
+   "no element from any modern tomb-raiding novel or series (no borrowed sects, titles, rituals, characters or artefacts)",
+   "puzzle answers are built by code and verified by an independent solver; AI never decides an answer",
+   "each volume has a new site, a new kind of mechanism and a new way of combining clues"
+  ]
+ },
+ "series_arc": {
+  "model": "Each volume is one sealed tomb solved end to end. Under it runs one long secret about Lia's own family; every volume hands the reader one seal and one letter.",
+  "secret": "Lia's grandmother left her an ink stone carved with a seal that matches the first tomb exactly.",
+  "question": "Who sealed the twelve tombs, and why does every seal carry the Shen family mark?",
+  "collectible": "twelve seal rubbings, one per tomb, each with one letter and one direction",
+  "mechanic": "The last page of every volume is the Rubbing Page: the reader keeps the letter and the direction. Volume 12's final puzzle needs all twelve.",
+  "answer": "GUARDIANSHEN",
+  "rules": [
+   "the arc piece is won by solving the volume's own final puzzle",
+   "an arc piece never spoils that volume's solution",
+   "each volume's last line points at the next tomb",
+   "volume 12 answers the question fully and fairly"
+  ]
+ },
+ "variety_rules": {
+  "min_pages": 48,
+  "mechanic_unique": true,
+  "consecutive_type_similarity_max": 0.5,
+  "min_new_or_twisted_types": 2,
+  "final_form_not_in_previous": 2,
+  "arc_clue_every_volume": true
+ },
+ "volumes": [
+  {
+   "no": 1,
+   "title": "The Mercury River Gate",
+   "setting": "a sealed hill tomb on the yellow loess plain, early spring",
+   "inspired_by": {
+    "work": "Records of the Grand Historian: the First Emperor's tomb (rivers of mercury, set crossbows)",
+    "author": "Sima Qian",
+    "year": -91
+   },
+   "clue_mechanic": "trap-and-trigger map (which floor stone fires which mechanism)",
+   "final_form": "safe path drawn across the tomb floor",
+   "games": [
+    "maze",
+    "logicgrid",
+    "shift",
+    "wordsearch",
+    "numlock",
+    "nonogram"
+   ],
+   "new_types": [
+    "nonogram"
+   ],
+   "twists": {
+    "maze": "floor stones that may not be stepped twice",
+    "numlock": "bronze dial lock"
+   },
+   "method": "the trap that only fires for the impatient",
+   "arc_clue": {
+    "letter": "G",
+    "found": "the first seal rubbing, stamped with a mark Lia has only seen on her grandmother's ink stone"
+   }
+  },
+  {
+   "no": 2,
+   "title": "The Fox Lantern of the Ruined Temple",
+   "setting": "a mountain temple ruin where a lantern burns with no one to light it",
+   "inspired_by": {
+    "work": "Strange Tales from a Chinese Studio (fox-spirit tales)",
+    "author": "Pu Songling",
+    "year": 1740
+   },
+   "clue_mechanic": "explain-the-apparition (every 'ghost' sign has a natural cause)",
+   "final_form": "table of omens with their real causes",
+   "games": [
+    "cryptogram",
+    "sudoku",
+    "scramble",
+    "crossword",
+    "maze",
+    "rebus"
+   ],
+   "new_types": [
+    "rebus"
+   ],
+   "twists": {
+    "cryptogram": "temple inscriptions",
+    "maze": "cloister corridors in moonlight"
+   },
+   "method": "the fake haunting that guards a real secret",
+   "arc_clue": {
+    "letter": "U",
+    "found": "the lantern's base hides the second seal: the 'fox' was a hermit keeping it safe, and he knows Lia's family name"
+   }
+  },
+  {
+   "no": 3,
+   "title": "The Beast of the Western Mountains",
+   "setting": "a cliff cave mapped in an ancient bestiary",
+   "inspired_by": {
+    "work": "Classic of Mountains and Seas",
+    "author": "anonymous (pre-Qin)",
+    "year": -300
+   },
+   "clue_mechanic": "bestiary cross-reference (match each carved beast to its mountain and direction)",
+   "final_form": "compass rose of beasts and directions",
+   "games": [
+    "logicgrid",
+    "bearings",
+    "wordladder",
+    "pigpen",
+    "sudoku6",
+    "scramble"
+   ],
+   "new_types": [
+    "bearings",
+    "wordladder",
+    "pigpen"
+   ],
+   "twists": {
+    "logicgrid": "beasts, mountains, directions",
+    "bearings": "read from the cave mouth"
+   },
+   "method": "the map that only works if read as a bestiary",
+   "arc_clue": {
+    "letter": "A",
+    "found": "the carved ninth beast holds the third seal in its open mouth"
+   }
+  },
+  {
+   "no": 4,
+   "title": "The City Buried by Sand",
+   "setting": "a dried lakeshore city of mud-brick towers in the desert",
+   "inspired_by": {
+    "work": "Loulan ruins as reported by early explorers",
+    "author": "Sven Hedin (expedition reports)",
+    "year": 1903
+   },
+   "clue_mechanic": "wind-and-dune timeline (what the sand covered first)",
+   "final_form": "layered dig plan in the right order",
+   "games": [
+    "calcudoku",
+    "morse",
+    "maze",
+    "wordsearch",
+    "numlock",
+    "acrostic"
+   ],
+   "new_types": [
+    "calcudoku",
+    "morse",
+    "acrostic"
+   ],
+   "twists": {
+    "maze": "streets that dunes have closed",
+    "wordsearch": "place names on a wooden tally"
+   },
+   "method": "the trail covered by the wind, read by what it covered last",
+   "arc_clue": {
+    "letter": "R",
+    "found": "a wooden tally slip names the keeper of the fourth seal: a Shen"
+   }
+  },
+  {
+   "no": 5,
+   "title": "The Monk's Record of the Western Lands",
+   "setting": "a cliff of painted caves on the old caravan road",
+   "inspired_by": {
+    "work": "Great Tang Records on the Western Regions",
+    "author": "Xuanzang",
+    "year": 646
+   },
+   "clue_mechanic": "travel-log distances (days of walking turned into places on a map)",
+   "final_form": "route plotted from a pilgrim's travel log",
+   "games": [
+    "bookcipher",
+    "logicgrid",
+    "shift",
+    "crossword",
+    "kakuro",
+    "maze"
+   ],
+   "new_types": [
+    "bookcipher",
+    "kakuro"
+   ],
+   "twists": {
+    "bookcipher": "keyed to the travel record",
+    "logicgrid": "cities, days, gifts"
+   },
+   "method": "directions hidden in an old travel diary",
+   "arc_clue": {
+    "letter": "D",
+    "found": "a painted cave shows the fifth seal hidden in a mural's halo"
+   }
+  },
+  {
+   "no": 6,
+   "title": "The Library Behind the Painted Wall",
+   "setting": "a walled-up cave library on the edge of an oasis town",
+   "inspired_by": {
+    "work": "The sealed library cave of Dunhuang (opened 1900)",
+    "author": "historical record",
+    "year": 1900
+   },
+   "clue_mechanic": "manuscript patchwork (torn pages matched by edge, ink and paper)",
+   "final_form": "reassembled scroll that reads one sentence",
+   "games": [
+    "nonogram",
+    "cryptogram",
+    "scramble",
+    "sudoku",
+    "semaphore",
+    "wordsearch"
+   ],
+   "new_types": [
+    "semaphore"
+   ],
+   "twists": {
+    "cryptogram": "a scribe's private shorthand",
+    "nonogram": "reveals a seal impression"
+   },
+   "method": "the false wall that hides an older wall",
+   "arc_clue": {
+    "letter": "I",
+    "found": "the sixth seal is stamped on a scroll that was cut into strips; the scroll is a guardians' oath"
+   }
+  },
+  {
+   "no": 7,
+   "title": "The Jade Suit Puzzle",
+   "setting": "a prince's tomb with a burial suit of jade tiles",
+   "inspired_by": {
+    "work": "Han dynasty jade burial suits (historical record)",
+    "author": "historical record",
+    "year": -113
+   },
+   "clue_mechanic": "tile-and-thread tiling (which tiles fit, sewn in which order)",
+   "final_form": "completed tile layout of the suit",
+   "games": [
+    "calcudoku",
+    "maze",
+    "shift",
+    "logicgrid",
+    "rebus",
+    "numlock"
+   ],
+   "new_types": [
+    "calcudoku"
+   ],
+   "twists": {
+    "logicgrid": "tiles, threads, positions",
+    "numlock": "jade weights"
+   },
+   "method": "the treasure that is a puzzle in itself",
+   "arc_clue": {
+    "letter": "A",
+    "found": "a jade tile sewn with sea-blue thread is the seventh seal"
+   }
+  },
+  {
+   "no": 8,
+   "title": "The Burial Book of Wind and Water",
+   "setting": "a valley chosen by an old geomancer, with three false tombs",
+   "inspired_by": {
+    "work": "The Book of Burial (feng shui classic)",
+    "author": "Guo Pu",
+    "year": 310
+   },
+   "clue_mechanic": "landform reading (which of three tombs sits where wind and water meet)",
+   "final_form": "the one true tomb chosen on a landform map",
+   "games": [
+    "bearings",
+    "wordladder",
+    "sudoku",
+    "cryptogram",
+    "maze",
+    "nonogram"
+   ],
+   "new_types": [
+    "sudoku"
+   ],
+   "twists": {
+    "bearings": "from three hilltops",
+    "maze": "water channels"
+   },
+   "method": "three decoy tombs and one true one",
+   "arc_clue": {
+    "letter": "N",
+    "found": "the true tomb's threshold stone is carved with the eighth seal"
+   }
+  },
+  {
+   "no": 9,
+   "title": "The Thousand-Character Lock",
+   "setting": "a scholar's tomb guarded by a lock of written characters",
+   "inspired_by": {
+    "work": "The Thousand Character Classic",
+    "author": "Zhou Xingsi",
+    "year": 535
+   },
+   "clue_mechanic": "character-order lock (each line of the old primer sets one wheel)",
+   "final_form": "eight-wheel character lock opened in order",
+   "games": [
+    "wordoku",
+    "pigpen",
+    "logicgrid",
+    "scramble",
+    "kakuro",
+    "acrostic"
+   ],
+   "new_types": [
+    "wordoku"
+   ],
+   "twists": {
+    "wordoku": "nine characters instead of digits",
+    "acrostic": "first characters of each line"
+   },
+   "method": "a lock that is also a lesson",
+   "arc_clue": {
+    "letter": "S",
+    "found": "the ninth seal sits behind the lock's last wheel"
+   }
+  },
+  {
+   "no": 10,
+   "title": "The Iron Pagoda Echo",
+   "setting": "a tall pagoda whose bells answer when the wind is wrong",
+   "inspired_by": {
+    "work": "Journey to the West (pagoda and bell episodes, idea only)",
+    "author": "Wu Cheng'en",
+    "year": 1592
+   },
+   "clue_mechanic": "echo-timing chart (which bell answered, after how long, from which floor)",
+   "final_form": "floor-by-floor bell order",
+   "games": [
+    "morse",
+    "sudoku6",
+    "crossword",
+    "wordsearch",
+    "logicgrid",
+    "bookcipher"
+   ],
+   "new_types": [
+    "sudoku6"
+   ],
+   "twists": {
+    "morse": "bell strokes",
+    "bookcipher": "keyed to temple sutras"
+   },
+   "method": "the sound that tells you where the hidden room is",
+   "arc_clue": {
+    "letter": "H",
+    "found": "the top bell's clapper is shaped like the tenth seal"
+   }
+  },
+  {
+   "no": 11,
+   "title": "The Merchant Who Saw the Khan's Paper Money",
+   "setting": "a caravan inn and its forgotten cellar vault",
+   "inspired_by": {
+    "work": "The Travels of Marco Polo",
+    "author": "Marco Polo / Rustichello",
+    "year": 1300
+   },
+   "clue_mechanic": "counterfeit check (true and false notes told apart by marks)",
+   "final_form": "sorted pile: true notes and false notes",
+   "games": [
+    "spotdiff",
+    "numlock",
+    "shift",
+    "maze",
+    "calcudoku",
+    "rebus"
+   ],
+   "new_types": [
+    "spotdiff"
+   ],
+   "twists": {
+    "spotdiff": "two banknotes",
+    "numlock": "strong-box dials"
+   },
+   "method": "the forged clue among real ones",
+   "arc_clue": {
+    "letter": "E",
+    "found": "a single genuine note in a box of forgeries carries the eleventh seal"
+   }
+  },
+  {
+   "no": 12,
+   "title": "The Kingdom Under the Western Sands",
+   "setting": "a hidden valley beneath the dunes where the route ends",
+   "inspired_by": {
+    "work": "the lost kingdoms of the Silk Road (legend)",
+    "author": "public legend",
+    "year": 1000
+   },
+   "clue_mechanic": "seal assembly (twelve seal rubbings fitted into one map)",
+   "final_form": "the full route drawn from all twelve seals",
+   "games": [
+    "logicgrid",
+    "bearings",
+    "semaphore",
+    "cryptogram",
+    "wordladder",
+    "nonogram"
+   ],
+   "new_types": [
+    "logicgrid"
+   ],
+   "twists": {
+    "logicgrid": "seals, places, directions",
+    "bearings": "the twelve seal directions"
+   },
+   "method": "the final door that opens only with every earlier piece",
+   "arc_clue": {
+    "letter": "N",
+    "found": "the twelfth seal; the twelve letters spell GUARDIAN SHEN: Lia's family sealed the tombs to protect a buried library, and Lia must decide whether to open it"
+   }
+  }
+ ]
+}

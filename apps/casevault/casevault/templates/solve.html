@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} – {{ site }}{% endblock %}
+{% block body %}
+<div class="card">
+<h1>{{ book.title }}</h1>
+<p class="hint">Enter the final answer you deduced from <em>all</em> the clues. Every solved case with a valid proof of purchase counts toward your rewards: 10 %, 20 %, 30 %, 40 % off, and a FREE new book on your 5th case.</p>
+{% if message %}<p class="error">{{ message }}</p>{% endif %}
+<form method="post" action="/solve/{{ book.book_id }}" hx-post="/solve/{{ book.book_id }}" hx-target="main" hx-select="main" hx-swap="outerHTML">
+{% if "culprit_name" in fields %}
+<label for="culprit_name">Who is the culprit?</label>
+<input type="text" id="culprit_name" name="culprit_name" value="{{ values.culprit_name or '' }}" autocomplete="off" required>
+{% if errors.culprit_name %}<div class="error">{{ errors.culprit_name }}</div>{% endif %}
+{% endif %}
+{% if "unlock_code" in fields %}
+<label for="unlock_code">Final code</label>
+<input type="text" id="unlock_code" name="unlock_code" value="{{ values.unlock_code or '' }}" inputmode="numeric" autocomplete="off" required>
+{% if errors.unlock_code %}<div class="error">{{ errors.unlock_code }}</div>{% endif %}
+{% endif %}
+
+<label for="purchase_place">Where did you get the book?</label>
+<select id="purchase_place" name="purchase_place" required>
+<option value="">Choose…</option>
+{% for v, l in places %}<option value="{{ v }}" {% if values.purchase_place == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+</select>
+{% if errors.purchase_place %}<div class="error">{{ errors.purchase_place }}</div>{% endif %}
+
+<label for="proof">Proof of purchase</label>
+<input type="text" id="proof" name="proof" value="{{ values.proof or '' }}" autocomplete="off">
+<div class="hint">Etsy: your Etsy order number (required). Our shop: the Book Code in your PDF or your order number. Printed book: the Book Code inside the book.</div>
+{% if errors.proof %}<div class="error">{{ errors.proof }}</div>{% endif %}
+
+<label for="email">E-mail</label>
+<input type="email" id="email" name="email" value="{{ values.email or '' }}" required>
+{% if errors.email %}<div class="error">{{ errors.email }}</div>{% endif %}
+<label for="name">First name (for your certificate, optional)</label>
+<input type="text" id="name" name="name" value="{{ values.name or '' }}">
+
+<label for="country">Country</label>
+<select id="country" name="country" required>
+<option value="">Choose…</option>
+{% for c in countries %}<option value="{{ c }}" {% if (values.country or country) == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+</select>
+{% if errors.country %}<div class="error">{{ errors.country }}</div>{% endif %}
+
+<label for="coupon_platform">Where would you like to use your coupon?</label>
+<select id="coupon_platform" name="coupon_platform">
+<option value="">Same place I bought the book</option>
+<option value="shopify" {% if values.coupon_platform == "shopify" %}selected{% endif %}>Our online shop</option>
+<option value="etsy" {% if values.coupon_platform == "etsy" %}selected{% endif %}>Etsy</option>
+</select>
+
+<label class="check"><input type="checkbox" name="newsletter" value="1" {% if values.newsletter %}checked{% endif %}>
+<span>{{ consent.newsletter_text }}<br><span class="hint" id="nl-hint">Required to receive rewards{% if optional_regions %} (optional for customers in the EU/EEA and UK){% endif %}.</span></span></label>
+{% if errors.newsletter %}<div class="error">{{ errors.newsletter }}</div>{% endif %}
+
+<label class="check"><input type="checkbox" name="terms" value="1" required>
+<span>{{ consent.terms_text }} <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></span></label>
+{% if errors.terms %}<div class="error">{{ errors.terms }}</div>{% endif %}
+
+{% if turnstile_site_key %}<div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>{% endif %}
+{% if errors.captcha %}<div class="error">{{ errors.captcha }}</div>{% endif %}
+<input type="hidden" name="form_version" value="{{ form_version }}">
+<button type="submit">Check my answer</button>
+</form>
+</div>
+{% endblock %}
